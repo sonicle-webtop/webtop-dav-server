@@ -1,0 +1,34 @@
+{
+    "name": "sonicle/webtop-dav-server",
+    "description": "WebTop DAV Server (CalDAV, CardDAV)",
+	"keywords": ["WebTop", "CalDAV", "CardDAV", "WebDAV", "sabre/dav"],
+	"homepage": "https://github.com/sonicle-webtop/webtop-dav-server",
+	"license": "AGPL-3.0-only",
+    "authors": [
+        {
+            "name": "Matteo Albinola",
+			"role" : "Developer"
+        }
+    ],
+    "require": {
+		"php": ">=5.5.0",
+		"ext-curl": "*",
+		"ext-json": "*",
+		"ext-mbstring": "*",
+		"monolog/monolog": "^1.23",
+		"hassankhan/config": "^1.0",
+		"guzzlehttp/guzzle": "^6.2",
+		"sabre/dav": "3.2.2"
+	},
+	"autoload": {
+		"psr-4": {
+			"WT\\": "lib/webtop/",
+			"WT\\Client\\DAV\\": "lib/webtop-client-dav/",
+			"WT\\Client\\CalDAV\\": "lib/webtop-client-caldav/",
+			"WT\\Client\\CardDAV\\": "lib/webtop-client-carddav/"
+		}
+	},
+	"config": {
+		"bin-dir": "./bin"
+	}
+}

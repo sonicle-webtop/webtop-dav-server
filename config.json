@@ -1,0 +1,20 @@
+{
+	"debug": false,
+	"baseUri": null,
+	"log": {
+		"level": "NOTICE",
+		"file": null
+	},
+	"api": {
+		"baseUrl": null,
+		"dav": {
+			"url": "/api/com.sonicle.webtop.core/v1"
+		},
+		"caldav": {
+			"url": "/api/com.sonicle.webtop.calendar/v1"
+		},
+		"carddav": {
+			"url": "/api/com.sonicle.webtop.contacts/v1"
+		}
+	}
+}

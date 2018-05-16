@@ -1,0 +1,4 @@
+DirectoryIndex server.php
+FallbackResource server.php
+Options +FollowSymlinks
+Options -Indexes
