@@ -87,15 +87,15 @@ At the bare minimum, you can edit config.json to set a values to the following o
 ```json
 {
 	"debug": false,
-	"caldav": false,
-	"carddav": false,
+	"caldav": true,
+	"carddav": true,
 	"baseUri": "/webtop-dav/server.php",
 	"log": {
 		"level": "NOTICE",
 		"file": "/var/log/webtop-dav-server.log"
 	},
 	"api": {
-		"baseUrl": "https://yourdomain.tld/webtop"
+		"baseUrl": "https://yourdomain.tld/webtop",
 		"dav": {
 			"url": "/api/com.sonicle.webtop.core/v1",
 			"baseUrl": null
