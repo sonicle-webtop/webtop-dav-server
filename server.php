@@ -12,7 +12,7 @@ ignore_user_abort(true);
 // Turn off output buffering to prevent memory problems
 \WT\Util::obEnd();
 
-$logFile = \WT\Util::getConfig()->get('log.file');
+$logFile = \WT\Util::getConfigValue('log.file');
 if (isset($logFile)) {
 	\WT\Log::setFileHandler($logFile);
 }

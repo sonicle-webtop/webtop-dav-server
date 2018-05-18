@@ -21,8 +21,8 @@ class Log {
 	 */
 	static public function getLogger() {
 		if (!self::$instance) {
-			self::$level = \Monolog\Logger::toMonologLevel(\WT\Util::getConfig()->get('log.level', 'NOTICE'));
-			self::$instance = new Logger('sabredav-webtop');
+			self::$level = \Monolog\Logger::toMonologLevel(\WT\Util::getConfigValue('log.level', true));
+			self::$instance = new Logger('webtop-dav-server');
 		}
 		return self::$instance;
 	}

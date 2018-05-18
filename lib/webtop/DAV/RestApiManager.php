@@ -17,17 +17,17 @@ class RestApiManager {
 	
 	public function buildDAVApiHost() {
 		$config = \WT\Util::getConfig();
-		return $this->buildHost($config->get('api.baseUrl'), $config->get('api.dav.baseUrl'), $config->get('api.dav.url'));
+		return $this->buildHost($config->get('api.baseUrl'), $config->get('api.dav.baseUrl'), \WT\Util::getConfigValue('api.dav.url', true));
 	}
 	
 	public function buildCalDAVApiHost() {
 		$config = \WT\Util::getConfig();
-		return $this->buildHost($config->get('api.baseUrl'), $config->get('api.caldav.baseUrl'), $config->get('api.caldav.url'));
+		return $this->buildHost($config->get('api.baseUrl'), $config->get('api.caldav.baseUrl'), \WT\Util::getConfigValue('api.caldav.url', true));
 	}
 	
 	public function buildCardDAVApiHost() {
 		$config = \WT\Util::getConfig();
-		return $this->buildHost($config->get('api.baseUrl'), $config->get('api.carddav.baseUrl'), $config->get('api.carddav.url'));
+		return $this->buildHost($config->get('api.baseUrl'), $config->get('api.carddav.baseUrl'), \WT\Util::getConfigValue('api.carddav.url', true));
 	}
 	
 	public function setAuthenticatedPrincipal($username, $password, \WT\Client\DAV\Model\PrincipalInfo $principalInfo) {

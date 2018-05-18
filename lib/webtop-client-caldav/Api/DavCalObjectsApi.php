@@ -74,7 +74,7 @@ class DavCalObjectsApi
         Configuration $config = null,
         HeaderSelector $selector = null
     ) {
-        $this->client = $client ?: new Client();
+        $this->client = $client ?: new Client(['verify' => false]);
         $this->config = $config ?: new Configuration();
         $this->headerSelector = $selector ?: new HeaderSelector();
     }

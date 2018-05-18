@@ -39,6 +39,12 @@ At the bare minimum, you can edit config.json to set a values to the following o
 * `debug` \[boolean]
   True to activate server debug mode that activates Browser plugin and listings. *(Defaults to: false)*
 
+* `caldav` \[boolean]
+  False to disable support to CalDAV. *(Defaults to: true)*
+
+* `carddav` \[boolean]
+  False to disable support to CardDAV. *(Defaults to: true)*
+
 * &#9888; `baseUri` \[string]
   Path that points exactly to server main script. To find out what this should be, try to open server.php in your browser, and simply strip off the protocol and domainname.
   So if you access the server as `http://yourdomain.tld/webtop-dav/server.php`, then your base url would be `webtop-dav/server.php`.
@@ -99,32 +105,32 @@ At the bare minimum, you can edit config.json to set a values to the following o
 CalDAV uses REST concepts, clients act on resources that are targeted by their URIs. The current URI structure is specified here to help understanding concepts. The structure may change and must not be hardcoded.
 
 * Calendars are stored under:
-  `/calendars/john.doe@yourdomain.tld`
+  * `/calendars/john.doe@yourdomain.tld`
 
 * Single calendar this address:
-  `/calendars/john.doe@yourdomain.tld/3i37NcgooY8f1S`
+  * `/calendars/john.doe@yourdomain.tld/3i37NcgooY8f1S`
 
 * iCalendars at:
- `/calendars/john.doe@yourdomain.tld/3i37NcgooY8f1S/0c0244ee9af3183bf6ad4f854dc026c1@yourdomain.tld.ics`
+  * `/calendars/john.doe@yourdomain.tld/3i37NcgooY8f1S/0c0244ee9af3183bf6ad4f854dc026c1@yourdomain.tld.ics`
 
 ### CardDAV Resources
 
 CardDAV uses REST concepts, clients act on resources that are targeted by their URIs. The current URI structure is specified here to help understanding concepts. The structure may change and must not be hardcoded.
 
 * Addressbooks are stored under:
-  `/addressbooks/john.doe@yourdomain.tld`
+  * `/addressbooks/john.doe@yourdomain.tld`
 
 * Specific addressbook under there:
-  `/addressbooks/john.doe@yourdomain.tld/3i37NcgooY8f1S`
+  * `/addressbooks/john.doe@yourdomain.tld/3i37NcgooY8f1S`
 
 * vCards here:
- `/addressbooks/john.doe@yourdomain.tld/3i37NcgooY8f1S/0c0244ee9af3183bf6ad4f854dc026c1@yourdomain.tld.vcf`
+  * `/addressbooks/john.doe@yourdomain.tld/3i37NcgooY8f1S/0c0244ee9af3183bf6ad4f854dc026c1@yourdomain.tld.vcf`
 
 ## Build
 
 ### Client REST API
 
-Implemented DAV backends rely on a set of REST API Endpoints in order to get all the data needed to satisfy DAV requests. Client API code, that dialogues with remote endpoint, is generated through swagger-codegen against a OpenAPI-Specification file that can be found in the related WebTop service project repository.
+The implemented DAV backends rely on a set of REST API Endpoints in order to get all the data needed to satisfy DAV requests. Client API code, that dialogues with remote endpoint, is generated through swagger-codegen against a OpenAPI-Specification file that can be found in the related WebTop service project repository.
 
 DAV REST Client implementation can be re-generated in this way:
 ```
