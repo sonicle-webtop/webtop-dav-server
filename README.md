@@ -15,7 +15,7 @@ Then, summing:
 
 ## Installation
 
-The simplest installation is to create a dedicated folder `webtop-dav` into your Apache DocumentRoot (`/path/to/your/htdocs` in the example below), copy server sources into it and then configure your VirtualHost in the right way.
+The simplest installation is to create a dedicated folder `webtop-dav` into your Apache DocumentRoot (`/path/to/your/htdocs` in the example below), copy [server sources](./src) into it and then configure your VirtualHost in the right way.
 
 ```xml
 <VirtualHost *:*>
@@ -102,7 +102,7 @@ At the bare minimum, you can edit config.json to set a values to the following o
 
 ### CalDAV Resources
 
-CalDAV uses REST concepts, clients act on resources that are targeted by their URIs. The current URI structure is specified here to help understanding concepts. The structure may change and must not be hardcoded.
+CalDAV uses REST concepts, clients act on resources that are targeted by their URIs. The current URI structure is specified here to help understanding concepts.
 
 * Calendars are stored under:
   * `/calendars/john.doe@yourdomain.tld`
@@ -115,7 +115,7 @@ CalDAV uses REST concepts, clients act on resources that are targeted by their U
 
 ### CardDAV Resources
 
-CardDAV uses REST concepts, clients act on resources that are targeted by their URIs. The current URI structure is specified here to help understanding concepts. The structure may change and must not be hardcoded.
+CardDAV uses REST concepts, clients act on resources that are targeted by their URIs. The current URI structure is specified here to help understanding concepts.
 
 * Addressbooks are stored under:
   * `/addressbooks/john.doe@yourdomain.tld`
