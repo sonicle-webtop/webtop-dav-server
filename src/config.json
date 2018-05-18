@@ -1,20 +1,9 @@
 {
-	"debug": false,
-	"baseUri": null,
+	"baseUri": "/webtop-dav/server.php",
 	"log": {
-		"level": "NOTICE",
-		"file": null
+		"file": "/var/log/webtop-dav-server.log"
 	},
 	"api": {
-		"baseUrl": null,
-		"dav": {
-			"url": "/api/com.sonicle.webtop.core/v1"
-		},
-		"caldav": {
-			"url": "/api/com.sonicle.webtop.calendar/v1"
-		},
-		"carddav": {
-			"url": "/api/com.sonicle.webtop.contacts/v1"
-		}
+		"baseUrl": "https://yourdomain.tld/webtop"
 	}
 }

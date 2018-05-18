@@ -30,7 +30,11 @@ The simplest installation is to create a dedicated folder `webtop-dav` into your
 
 ## Configuration
 
-Configuration is done via the [config.json](./src/config.json) file.
+Configuration is done via the [config.json](./src/config.json) file, that carries all basic options.
+
+```shell
+ $ vi config.json
+```
 
 ### Options
 
@@ -77,6 +81,36 @@ At the bare minimum, you can edit config.json to set a values to the following o
 
 * `api.carddav.baseUrl` \[string] (optional)
   If specified, overrides common `api.baseUrl` for the endpoint above.
+
+#### Example
+
+```json
+{
+	"debug": false,
+	"caldav": false,
+	"carddav": false,
+	"baseUri": "/webtop-dav/server.php",
+	"log": {
+		"level": "NOTICE",
+		"file": "/var/log/webtop-dav-server.log"
+	},
+	"api": {
+		"baseUrl": "https://yourdomain.tld/webtop"
+		"dav": {
+			"url": "/api/com.sonicle.webtop.core/v1",
+			"baseUrl": null
+		},
+		"caldav": {
+			"url": "/api/com.sonicle.webtop.calendar/v1",
+			"baseUrl": null
+		},
+		"carddav": {
+			"url": "/api/com.sonicle.webtop.contacts/v1",
+			"baseUrl": null
+		}
+	}
+}
+```
 
 ## DAV Support
 
@@ -133,16 +167,16 @@ CardDAV uses REST concepts, clients act on resources that are targeted by their 
 The implemented DAV backends rely on a set of REST API Endpoints in order to get all the data needed to satisfy DAV requests. Client API code, that dialogues with remote endpoint, is generated through swagger-codegen against a OpenAPI-Specification file that can be found in the related WebTop service project repository.
 
 DAV REST Client implementation can be re-generated in this way:
-```
-./bin/make-dav-client.sh
+```shell
+ $ ./bin/make-dav-client.sh
 ```
 CalDAV Client like so:
-```
-./bin/make-caldav-client.sh
+```shell
+ $ ./bin/make-caldav-client.sh
 ```
 And again, CardDAV using:
-```
-./bin/make-carddav-client.sh
+```shell
+ $ ./bin/make-carddav-client.sh
 ```
 
 ## License
