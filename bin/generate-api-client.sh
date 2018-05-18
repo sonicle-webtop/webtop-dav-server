@@ -36,7 +36,7 @@ MY_CODEGEN_DIR="../.swagger-codegen"
 TEMPLATE_DIR="$MY_CODEGEN_DIR/templates/php"
 CONFIG_FILE="$MY_CODEGEN_DIR/$CLIENT_NAME.json"
 TEMP_DIR="$MY_CODEGEN_DIR/temp"
-TARGET_DIR="../lib/$CLIENT_NAME"
+TARGET_DIR="../src/lib/$CLIENT_NAME"
 SRC_DIR="$TEMP_DIR/SwaggerClient-php/lib"
 SRC_FILES="$SRC_DIR/*"
 

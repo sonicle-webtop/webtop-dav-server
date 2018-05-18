@@ -30,7 +30,7 @@ The simplest installation is to create a dedicated folder `webtop-dav` into your
 
 ## Configuration
 
-Configuration is done via the [config.json](https://github.com/sonicle-webtop/webtop-dav-server/blob/master/config.json) file.
+Configuration is done via the [config.json](./src/config.json) file.
 
 ### Options
 
