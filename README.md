@@ -11,7 +11,7 @@ Then, summing:
 
 * PHP >= 5.5.X
 * Apache with mod_php
-* WebTop instance supporting DAV REST API
+* WebTop instance supporting DAV REST API (core >= v.5.2.0, calendar >= v.5.2.0, contacts >= v.5.2.0)
 
 ## Installation
 
@@ -26,6 +26,13 @@ The simplest installation is to create a dedicated folder `webtop-dav` into your
 	</directory>
 	...
 </VirtualHost>
+```
+
+This DAV server (as stated [below](#dav-support)) uses HTTP Basic authentication.
+Remember that in some cases Apache needs to be configured allowing pass headers to PHP like in this way:
+
+```xml
+SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=$1
 ```
 
 ## Configuration
@@ -138,26 +145,26 @@ At the bare minimum, you can edit config.json to set a values to the following o
 
 CalDAV uses REST concepts, clients act on resources that are targeted by their URIs. The current URI structure is specified here to help understanding concepts.
 
-* Calendars are stored under:
+* Calendars are stored under: `/calendars/{user@domain}`
   * `/calendars/john.doe@yourdomain.tld`
 
-* Single calendar this address:
+* Single calendar this address: `/calendars/{user@domain}/{calendarUid}`
   * `/calendars/john.doe@yourdomain.tld/3i37NcgooY8f1S`
 
-* iCalendars at:
+* iCalendars at: `/calendars/{user@domain}/{calendarUid}/{eventUid}.ics`
   * `/calendars/john.doe@yourdomain.tld/3i37NcgooY8f1S/0c0244ee9af3183bf6ad4f854dc026c1@yourdomain.tld.ics`
 
 ### CardDAV Resources
 
 CardDAV uses REST concepts, clients act on resources that are targeted by their URIs. The current URI structure is specified here to help understanding concepts.
 
-* Addressbooks are stored under:
+* Addressbooks are stored under: `/addressbooks/{user@domain}`
   * `/addressbooks/john.doe@yourdomain.tld`
 
-* Specific addressbook under there:
+* Specific addressbook under there: `/addressbooks/{user@domain}/{categoryUid}`
   * `/addressbooks/john.doe@yourdomain.tld/3i37NcgooY8f1S`
 
-* vCards here:
+* vCards here: `/addressbooks/{user@domain}/{categoryUid}/{contactUid}.vcf`
   * `/addressbooks/john.doe@yourdomain.tld/3i37NcgooY8f1S/0c0244ee9af3183bf6ad4f854dc026c1@yourdomain.tld.vcf`
 
 ## Build
