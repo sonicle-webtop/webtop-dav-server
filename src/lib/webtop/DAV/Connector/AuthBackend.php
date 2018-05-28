@@ -3,25 +3,16 @@
 namespace WT\DAV\Connector;
 
 use WT\Log;
-use WT\DAV\RestApiManager;
+use WT\DAV\Bridge;
 
 class AuthBackend extends \Sabre\DAV\Auth\Backend\AbstractBasic {
 	
-	private $apiManager;
+	protected $bridge;
 	
-	public function __construct(RestApiManager $apiManager) {
-		$this->apiManager = $apiManager;
+	public function __construct(Bridge $bridge) {
+		$this->bridge = $bridge;
 	}
-	
-	protected function getDAVApiConfig($username, $password) {
-		$config = new \WT\Client\DAV\Configuration();
-		$config->setUserAgent($this->apiManager->getUserAgent());
-		$config->setUsername($username);
-		$config->setPassword($password);
-		$config->setHost($this->apiManager->buildDAVApiHost());
-		return $config;
-	}
-	
+
 	/**
 	 * Validates a username and password
 	 * 
@@ -35,17 +26,10 @@ class AuthBackend extends \Sabre\DAV\Auth\Backend\AbstractBasic {
 	protected function validateUserPass($username, $password) {
 		Log::debug('validateUserPass', array('username' => $username));
 		
-		try {
-			$priApi = new \WT\Client\DAV\Api\DavPrincipalsApi(null, $this->getDAVApiConfig($username, $password));
-			$item = $priApi->getPrincipalInfo($username);
-			if (Log::isDebugEnabled()) Log::debug('[REST] getPrincipalInfo()', ['$item' => strval($item)]);
-			
-			$this->apiManager->setAuthenticatedPrincipal($username, $password, $item);
-			return true;
-
-		} catch (\WT\Client\DAV\ApiException $ex) {
-			Log::error($ex);
-			return false;
+		$result = $this->bridge->authenticateUser($username, $password);
+		if ($result) {
+			$this->currentUser = $username;
 		}
+		return $result;
 	}
 }

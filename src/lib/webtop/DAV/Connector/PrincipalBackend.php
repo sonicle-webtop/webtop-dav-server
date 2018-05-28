@@ -2,25 +2,17 @@
 
 namespace WT\DAV\Connector;
 
+use Sabre\HTTP;
 use WT\Log;
-use WT\DAV\RestApiManager;
+use WT\DAV\Bridge;
 
 class PrincipalBackend extends \Sabre\DAVACL\PrincipalBackend\AbstractBackend {
 	
-	private $apiManager;
-	private $principalPrefix = 'principals/users';
+	protected $bridge;
+	protected $principalPrefix = 'principals'; // Prefix like CalendarRoot/AddressbookRoot
 	
-	public function __construct(RestApiManager $apiManager) {
-		$this->apiManager = $apiManager;
-	}
-	
-	protected function getDAVApiConfig() {
-		$config = new \WT\Client\DAV\Configuration();
-		$config->setUserAgent($this->apiManager->getUserAgent());
-		$config->setUsername($this->apiManager->getAuthUsername());
-		$config->setPassword($this->apiManager->getAuthPassword());
-		$config->setHost($this->apiManager->buildDAVApiHost());
-		return $config;
+	public function __construct(Bridge $bridge) {
+		$this->bridge = $bridge;
 	}
 	
 	/**
@@ -41,6 +33,26 @@ class PrincipalBackend extends \Sabre\DAVACL\PrincipalBackend\AbstractBackend {
 	 */
 	public function getPrincipalsByPrefix($prefixPath) {
 		Log::debug('getPrincipalsByPrefix', ['prefixPath' => $prefixPath]);
+		
+		$principals = [];
+		if ($prefixPath == $this->principalPrefix) {
+			if ($this->bridge->getCurrentUser() === false) {
+				Log::error('User not authenticated');
+				
+			} else {
+				$principals[] = $this->toSabrePrincipal($this->bridge->getCurrentUserInfo());
+			}
+		}
+		/*
+		if ($prefixPath === $this->principalPrefix) {
+			// We only advertise the authenticated user
+			if ($this->bridge->getCurrentUser() === false) {
+				throw new Exception('Missing authenticated user');
+			}
+			$principals[] = $this->toSabrePrincipal($this->bridge->getCurrentUserInfo());
+		}
+		*/
+		return $principals;
 	}
 	
     /**
@@ -54,15 +66,36 @@ class PrincipalBackend extends \Sabre\DAVACL\PrincipalBackend\AbstractBackend {
 	public function getPrincipalByPath($path) {
 		Log::debug('getPrincipalByPath', ['path' => $path]);
 		
+		foreach ($this->getPrincipalsByPrefix($this->principalPrefix) as $principal) {
+			if ($principal['uri'] === $path) {
+				return $principal;
+			}
+		}
+		return [];
+		
+		/*
+			$request = HTTP\Sapi::getRequest();
+			if ($request != null) {
+				Log::debug('getHeader', ['method' => $request->getMethod(), 'auth' => $request->getHeader('Authorization')]);
+			} else {
+				Log::debug('$request is null');
+			}
+			*/
+		
+		
+		/*
 		list($prefix, $principal) = \Sabre\Uri\split($path);
 		if ($prefix === $this->principalPrefix) {
-			if ($principal == $this->apiManager->getAuthUsername()) {
-				Log::debug('Same principal');
-				return $this->toSabrePrincipal($this->apiManager->getAuthPrincipalInfo());
+			Log::debug('Checking principal == currentUser', ['currentUser' => $this->bridge->getCurrentUser(), '$principal' => $principal, 'pass' => $this->bridge->getCurrentPassword()]);
+			
+			
+			
+			if ($principal == $this->bridge->getCurrentUser()) {
+				return $this->toSabrePrincipal($this->bridge->getCurrentUserInfo());
 				
 			} else {
 				try {
-					$priApi = new \WT\Client\DAV\Api\DavPrincipalsApi(null, $this->getDAVApiConfig());
+					$priApi = new \WT\Client\DAV\Api\DavPrincipalsApi(null, $this->getApiConfigDav());
 					$item = $priApi->getPrincipalInfo($principal);
 					if (Log::isDebugEnabled()) Log::debug('[REST] getPrincipalInfo()', ['$item' => strval($item)]);
 					return $this->toSabrePrincipal($item);
@@ -73,6 +106,7 @@ class PrincipalBackend extends \Sabre\DAVACL\PrincipalBackend\AbstractBackend {
 			}
 		}
 		return null;
+		*/
 	}
 
 	/**
@@ -125,6 +159,12 @@ class PrincipalBackend extends \Sabre\DAVACL\PrincipalBackend\AbstractBackend {
 	 */
 	public function searchPrincipals($prefixPath, array $searchProperties, $test = 'allof') {
 		Log::debug('searchPrincipals', ['prefixPath' => $prefixPath]);
+		
+		/*
+		foreach($searchProperties as $property => $value) {
+			
+		}
+		*/
 	}
 	
 	/**
@@ -179,8 +219,18 @@ class PrincipalBackend extends \Sabre\DAVACL\PrincipalBackend\AbstractBackend {
 		$email = $item->getEmailAddress();
 		if (!empty($email)) {
 			$obj['{http://sabredav.org/ns}email-address'] = $email;
+			$obj['{http://calendarserver.org/ns/}email-address-set'] = $email;
 		}
 		
 		return $obj;
+	}
+	
+	protected function getApiConfigDav() {
+		$config = new \WT\Client\DAV\Configuration();
+		$config->setUserAgent($this->bridge->getUserAgent());
+		$config->setUsername($this->bridge->getCurrentUser());
+		$config->setPassword($this->bridge->getCurrentPassword());
+		$config->setHost($this->bridge->getApiHostDav());
+		return $config;
 	}
 }

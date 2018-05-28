@@ -8,24 +8,15 @@ use Sabre\CalDAV\Plugin;
 use Sabre\CalDAV\Xml\Property\SupportedCalendarComponentSet;
 use Sabre\CalDAV\Xml\Property\ScheduleCalendarTransp;
 use WT\Log;
-use WT\DAV\RestApiManager;
+use WT\DAV\Bridge;
 
 class Backend extends AbstractBackend implements SyncSupport {
 	
-	private $apiManager;
-	private $calObjectsByUriCache;
+	protected $bridge;
+	protected $calObjectsByUriCache;
 	
-	public function __construct(RestApiManager $apiManager) {
-		$this->apiManager = $apiManager;
-	}
-	
-	protected function getCalDAVApiConfig() {
-		$config = new \WT\Client\CalDAV\Configuration();
-		$config->setUserAgent($this->apiManager->getUserAgent());
-		$config->setUsername($this->apiManager->getAuthUsername());
-		$config->setPassword($this->apiManager->getAuthPassword());
-		$config->setHost($this->apiManager->buildCalDAVApiHost());
-		return $config;
+	public function __construct(Bridge $bridge) {
+		$this->bridge = $bridge;
 	}
 	
     /**
@@ -632,5 +623,14 @@ class Backend extends AbstractBackend implements SyncSupport {
 		$item->setVcalendar($calendarData);
 		
 		return $item;
+	}
+	
+	protected function getCalDAVApiConfig() {
+		$config = new \WT\Client\CalDAV\Configuration();
+		$config->setUserAgent($this->bridge->getUserAgent());
+		$config->setUsername($this->bridge->getCurrentUser());
+		$config->setPassword($this->bridge->getCurrentPassword());
+		$config->setHost($this->bridge->getApiHostCalDav());
+		return $config;
 	}
 }

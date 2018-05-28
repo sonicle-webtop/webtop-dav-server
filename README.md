@@ -15,18 +15,44 @@ Then, summing:
 
 ## Installation
 
-The simplest installation is to create a dedicated folder `webtop-dav` into your Apache DocumentRoot (`/path/to/your/htdocs` in the example below), copy [server sources](./src) into it and then configure your VirtualHost in the right way.
+The standard installation is to create a dedicated folder `webtop-dav` into your Apache's document-root, copy [server sources](./src) into it and then configure your VirtualHost in the right way.
 
 ```xml
 <VirtualHost *:*>
-	# Your configured virtual-host
-	...
+	#...
 	<directory "/path/to/your/htdocs/webtop-dav">
 		AllowOverride All
+		Require all granted
 	</directory>
-	...
+	#...
 </VirtualHost>
 ```
+
+### Service Discovery
+
+Some clients (especially iOS) have problems finding the proper sync URL, even when explicitly configured to use it.
+
+There are several techniques to remedy this, you can find them extensively described at the [Sabre DAV project site](http://sabre.io/dav/service-discovery/).
+
+If you followed the standard installation (subfolder under your Apache's document-root) and the client has difficulties finding the Cal/CardDAV end-points, configure your web server to redirect from a "well-known" URL to the one used by the WebTop DAV Server.
+You can update you virtual-host configuration simply adding the following lines:
+
+```xml
+Redirect 301 /.well-known/caldav /webtop-dav/server.php/
+Redirect 301 /.well-known/carddav /webtop-dav/server.php/
+```
+
+If you prefer, you can achieve the same result using mod_rewrite:
+
+```xml
+<ifmodule mod_rewrite.c>
+  RewriteEngine On
+  RewriteRule /.well-known/caldav /webtop-dav/server.php/ [R=301,L]
+  RewriteRule /.well-known/carddav /webtop-dav/server.php/ [R=301,L]
+</ifmodule>
+```
+
+### Authentication
 
 This DAV server (as stated [below](#dav-support)) uses HTTP Basic authentication.
 Remember that in some cases Apache needs to be configured allowing pass headers to PHP like in this way:
@@ -34,6 +60,8 @@ Remember that in some cases Apache needs to be configured allowing pass headers 
 ```xml
 SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=$1
 ```
+
+Always enable SSL in production environments, Basic authentication is secure only when used over an encrypted connection.
 
 ## Configuration
 
@@ -58,8 +86,8 @@ At the bare minimum, you can edit config.json to set a values to the following o
 
 * &#9888; `baseUri` \[string]
   Path that points exactly to server main script. To find out what this should be, try to open server.php in your browser, and simply strip off the protocol and domainname.
-  So if you access the server as `http://yourdomain.tld/webtop-dav/server.php`, then your base url would be `webtop-dav/server.php`.
-  If you want a prettier url, you must use mod_rewrite or some other rewriting system.
+  So if you access the server as `http://yourdomain.tld/webtop-dav/server.php`, then your base URI would be `webtop-dav/server.php`.
+  If you want a prettier URL, you must use mod_rewrite or some other rewriting system.
 
 * `log.level` \[string]
   The actual logging level. Allowed values are: DEBUG, INFO, NOTICE, WARNING, ERROR. *(Defaults to: NOTICE)*
@@ -68,28 +96,41 @@ At the bare minimum, you can edit config.json to set a values to the following o
   Path pointing the log file in which to write all errors and warning messages.
 
 * &#9888; `api.baseUrl` \[string]
-  The main base server URL for targetting WebTop REST APIs, it needs to match the URL at which WebTop responds to.
-  In a common situation, it should be something like `http://yourdomain.tld/webtop`.
+  This DAV server rely on REST APIs, specifically provided by WebTop services, in order to get all the information necessary for serving client requests. This URL reflects the address at which the current WebTop installation responds to. Note that since this is basically a server-to-server configuration, you could use local addresses; this will speed-up HTTP requests. Eg. `http://localhost:8080/webtop`.
 
 * `api.dav.url` \[string]
-  Path, appended to the base one, that targets the REST server endpoint suitable for DAV calls. This should not be changed. *(Defaults to: /api/com.sonicle.webtop.core/v1)*
+  Path, appended to the base one, that targets the REST server endpoint for DAV related calls. This should not be changed. *(Defaults to: /api/com.sonicle.webtop.core/v1)*
 
 * `api.dav.baseUrl` \[string] (optional)
   If specified, overrides common `api.baseUrl` for the endpoint above.
 
 * `api.caldav.url` \[string]
-  Path, appended to the base one, that targets the REST server endpoint suitable for CalDAV calls. This should not be changed. *(Defaults to: /api/com.sonicle.webtop.calendar/v1)*
+  Path, appended to the base one, that targets the REST server endpoint for CalDAV related calls. This should not be changed. *(Defaults to: /api/com.sonicle.webtop.calendar/v1)*
 
 * `api.caldav.baseUrl` \[string] (optional)
   If specified, overrides common `api.baseUrl` for the endpoint above.
 
 * `api.carddav.url` \[string]
-  Path, appended to the base one, that targets the REST server endpoint suitable for CardDAV calls. This should not be changed. *(Defaults to: /api/com.sonicle.webtop.contacts/v1)*
+  Path, appended to the base one, that targets the REST server endpoint for CardDAV related calls. This should not be changed. *(Defaults to: /api/com.sonicle.webtop.contacts/v1)*
 
 * `api.carddav.baseUrl` \[string] (optional)
   If specified, overrides common `api.baseUrl` for the endpoint above.
 
 #### Example
+
+```json
+{
+	"baseUri": "/webtop-dav/server.php",
+	"log": {
+		"file": "/var/log/webtop-dav-server.log"
+	},
+	"api": {
+		"baseUrl": "http://localhost:8080/webtop"
+	}
+}
+```
+
+#### Example (fully-featured)
 
 ```json
 {
@@ -102,7 +143,7 @@ At the bare minimum, you can edit config.json to set a values to the following o
 		"file": "/var/log/webtop-dav-server.log"
 	},
 	"api": {
-		"baseUrl": "https://yourdomain.tld/webtop",
+		"baseUrl": "http://localhost:8080/webtop",
 		"dav": {
 			"url": "/api/com.sonicle.webtop.core/v1",
 			"baseUrl": null

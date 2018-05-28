@@ -6,7 +6,7 @@ use Sabre\CardDAV\Backend\AbstractBackend;
 use Sabre\CardDAV\Backend\SyncSupport;
 use Sabre\CardDAV\Plugin;
 use WT\Log;
-use WT\DAV\RestApiManager;
+use WT\DAV\Bridge;
 
 /**
  * WebTop Contacts backend.
@@ -15,20 +15,11 @@ use WT\DAV\RestApiManager;
  */
 class Backend extends AbstractBackend implements SyncSupport {
 	
-	private $apiManager;
-	private $cardsByUriCache;
+	protected $bridge;
+	protected $cardsByUriCache;
 	
-	public function __construct(RestApiManager $apiManager) {
-		$this->apiManager = $apiManager;
-	}
-	
-	protected function getCardDAVApiConfig() {
-		$config = new \WT\Client\CardDAV\Configuration();
-		$config->setUserAgent($this->apiManager->getUserAgent());
-		$config->setUsername($this->apiManager->getAuthUsername());
-		$config->setPassword($this->apiManager->getAuthPassword());
-		$config->setHost($this->apiManager->buildCardDAVApiHost());
-		return $config;
+	public function __construct(Bridge $bridge) {
+		$this->bridge = $bridge;
 	}
 	
 	/**
@@ -536,5 +527,14 @@ class Backend extends AbstractBackend implements SyncSupport {
 		$item->setVcard($cardData);
 		
 		return $item;
+	}
+	
+	protected function getCardDAVApiConfig() {
+		$config = new \WT\Client\CardDAV\Configuration();
+		$config->setUserAgent($this->bridge->getUserAgent());
+		$config->setUsername($this->bridge->getCurrentUser());
+		$config->setPassword($this->bridge->getCurrentPassword());
+		$config->setHost($this->bridge->getApiHostCardDav());
+		return $config;
 	}
 }

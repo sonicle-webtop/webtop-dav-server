@@ -12,7 +12,7 @@ use WT\Log;
 class Server {
 	private $debug;
 	private $baseUri;
-	private $apiManager;
+	private $bridge;
 	private $server;
 	
 	public function __construct() {
@@ -25,26 +25,26 @@ class Server {
 		$caldavEnabled = \WT\Util::getConfigValue('caldav', true);
 		$carddavEnabled = \WT\Util::getConfigValue('carddav', true);
 		
-		$this->apiManager = new RestApiManager();
+		$bridge = new Bridge();
 		$tree = [];
 		
-		$authBackend = new \WT\DAV\Connector\AuthBackend($this->apiManager);
-		$userPrincipalBackend = new \WT\DAV\Connector\PrincipalBackend($this->apiManager);
+		$authBackend = new \WT\DAV\Connector\AuthBackend($bridge);
+		$userPrincipalBackend = new \WT\DAV\Connector\PrincipalBackend($bridge);
 		
-		$userPrincipals = new Collection($userPrincipalBackend, 'principals/users');
+		$userPrincipals = new Collection($userPrincipalBackend);
 		$userPrincipals->disableListing = !$this->debug;
 		$tree[] = $userPrincipals;
 		
 		if ($caldavEnabled) {
-			$calDavBackend = new \WT\DAV\CalDAV\Backend($this->apiManager, $userPrincipalBackend);
-			$calendarRoot = new CalendarRoot($userPrincipalBackend, $calDavBackend, 'principals/users');
+			$calDavBackend = new \WT\DAV\CalDAV\Backend($bridge);
+			$calendarRoot = new CalendarRoot($userPrincipalBackend, $calDavBackend);
 			$calendarRoot->disableListing = !$this->debug;
 			$tree[] = $calendarRoot;
 		}
 		
 		if ($carddavEnabled) {
-			$cardDavBackend = new \WT\DAV\CardDAV\Backend($this->apiManager);
-			$addressBookRoot = new AddressBookRoot($userPrincipalBackend, $cardDavBackend, 'principals/users');
+			$cardDavBackend = new \WT\DAV\CardDAV\Backend($bridge);
+			$addressBookRoot = new AddressBookRoot($userPrincipalBackend, $cardDavBackend);
 			$addressBookRoot->disableListing = !$this->debug;
 			$tree[] = $addressBookRoot;
 		}
@@ -65,14 +65,12 @@ class Server {
 		}
 		
 		$this->server->addPlugin(new \Sabre\DAV\Sync\Plugin());
-		
-		// acl plugin ??
-		//...
+		$this->server->addPlugin(new \Sabre\DAVACL\Plugin());
 		
 		// calendar plugins
 		if ($caldavEnabled) {
 			$this->server->addPlugin(new \WT\DAV\CalDAV\Plugin());
-			//$this->server->addPlugin(new ICSExportPlugin());
+			$this->server->addPlugin(new ICSExportPlugin());
 		}
 		
 		// addressbook plugins
@@ -84,6 +82,21 @@ class Server {
 	}
 	
 	public function exec() {
+		Log::debug('Server launch');
+		/*
+		$ok = session_start([
+			'cookie_lifetime' => 60
+		]);
+		if (!$ok) {
+			Log::warn('Unable to initialize PHP Session');
+		} else {
+			Log::debug('PHP Session started', ['sid' => session_id()]);
+		}
+		*/
+		Log::debug('headers', apache_request_headers());
+		Log::debug('method', ['method' => $this->server->httpRequest->getMethod()]);
+		Log::debug('body', ['body' => $this->server->httpRequest->getBody()]);
+		//Log::debug('getHeader', ['method' => $this->server->httpRequest->getMethod(), 'auth' => $this->server->httpRequest->getHeader('Authorization')]);
 		$this->server->exec();
 	}
 }

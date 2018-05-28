@@ -1,5 +1,5 @@
 DirectoryIndex server.php
-FallbackResource server.php
+AddDefaultCharset utf-8
 Options +FollowSymlinks
 Options -Indexes
 
