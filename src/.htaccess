@@ -1,7 +1,35 @@
-DirectoryIndex server.php
 AddDefaultCharset utf-8
 Options +FollowSymlinks
 Options -Indexes
+
+<IfModule mod_dir.c>
+  DirectoryIndex server.php
+</IfModule>
+<IfModule mod_headers.c>
+  # Prevents error 412 PreconditionFailed ("An If-Match header was specified...")
+  RequestHeader unset If-Match
+  RequestHeader unset If-None-Match
+
+  <IfModule mod_setenvif.c>
+    <IfModule mod_fcgid.c>
+      SetEnvIfNoCase ^Authorization$ "(.+)" XAUTHORIZATION=$1
+      RequestHeader set XAuthorization %{XAUTHORIZATION}e env=XAUTHORIZATION
+    </IfModule>
+    <IfModule mod_lsapi.c>
+      SetEnvIfNoCase ^Authorization$ "(.+)" XAUTHORIZATION=$1
+      RequestHeader set XAuthorization %{XAUTHORIZATION}e env=XAUTHORIZATION
+    </IfModule>
+    <IfModule mod_proxy_fcgi.c>
+      SetEnvIfNoCase Authorization "(.+)" HTTP_AUTHORIZATION=$1
+    </IfModule>
+  </IfModule>
+</IfModule>
+<IfModule mod_expires.c>
+  ExpiresActive Off
+</IfModule>
+<IfModule pagespeed_module>
+  ModPagespeed Off
+</IfModule>
 
 # Output buffering needs to be off, to prevent high memory usage
 php_value output_buffering Off

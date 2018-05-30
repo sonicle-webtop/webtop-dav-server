@@ -76,10 +76,10 @@ class Bridge {
 	
 	protected function getDAVApiConfig($username, $password) {
 		$config = new \WT\Client\DAV\Configuration();
-		$config->setUserAgent(RestApiUtil::getUserAgent());
+		$config->setUserAgent($this->userAgent);
 		$config->setUsername($username);
 		$config->setPassword($password);
-		$config->setHost(RestApiUtil::getDAVApiHost());
+		$config->setHost($this->apiHostDav);
 		return $config;
 	}
 	

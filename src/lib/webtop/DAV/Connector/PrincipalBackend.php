@@ -5,6 +5,7 @@ namespace WT\DAV\Connector;
 use Sabre\HTTP;
 use WT\Log;
 use WT\DAV\Bridge;
+use WT\DAV\Exception\NotAuthenticated;
 
 class PrincipalBackend extends \Sabre\DAVACL\PrincipalBackend\AbstractBackend {
 	
@@ -36,22 +37,15 @@ class PrincipalBackend extends \Sabre\DAVACL\PrincipalBackend\AbstractBackend {
 		
 		$principals = [];
 		if ($prefixPath == $this->principalPrefix) {
+			// We only advertise the authenticated user
 			if ($this->bridge->getCurrentUser() === false) {
 				Log::error('User not authenticated');
+				//throw new Exception('Missing authenticated user');
 				
 			} else {
 				$principals[] = $this->toSabrePrincipal($this->bridge->getCurrentUserInfo());
 			}
 		}
-		/*
-		if ($prefixPath === $this->principalPrefix) {
-			// We only advertise the authenticated user
-			if ($this->bridge->getCurrentUser() === false) {
-				throw new Exception('Missing authenticated user');
-			}
-			$principals[] = $this->toSabrePrincipal($this->bridge->getCurrentUserInfo());
-		}
-		*/
 		return $principals;
 	}
 	
@@ -66,47 +60,19 @@ class PrincipalBackend extends \Sabre\DAVACL\PrincipalBackend\AbstractBackend {
 	public function getPrincipalByPath($path) {
 		Log::debug('getPrincipalByPath', ['path' => $path]);
 		
+		// In some cases this method is called without authentication data.
+		// Reply with a exception suggesting client to authenticate!
+		if ($this->bridge->getCurrentUser() === false) {
+			Log::warn('No current user found. Replying: 401 WWW-Authenticate');
+			throw new NotAuthenticated();
+		}
+		
 		foreach ($this->getPrincipalsByPrefix($this->principalPrefix) as $principal) {
 			if ($principal['uri'] === $path) {
 				return $principal;
 			}
 		}
 		return [];
-		
-		/*
-			$request = HTTP\Sapi::getRequest();
-			if ($request != null) {
-				Log::debug('getHeader', ['method' => $request->getMethod(), 'auth' => $request->getHeader('Authorization')]);
-			} else {
-				Log::debug('$request is null');
-			}
-			*/
-		
-		
-		/*
-		list($prefix, $principal) = \Sabre\Uri\split($path);
-		if ($prefix === $this->principalPrefix) {
-			Log::debug('Checking principal == currentUser', ['currentUser' => $this->bridge->getCurrentUser(), '$principal' => $principal, 'pass' => $this->bridge->getCurrentPassword()]);
-			
-			
-			
-			if ($principal == $this->bridge->getCurrentUser()) {
-				return $this->toSabrePrincipal($this->bridge->getCurrentUserInfo());
-				
-			} else {
-				try {
-					$priApi = new \WT\Client\DAV\Api\DavPrincipalsApi(null, $this->getApiConfigDav());
-					$item = $priApi->getPrincipalInfo($principal);
-					if (Log::isDebugEnabled()) Log::debug('[REST] getPrincipalInfo()', ['$item' => strval($item)]);
-					return $this->toSabrePrincipal($item);
-
-				} catch (\WT\Client\DAV\ApiException $ex) {
-					Log::error($ex);
-				}
-			}
-		}
-		return null;
-		*/
 	}
 
 	/**

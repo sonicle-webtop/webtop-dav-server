@@ -69,7 +69,7 @@ class Log {
 	 * @param string $message The log message
 	 * @param array  $context The log context
 	 */
-	public static function warning($message, array $context = []) {
+	public static function warn($message, array $context = []) {
 		self::getLogger()->warning($message, $context);
 	}
 	

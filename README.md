@@ -172,7 +172,7 @@ At the bare minimum, you can edit config.json to set a values to the following o
 * [rfc4791: Calendaring Extensions to WebDAV (CalDAV)](https://tools.ietf.org/html/rfc4791)
   * Does **not** support VTODO items, only VEVENT are handled.
   * Does **not** support VALARM definition in VEVENT items.
-  * Does **not** support calendar-query.
+  * Does **not** support calendar-query, all objects will be returned instead.
 * [rfc6352: CardDAV: vCard Extensions to Web Distributed Authoring and Versioning (WebDAV)](https://tools.ietf.org/html/rfc6352)
 * [rfc6578: Collection Synchronization for WebDAV](https://tools.ietf.org/html/rfc6578)
   * Client applications should switch to this mode of operation after the initial sync.

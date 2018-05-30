@@ -421,7 +421,25 @@ class Backend extends AbstractBackend implements SyncSupport {
 		if (Log::isDebugEnabled()) {
 			Log::debug('calendarQuery', ['$calendarId' => $calendarId, '$filters' => json_encode($filters)]);
 		}
-		throw new \Sabre\DAV\Exception\NotImplemented("calendar-query request is not supported yet");
+		
+		// Currently we do not support fileters. For now its ok but to improve
+		// performances, especially with big calendars, this is a feature to
+		// put in roadmap. Therefore simply call the super method.
+		
+		return parent::calendarQuery($calendarId, $filters);
+		//throw new \Sabre\DAV\Exception\NotImplemented("calendar-query request is not supported yet");
+		
+		/*
+		$start = $end = null;
+		$types = array();
+		foreach ($filters['comp-filters'] as $filter) {
+			
+			if (is_array($filter['time-range']) && isset($filter['time-range']['start'], $filter['time-range']['end'])) {
+				$start = $filter['time-range']['start']->getTimestamp();
+				$end = $filter['time-range']['end']->getTimestamp();
+			}
+		}
+		*/
 	}
 
 	/**
@@ -548,7 +566,7 @@ class Backend extends AbstractBackend implements SyncSupport {
 			'id' => $item->getUid(),
 			'uri' => $item->getHref(),
 			'lastmodified' => $item->getLastModified(),
-			'etag' => $item->getEtag(),
+			'etag' => '"' . $item->getEtag() . '"',
 			'size' => $item->getSize(),
 			'component' => $component
 		];
@@ -620,7 +638,7 @@ class Backend extends AbstractBackend implements SyncSupport {
 		$item = new \WT\Client\CalDAV\Model\CalObjectNew();
 		
 		$item->setHref($objectUri);
-		$item->setVcalendar($calendarData);
+		$item->setIcalendar($calendarData);
 		
 		return $item;
 	}

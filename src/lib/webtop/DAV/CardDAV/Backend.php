@@ -452,7 +452,7 @@ class Backend extends AbstractBackend implements SyncSupport {
 			'id' => $item->getUid(),
 			'uri' => $item->getHref(),
 			'lastmodified' => $item->getLastModified(),
-			'etag' => $item->getEtag(),
+			'etag' => '"' . $item->getEtag() . '"',
 			'size' => $item->getSize()
 		];
 		if ($fillData) {

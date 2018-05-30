@@ -83,20 +83,11 @@ class Server {
 	
 	public function exec() {
 		Log::debug('Server launch');
-		/*
-		$ok = session_start([
-			'cookie_lifetime' => 60
-		]);
-		if (!$ok) {
-			Log::warn('Unable to initialize PHP Session');
-		} else {
-			Log::debug('PHP Session started', ['sid' => session_id()]);
+		if ($this->debug) {
+			Log::debug('Request DUMP', ['url' => $this->server->httpRequest->getUrl(), 'method' => $this->server->httpRequest->getMethod()]);
+			Log::debug('Request DUMP - headers', apache_request_headers());
+			Log::debug('Request DUMP - body', ['body' => $this->server->httpRequest->getBody()]);
 		}
-		*/
-		Log::debug('headers', apache_request_headers());
-		Log::debug('method', ['method' => $this->server->httpRequest->getMethod()]);
-		Log::debug('body', ['body' => $this->server->httpRequest->getBody()]);
-		//Log::debug('getHeader', ['method' => $this->server->httpRequest->getMethod(), 'auth' => $this->server->httpRequest->getHeader('Authorization')]);
 		$this->server->exec();
 	}
 }
