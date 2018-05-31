@@ -7,7 +7,7 @@ use Sabre\CalDAV\Principal\Collection;
 use Sabre\CalDAV\ICSExportPlugin;
 use Sabre\CardDAV\AddressBookRoot;
 use Sabre\CardDAV\VCFExportPlugin;
-use WT\Log;
+use WT\Logger;
 
 class Server {
 	private $debug;
@@ -19,7 +19,7 @@ class Server {
 		$this->debug = \WT\Util::getConfigValue('debug', true);
 		$this->baseUri = \WT\Util::getConfigValue('baseUri');
 		if (!isset($this->baseUri)) {
-			Log::critical('Missing baseUri configuration');
+			Logger::critical('Missing baseUri configuration');
 			throw new Exception('Missing baseUri configuration');
 		}
 		$caldavEnabled = \WT\Util::getConfigValue('caldav', true);
@@ -50,7 +50,7 @@ class Server {
 		}
 		
 		$this->server = new \WT\DAV\Connector\Server($tree);
-		$this->server->addPlugin(new \WT\DAV\Connector\ExceptionLoggerPlugin(Log::getLogger()));
+		$this->server->addPlugin(new \WT\DAV\Connector\ExceptionLoggerPlugin(Logger::getInstance()));
 		
 		// Set URL explicitly due to reverse-proxy situations
 		$this->server->setBaseUri($this->baseUri);
@@ -82,11 +82,9 @@ class Server {
 	}
 	
 	public function exec() {
-		Log::debug('Server launch');
+		Logger::debug('Server launch');
 		if ($this->debug) {
-			Log::debug('Request DUMP', ['url' => $this->server->httpRequest->getUrl(), 'method' => $this->server->httpRequest->getMethod()]);
-			Log::debug('Request DUMP - headers', apache_request_headers());
-			Log::debug('Request DUMP - body', ['body' => $this->server->httpRequest->getBody()]);
+			Logger::debug($this->server->httpRequest);
 		}
 		$this->server->exec();
 	}

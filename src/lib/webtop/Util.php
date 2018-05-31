@@ -10,6 +10,7 @@ class Util {
 		'debug' => false,
 		'caldav' => true,
 		'carddav' => true,
+		'timezone' => 'Europe/Rome',
 		'log.level' => 'NOTICE',
 		'api.dav.url' => '/api/com.sonicle.webtop.core/v1',
 		'api.caldav.url' => '/api/com.sonicle.webtop.calendar/v1',

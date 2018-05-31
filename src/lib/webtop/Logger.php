@@ -2,37 +2,41 @@
 
 namespace WT;
 
-use Monolog\Logger;
+use Psr\Log\LogLevel;
+use Monolog\Handler\ErrorLogHandler;
+use Monolog\Handler\StreamHandler;
 
 /**
- * Heavily inspired by: https://gist.github.com/laverboy/fd0a32e9e4e9fbbf9584
+ * Inspired by: https://gist.github.com/laverboy/fd0a32e9e4e9fbbf9584
  */
-class Log {
+class Logger {
 	
-	protected static $level;
-	protected static $instance;
-	
-	private function __construct() {}
+	private static $level;
+	private static $logger;
 	
 	/**
 	 * Returns the main logger instance.
 	 * 
 	 * @return \Monolog\Logger
 	 */
-	static public function getLogger() {
-		if (!self::$instance) {
+	static public function getInstance() {
+		if (!self::$logger) {
 			self::$level = \Monolog\Logger::toMonologLevel(\WT\Util::getConfigValue('log.level', true));
-			self::$instance = new Logger('webtop-dav-server');
+			$logger = new \Monolog\Logger('webtop-dav-server');
+			$logger->pushHandler(new ErrorLogHandler(ErrorLogHandler::OPERATING_SYSTEM, self::$level));
+			\Monolog\ErrorHandler::register($logger, [], LogLevel::ERROR, LogLevel::ALERT);
+			self::$logger = $logger;
 		}
-		return self::$instance;
+		return self::$logger;
 	}
 	
 	public static function setFileHandler($file) {
-		$handler = new \Monolog\Handler\StreamHandler($file, self::$level);
+		$logger = self::getInstance();
+		$handler = new StreamHandler($file, self::$level);
 		$handler->setFormatter(new \Monolog\Formatter\LineFormatter(null, null, true));
-		self::getLogger()->pushHandler($handler);
+		$logger->setHandlers([$handler]);
 	}
-
+	
 	/*
 	 * Adds a log record at the DEBUG level.
 	 * 
@@ -40,7 +44,7 @@ class Log {
 	 * @param array  $context The log context
 	 */
 	public static function debug($message, array $context = []) {
-		self::getLogger()->debug($message, $context);
+		self::getInstance()->debug($message, $context);
 	}
 	
 	/*
@@ -50,7 +54,7 @@ class Log {
 	 * @param array  $context The log context
 	 */
 	public static function info($message, array $context = []) {
-		self::getLogger()->info($message, $context);
+		self::getInstance()->info($message, $context);
 	}
 	
 	/*
@@ -60,7 +64,7 @@ class Log {
 	 * @param array  $context The log context
 	 */
 	public static function notice($message, array $context = []) {
-		self::getLogger()->notice($message, $context);
+		self::getInstance()->notice($message, $context);
 	}
 	
 	/*
@@ -70,7 +74,7 @@ class Log {
 	 * @param array  $context The log context
 	 */
 	public static function warn($message, array $context = []) {
-		self::getLogger()->warning($message, $context);
+		self::getInstance()->warning($message, $context);
 	}
 	
 	/*
@@ -80,7 +84,7 @@ class Log {
 	 * @param array  $context The log context
 	 */
 	public static function error($message, array $context = []) {
-		self::getLogger()->error($message, $context);
+		self::getInstance()->error($message, $context);
 	}
 	
 	/*
@@ -90,7 +94,7 @@ class Log {
 	 * @param array  $context The log context
 	 */
 	public static function critical($message, array $context = []) {
-		self::getLogger()->critical($message, $context);
+		self::getInstance()->critical($message, $context);
 	}
 	
 	/*
@@ -100,7 +104,7 @@ class Log {
 	 * @param array  $context The log context
 	 */
 	public static function alert($message, array $context = []) {
-		self::getLogger()->alert($message, $context);
+		self::getInstance()->alert($message, $context);
 	}
 	
 	/*
@@ -110,7 +114,7 @@ class Log {
 	 * @param array  $context The log context
 	 */
 	public static function emergency($message, array $context = []) {
-		self::getLogger()->emergency($message, $context);
+		self::getInstance()->emergency($message, $context);
 	}
 	
 	/**

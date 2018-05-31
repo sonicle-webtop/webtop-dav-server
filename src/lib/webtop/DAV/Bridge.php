@@ -2,7 +2,7 @@
 
 namespace WT\DAV;
 
-use WT\Log;
+use WT\Logger;
 
 class Bridge {
 	
@@ -62,7 +62,7 @@ class Bridge {
 			return true;
 			
 		} catch (\WT\Client\DAV\ApiException $ex) {
-			Log::error($ex);
+			Logger::error($ex);
 			return false;
 		}
 	}
@@ -70,7 +70,7 @@ class Bridge {
 	protected function getPrincipalInfo(\WT\Client\DAV\Configuration $config, $username) {
 		$priApi = new \WT\Client\DAV\Api\DavPrincipalsApi(null, $config);
 		$item = $priApi->getPrincipalInfo($username);
-		if (Log::isDebugEnabled()) Log::debug('[REST] getPrincipalInfo()', ['$item' => strval($item)]);
+		if (Logger::isDebugEnabled()) Logger::debug('[REST] getPrincipalInfo()', ['$item' => strval($item)]);
 		return $item;
 	}
 	

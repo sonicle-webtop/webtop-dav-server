@@ -19,12 +19,12 @@ The standard installation is to create a dedicated folder `webtop-dav` into your
 
 ```xml
 <VirtualHost *:*>
-	#...
-	<directory "/path/to/your/htdocs/webtop-dav">
-		AllowOverride All
-		Require all granted
-	</directory>
-	#...
+  #...
+  <directory "/path/to/your/htdocs/webtop-dav">
+    AllowOverride All
+    Require all granted
+  </directory>
+  #...
 </VirtualHost>
 ```
 
@@ -84,6 +84,9 @@ At the bare minimum, you can edit config.json to set a values to the following o
 * `carddav` \[boolean]
   False to disable support to CardDAV. *(Defaults to: true)*
 
+* `timezone` \[string]
+  The default timezone. It must be one of the [supported timezones](http://www.php.net/manual/en/timezones.php). *(Defaults to: Europe/Rome)*
+
 * &#9888; `baseUri` \[string]
   Path that points exactly to server main script. To find out what this should be, try to open server.php in your browser, and simply strip off the protocol and domainname.
   So if you access the server as `http://yourdomain.tld/webtop-dav/server.php`, then your base URI would be `webtop-dav/server.php`.
@@ -137,6 +140,7 @@ At the bare minimum, you can edit config.json to set a values to the following o
 	"debug": false,
 	"caldav": true,
 	"carddav": true,
+	"timezone": "Europe/Rome",
 	"baseUri": "/webtop-dav/server.php",
 	"log": {
 		"level": "NOTICE",
