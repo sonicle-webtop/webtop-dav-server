@@ -2,7 +2,7 @@
 
 namespace WT\DAV\Connector;
 
-use WT\Logger;
+use WT\Log;
 use WT\DAV\Bridge;
 
 class AuthBackend extends \Sabre\DAV\Auth\Backend\AbstractBasic {
@@ -24,7 +24,7 @@ class AuthBackend extends \Sabre\DAV\Auth\Backend\AbstractBasic {
 	 * @throws PasswordLoginForbidden
 	 */
 	protected function validateUserPass($username, $password) {
-		Logger::debug('validateUserPass', array('username' => $username));
+		Log::debug('validateUserPass', array('username' => $username));
 		
 		$result = $this->bridge->authenticateUser($username, $password);
 		if ($result) {
