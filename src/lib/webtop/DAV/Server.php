@@ -84,9 +84,7 @@ class Server {
 	public function exec() {
 		Log::debug('Server launch');
 		if ($this->debug) {
-			Log::debug('Request DUMP', ['url' => $this->server->httpRequest->getUrl(), 'method' => $this->server->httpRequest->getMethod()]);
-			Log::debug('Request DUMP - headers', apache_request_headers());
-			Log::debug('Request DUMP - body', ['body' => $this->server->httpRequest->getBody()]);
+			Log::debug($this->server->httpRequest);
 		}
 		$this->server->exec();
 	}
