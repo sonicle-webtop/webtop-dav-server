@@ -28,7 +28,7 @@ class Log {
 	}
 	
 	public static function setFileHandler($file) {
-		$handler = new \Monolog\Handler\StreamHandler($file, self::$level);
+		$handler = new \Monolog\Handler\StreamHandler($file, \Monolog\Logger::toMonologLevel(\WT\Util::getConfigValue('log.level', true)));
 		$handler->setFormatter(new \Monolog\Formatter\LineFormatter(null, null, true));
 		self::getLogger()->pushHandler($handler);
 	}
