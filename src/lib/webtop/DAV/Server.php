@@ -83,9 +83,12 @@ class Server {
 	
 	public function exec() {
 		Log::debug('Server launch');
+		// Seems that below code causes exceptions on CentOS. I keep it commented for now!
+		/*
 		if ($this->debug) {
 			Log::debug($this->server->httpRequest);
 		}
+		*/
 		$this->server->exec();
 	}
 }
