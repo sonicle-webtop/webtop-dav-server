@@ -15,18 +15,31 @@ class Log {
 	private function __construct() {}
 	
 	/**
+	 * Initializes logger instance.
+	 */
+	public static function init() {
+		if (!self::$instance) {
+			self::$level = \Monolog\Logger::toMonologLevel(\WT\Util::getConfigValue('log.level', true));
+			self::$instance = new Logger('webtop-dav-server');
+			\Monolog\ErrorHandler::register(self::$instance, [], \Monolog\Logger::ERROR, \Monolog\Logger::ALERT);
+		}
+	}
+	
+	/**
 	 * Returns the main logger instance.
 	 * 
 	 * @return \Monolog\Logger
 	 */
-	static public function getLogger() {
-		if (!self::$instance) {
-			self::$level = \Monolog\Logger::toMonologLevel(\WT\Util::getConfigValue('log.level', true));
-			self::$instance = new Logger('webtop-dav-server');
-		}
+	public static function getLogger() {
+		if (!self::$instance) throw new Exception(sprintf("Logger instance not yet initialized. Please call Log::init() before this."));
 		return self::$instance;
 	}
 	
+	/**
+	 * Sets the file on which redirect the log stream to.
+	 * 
+	 * @param string $file
+	 */
 	public static function setFileHandler($file) {
 		$handler = new \Monolog\Handler\StreamHandler($file, self::$level);
 		$handler->setFormatter(new \Monolog\Formatter\LineFormatter(null, null, true));
