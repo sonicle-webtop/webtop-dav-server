@@ -6,6 +6,8 @@ use WT\Log;
 
 class Bridge {
 	
+	const NS_WEBTOP = 'http://webtop.org/ns';
+	
 	protected $userAgent;
 	protected $apiHostDav;
 	protected $apiHostCalDav;

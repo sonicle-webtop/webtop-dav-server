@@ -311,6 +311,7 @@ class Backend extends AbstractBackend implements SyncSupport {
 
 		} catch (\WT\Client\CalDAV\ApiException $ex) {
 			Log::error($ex);
+			throw new \Sabre\DAV\Exception('Error saving calendar object to backend');
 		}
 	}
 
@@ -554,8 +555,10 @@ class Backend extends AbstractBackend implements SyncSupport {
 			'{'.Plugin::NS_CALDAV.'}supported-calendar-component-set' => new SupportedCalendarComponentSet(['VEVENT']),
 			'{'.Plugin::NS_CALDAV.'}schedule-calendar-transp' => new ScheduleCalendarTransp('opaque'),
 			'{http://apple.com/ns/ical/}calendar-order' => $order,
-			'{http://apple.com/ns/ical/}calendar-color' => $item->getColor()
-			//'{DAV:}acl' => ['dav:read', 'dav:write'],
+			'{http://apple.com/ns/ical/}calendar-color' => $item->getColor(),
+			'{'.Bridge::NS_WEBTOP.'}owner-principal' => $item->getOwnerUsername(),
+			'{'.Bridge::NS_WEBTOP.'}acl-folder' => $item->getAclFol(),
+			'{'.Bridge::NS_WEBTOP.'}acl-elements' => $item->getAclEle()
 		];
 		
 		return $obj;
@@ -636,10 +639,8 @@ class Backend extends AbstractBackend implements SyncSupport {
 	
 	protected function toApiCalObjectNew($objectUri, $calendarData) {
 		$item = new \WT\Client\CalDAV\Model\CalObjectNew();
-		
 		$item->setHref($objectUri);
 		$item->setIcalendar($calendarData);
-		
 		return $item;
 	}
 	

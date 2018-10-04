@@ -37,14 +37,14 @@ class Server {
 		
 		if ($caldavEnabled) {
 			$calDavBackend = new \WT\DAV\CalDAV\Backend($bridge);
-			$calendarRoot = new CalendarRoot($userPrincipalBackend, $calDavBackend);
+			$calendarRoot = new \WT\DAV\CalDAV\CalendarRoot($userPrincipalBackend, $calDavBackend);
 			$calendarRoot->disableListing = !$this->debug;
 			$tree[] = $calendarRoot;
 		}
 		
 		if ($carddavEnabled) {
 			$cardDavBackend = new \WT\DAV\CardDAV\Backend($bridge);
-			$addressBookRoot = new AddressBookRoot($userPrincipalBackend, $cardDavBackend);
+			$addressBookRoot = new \WT\DAV\CardDAV\AddressBookRoot($userPrincipalBackend, $cardDavBackend);
 			$addressBookRoot->disableListing = !$this->debug;
 			$tree[] = $addressBookRoot;
 		}

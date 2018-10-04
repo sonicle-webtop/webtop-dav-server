@@ -63,7 +63,10 @@ class Calendar implements ModelInterface, ArrayAccess
         'displayName' => 'string',
         'description' => 'string',
         'color' => 'string',
-        'syncToken' => 'string'
+        'syncToken' => 'string',
+        'aclFol' => 'string',
+        'aclEle' => 'string',
+        'ownerUsername' => 'string'
     ];
 
     /**
@@ -77,7 +80,10 @@ class Calendar implements ModelInterface, ArrayAccess
         'displayName' => null,
         'description' => null,
         'color' => null,
-        'syncToken' => null
+        'syncToken' => null,
+        'aclFol' => null,
+        'aclEle' => null,
+        'ownerUsername' => null
     ];
 
     /**
@@ -112,7 +118,10 @@ class Calendar implements ModelInterface, ArrayAccess
         'displayName' => 'displayName',
         'description' => 'description',
         'color' => 'color',
-        'syncToken' => 'syncToken'
+        'syncToken' => 'syncToken',
+        'aclFol' => 'aclFol',
+        'aclEle' => 'aclEle',
+        'ownerUsername' => 'ownerUsername'
     ];
 
     /**
@@ -126,7 +135,10 @@ class Calendar implements ModelInterface, ArrayAccess
         'displayName' => 'setDisplayName',
         'description' => 'setDescription',
         'color' => 'setColor',
-        'syncToken' => 'setSyncToken'
+        'syncToken' => 'setSyncToken',
+        'aclFol' => 'setAclFol',
+        'aclEle' => 'setAclEle',
+        'ownerUsername' => 'setOwnerUsername'
     ];
 
     /**
@@ -140,7 +152,10 @@ class Calendar implements ModelInterface, ArrayAccess
         'displayName' => 'getDisplayName',
         'description' => 'getDescription',
         'color' => 'getColor',
-        'syncToken' => 'getSyncToken'
+        'syncToken' => 'getSyncToken',
+        'aclFol' => 'getAclFol',
+        'aclEle' => 'getAclEle',
+        'ownerUsername' => 'getOwnerUsername'
     ];
 
     /**
@@ -209,6 +224,9 @@ class Calendar implements ModelInterface, ArrayAccess
         $this->container['description'] = isset($data['description']) ? $data['description'] : null;
         $this->container['color'] = isset($data['color']) ? $data['color'] : null;
         $this->container['syncToken'] = isset($data['syncToken']) ? $data['syncToken'] : null;
+        $this->container['aclFol'] = isset($data['aclFol']) ? $data['aclFol'] : null;
+        $this->container['aclEle'] = isset($data['aclEle']) ? $data['aclEle'] : null;
+        $this->container['ownerUsername'] = isset($data['ownerUsername']) ? $data['ownerUsername'] : null;
     }
 
     /**
@@ -232,6 +250,15 @@ class Calendar implements ModelInterface, ArrayAccess
         if ($this->container['syncToken'] === null) {
             $invalidProperties[] = "'syncToken' can't be null";
         }
+        if ($this->container['aclFol'] === null) {
+            $invalidProperties[] = "'aclFol' can't be null";
+        }
+        if ($this->container['aclEle'] === null) {
+            $invalidProperties[] = "'aclEle' can't be null";
+        }
+        if ($this->container['ownerUsername'] === null) {
+            $invalidProperties[] = "'ownerUsername' can't be null";
+        }
         return $invalidProperties;
     }
 
@@ -254,6 +281,15 @@ class Calendar implements ModelInterface, ArrayAccess
             return false;
         }
         if ($this->container['syncToken'] === null) {
+            return false;
+        }
+        if ($this->container['aclFol'] === null) {
+            return false;
+        }
+        if ($this->container['aclEle'] === null) {
+            return false;
+        }
+        if ($this->container['ownerUsername'] === null) {
             return false;
         }
         return true;
@@ -400,6 +436,78 @@ class Calendar implements ModelInterface, ArrayAccess
     public function setSyncToken($syncToken)
     {
         $this->container['syncToken'] = $syncToken;
+
+        return $this;
+    }
+
+    /**
+     * Gets aclFol
+     *
+     * @return string
+     */
+    public function getAclFol()
+    {
+        return $this->container['aclFol'];
+    }
+
+    /**
+     * Sets aclFol
+     *
+     * @param string $aclFol ACL info for folder itself
+     *
+     * @return $this
+     */
+    public function setAclFol($aclFol)
+    {
+        $this->container['aclFol'] = $aclFol;
+
+        return $this;
+    }
+
+    /**
+     * Gets aclEle
+     *
+     * @return string
+     */
+    public function getAclEle()
+    {
+        return $this->container['aclEle'];
+    }
+
+    /**
+     * Sets aclEle
+     *
+     * @param string $aclEle ACL info for folder elements
+     *
+     * @return $this
+     */
+    public function setAclEle($aclEle)
+    {
+        $this->container['aclEle'] = $aclEle;
+
+        return $this;
+    }
+
+    /**
+     * Gets ownerUsername
+     *
+     * @return string
+     */
+    public function getOwnerUsername()
+    {
+        return $this->container['ownerUsername'];
+    }
+
+    /**
+     * Sets ownerUsername
+     *
+     * @param string $ownerUsername The owner profile's username
+     *
+     * @return $this
+     */
+    public function setOwnerUsername($ownerUsername)
+    {
+        $this->container['ownerUsername'] = $ownerUsername;
 
         return $this;
     }

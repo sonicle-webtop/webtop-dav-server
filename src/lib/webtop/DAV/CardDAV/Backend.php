@@ -440,8 +440,10 @@ class Backend extends AbstractBackend implements SyncSupport {
 			'{DAV:}displayname' => $item->getDisplayName(),
 			'{http://calendarserver.org/ns/}getctag' => $syncToken,
 			'{http://sabredav.org/ns}sync-token' => $syncToken ? $syncToken : '0',
-			'{'.Plugin::NS_CARDDAV.'}addressbook-description' => $item->getDescription()
-			//'{DAV:}acl' => ['dav:read', 'dav:write']
+			'{'.Plugin::NS_CARDDAV.'}addressbook-description' => $item->getDescription(),
+			'{'.Bridge::NS_WEBTOP.'}owner-principal' => $item->getOwnerUsername(),
+			'{'.Bridge::NS_WEBTOP.'}acl-folder' => $item->getAclFol(),
+			'{'.Bridge::NS_WEBTOP.'}acl-elements' => $item->getAclEle()
 		];
 		
 		return $obj;
@@ -522,10 +524,8 @@ class Backend extends AbstractBackend implements SyncSupport {
 	
 	protected function toApiCard($cardUri, $cardData) {
 		$item = new \WT\Client\CardDAV\Model\Card();
-		
 		$item->setHref($cardUri);
 		$item->setVcard($cardData);
-		
 		return $item;
 	}
 	
