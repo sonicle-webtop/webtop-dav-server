@@ -6,9 +6,9 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
-    'WT\\Client\\DAV\\' => array($baseDir . '/lib/webtop-client-dav'),
-    'WT\\Client\\CardDAV\\' => array($baseDir . '/lib/webtop-client-carddav'),
-    'WT\\Client\\CalDAV\\' => array($baseDir . '/lib/webtop-client-caldav'),
+    'WT\\Client\\Core\\' => array($baseDir . '/lib/webtop-core-client'),
+    'WT\\Client\\Contacts\\' => array($baseDir . '/lib/webtop-contacts-client'),
+    'WT\\Client\\Calendar\\' => array($baseDir . '/lib/webtop-calendar-client'),
     'WT\\' => array($baseDir . '/lib/webtop'),
     'Sabre\\Xml\\' => array($vendorDir . '/sabre/xml/lib'),
     'Sabre\\VObject\\' => array($vendorDir . '/sabre/vobject/lib'),

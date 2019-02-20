@@ -1,0 +1,25 @@
+{
+	"timezone": "Europe/Rome",
+	"log": {
+		"level": "ERROR",
+		"dir": "/var/log/webtop-dav",
+		"name": "server.log"
+	},
+	"browser": false,
+	"caldav": false,
+	"carddav": false,
+	"baseUri": "/webtop-dav/server.php",
+	"webtop": {
+		"apiBaseUrl": "http://localhost:8080/webtop",
+		"apiUrlPath": "/api/com.sonicle.webtop.core/v1"
+	},
+	"calendar": {
+		"apiUrlPath": "/api/com.sonicle.webtop.calendar/v1"
+	},
+	"contacts": {
+		"apiUrlPath": "/api/com.sonicle.webtop.contacts/v1"
+	},
+	"tasks": {
+		"apiUrlPath": "/api/com.sonicle.webtop.tasks/v1"
+	}
+}

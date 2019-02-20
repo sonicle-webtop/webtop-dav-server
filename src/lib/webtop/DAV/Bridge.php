@@ -2,42 +2,38 @@
 
 namespace WT\DAV;
 
+use lf4php\LoggerFactory;
 use WT\Log;
+use WT\DAV\Config;
 
 class Bridge {
 	
 	const NS_WEBTOP = 'http://webtop.org/ns';
-	
 	protected $userAgent;
-	protected $apiHostDav;
-	protected $apiHostCalDav;
-	protected $apiHostCardDav;
 	protected $currentUser = false;
 	protected $currentPassword;
 	protected $currentUserInfo;
 	
 	public function __construct() {
 		$this->userAgent = constant('WEBTOP-DAV-SERVER_NAME') . '/' . constant('WEBTOP-DAV-SERVER_VERSION') . '/php';
-		$config = \WT\Util::getConfig();
-		$this->apiHostDav = $this->buildHost($config->get('api.baseUrl'), $config->get('api.dav.baseUrl'), \WT\Util::getConfigValue('api.dav.url', true));
-		$this->apiHostCalDav = $this->buildHost($config->get('api.baseUrl'), $config->get('api.caldav.baseUrl'), \WT\Util::getConfigValue('api.caldav.url', true));
-		$this->apiHostCardDav = $this->buildHost($config->get('api.baseUrl'), $config->get('api.carddav.baseUrl'), \WT\Util::getConfigValue('api.carddav.url', true));
+	}
+	
+	protected function getWTApiConfig($username = null, $password = null) {
+		$config = Config::get();
+		$obj = new \WT\Client\Core\Configuration();
+		$obj->setUserAgent($this->userAgent);
+		$obj->setUsername(!is_null($username) ? $username : $this->currentUser);
+		$obj->setPassword(!is_null($password) ? $password : $this->currentPassword);
+		$obj->setHost($config->getWTApiBaseURL().$config->getWTApiUrlPath());
+		return $obj;
+	}
+	
+	protected function getLogger() {
+		return LoggerFactory::getLogger(__CLASS__);
 	}
 	
 	public function getUserAgent() {
 		return $this->userAgent;
-	}
-	
-	public function getApiHostDav() {
-		return $this->apiHostDav;
-	}
-	
-	public function getApiHostCalDav() {
-		return $this->apiHostCalDav;
-	}
-	
-	public function getApiHostCardDav() {
-		return $this->apiHostCardDav;
 	}
 	
 	public function getCurrentUser() {
@@ -54,43 +50,24 @@ class Bridge {
 	
 	public function authenticateUser($username, $password) {
 		try {
-			$config = $this->getDAVApiConfig($username, $password);
-			$item = $this->getPrincipalInfo($config, $username);
-			
+			$item = $this->getPrincipalInfo($this->getWTApiConfig($username, $password), $username);
 			$this->currentUser = $username;
 			$this->currentPassword = $password;
 			$this->currentUserInfo = $item;
-			
 			return true;
 			
-		} catch (\WT\Client\DAV\ApiException $ex) {
-			Log::error($ex);
+		} catch (\WT\Client\Core\ApiException $ex) {
+			$this->getLogger()->error($ex);
 			return false;
 		}
 	}
 	
-	protected function getPrincipalInfo(\WT\Client\DAV\Configuration $config, $username) {
-		$priApi = new \WT\Client\DAV\Api\DavPrincipalsApi(null, $config);
+	protected function getPrincipalInfo(\WT\Client\Core\Configuration $config, $username) {
+		$logger = $this->getLogger();
+		$priApi = new \WT\Client\Core\Api\DavPrincipalsApi(null, $config);
+		$logger->debug('[REST] --> getPrincipalInfo()');
 		$item = $priApi->getPrincipalInfo($username);
-		if (Log::isDebugEnabled()) Log::debug('[REST] getPrincipalInfo()', ['$item' => strval($item)]);
+		if ($logger->isDebugEnabled()) $logger->debug('[REST] ...'.PHP_EOL.'{}', [$item]);
 		return $item;
-	}
-	
-	protected function getDAVApiConfig($username, $password) {
-		$config = new \WT\Client\DAV\Configuration();
-		$config->setUserAgent($this->userAgent);
-		$config->setUsername($username);
-		$config->setPassword($password);
-		$config->setHost($this->apiHostDav);
-		return $config;
-	}
-	
-	private function buildHost($baseHost, $host, $url) {
-		$apiUrl = [$baseHost];
-		if (isset($host)) {
-			$apiUrl[0] = trim($host, '/');
-		}
-		$apiUrl[] = trim($url, '/');
-		return implode('/', $apiUrl);
 	}
 }

@@ -5,8 +5,10 @@ namespace WT\DAV\CardDAV;
 use Sabre\CardDAV\Backend\AbstractBackend;
 use Sabre\CardDAV\Backend\SyncSupport;
 use Sabre\CardDAV\Plugin;
+use lf4php\LoggerFactory;
 use WT\Log;
 use WT\DAV\Bridge;
+use WT\DAV\Config;
 
 /**
  * WebTop Contacts backend.
@@ -20,6 +22,20 @@ class Backend extends AbstractBackend implements SyncSupport {
 	
 	public function __construct(Bridge $bridge) {
 		$this->bridge = $bridge;
+	}
+	
+	protected function getContactsApiConfig() {
+		$config = Config::get();
+		$obj = new \WT\Client\Contacts\Configuration();
+		$obj->setUserAgent($this->bridge->getUserAgent());
+		$obj->setUsername($this->bridge->getCurrentUser());
+		$obj->setPassword($this->bridge->getCurrentPassword());
+		$obj->setHost($config->getWTApiBaseURL().$config->getContactsApiUrlPath());
+		return $obj;
+	}
+	
+	protected function getLogger() {
+		return LoggerFactory::getLogger(__CLASS__);
 	}
 	
 	/**
@@ -40,23 +56,22 @@ class Backend extends AbstractBackend implements SyncSupport {
      * @return array
      */
 	function getAddressBooksForUser($principalUri) {
-		Log::debug('getAddressBooksForUser', ['$principalUri' => $principalUri]);
+		$logger = $this->getLogger();
+		$logger->debug('{}({})', [__METHOD__, $principalUri]);
 		
 		try {
-			$api = new \WT\Client\CardDAV\Api\DavAddressbooksApi(null, $this->getCardDAVApiConfig());
+			$api = new \WT\Client\Contacts\Api\DavAddressbooksApi(null, $this->getContactsApiConfig());
 			$items = $api->getAddressBooks();
 			$addressBooks = [];
+			$logger->debug('Returned {} items', [count($items)]);
 			for ($i = 0; $i<count($items); $i++) {
-				$item = $items[$i];
-				if (Log::isDebugEnabled()) {
-					Log::debug('[REST] getAddressBooks()[' . $i . ']', ['$item' => strval($item)]);
-				}
-				$addressBooks[] = $this->toSabreAddressBook($principalUri, $item);
+				if ($logger->isDebugEnabled()) $logger->debug('[REST] ... [{}]'.PHP_EOL.'{}', [$i, $items[$i]]);
+				$addressBooks[] = $this->toSabreAddressBook($principalUri, $items[$i]);
 			}
 			return $addressBooks;
 
-		} catch (\WT\Client\CardDAV\ApiException $ex) {
-			Log::error($ex);
+		} catch (\WT\Client\Contacts\ApiException $ex) {
+			$logger->error($ex);
 		}
 	}
 	
@@ -72,18 +87,18 @@ class Backend extends AbstractBackend implements SyncSupport {
      * @return mixed
      */
 	function createAddressBook($principalUri, $url, array $properties) {
-		Log::debug('createAddressBook', ['$principalUri' => $principalUri, '$url' => $url]);
+		$logger = $this->getLogger();
+		$logger->debug('{}({}, {}, ...)', [__METHOD__, $principalUri, $url]);
 		
 		try {
-			$api = new \WT\Client\CardDAV\Api\DavAddressbooksApi(null, $this->getCardDAVApiConfig());
+			$api = new \WT\Client\Contacts\Api\DavAddressbooksApi(null, $this->getContactsApiConfig());
+			$logger->debug('[REST] --> addAddressBook()');
 			$item = $api->addAddressBook($this->toApiAddressBookNew($properties));
-			if (Log::isDebugEnabled()) {
-				Log::debug('[REST] addAddressBook()', ['$item' => strval($item)]);
-			}
+			if ($logger->isDebugEnabled()) $logger->debug('[REST] ...'.PHP_EOL.'{}', [$item]);
 			return $item->getUid();
 
-		} catch (\WT\Client\CardDAV\ApiException $ex) {
-			Log::error($ex);
+		} catch (\WT\Client\Contacts\ApiException $ex) {
+			$logger->error($ex);
 		}
 	}
 	
@@ -104,14 +119,16 @@ class Backend extends AbstractBackend implements SyncSupport {
      * @return void
      */
 	function updateAddressBook($addressBookId, \Sabre\DAV\PropPatch $propPatch) {
-		Log::debug('updateAddressBook', ['$addressBookId' => $addressBookId]);
+		$logger = $this->getLogger();
+		$logger->debug('{}({})', [__METHOD__, $addressBookId]);
 		
 		try {
-			$api = new \WT\Client\CardDAV\Api\DavAddressbooksApi(null, $this->getCardDAVApiConfig());
+			$api = new \WT\Client\Contacts\Api\DavAddressbooksApi(null, $this->getContactsApiConfig());
+			$logger->debug('[REST] --> updateAddressBook()');
 			$api->updateAddressBook($this->toApiAddressBookUpdate($propPatch));
 
-		} catch (\WT\Client\CardDAV\ApiException $ex) {
-			Log::error($ex);
+		} catch (\WT\Client\Contacts\ApiException $ex) {
+			$logger->error($ex);
 		}
 	}
 
@@ -122,14 +139,16 @@ class Backend extends AbstractBackend implements SyncSupport {
      * @return void
      */
 	function deleteAddressBook($addressBookId) {
-		Log::debug('deleteAddressBook', ['$addressBookId' => $addressBookId]);
+		$logger = $this->getLogger();
+		$logger->debug('{}({})', [__METHOD__, $addressBookId]);
 		
 		try {			
-			$api = new \WT\Client\CardDAV\Api\DavAddressbooksApi(null, $this->getCardDAVApiConfig());
+			$api = new \WT\Client\Contacts\Api\DavAddressbooksApi(null, $this->getContactsApiConfig());
+			$logger->debug('[REST] --> deleteAddressBook({})', [$addressBookId]);
 			$api->deleteAddressBook($addressBookId);
 
-		} catch (\WT\Client\CardDAV\ApiException $ex) {
-			Log::error($ex);
+		} catch (\WT\Client\Contacts\ApiException $ex) {
+			$logger->error($ex);
 		}
 	}
 	
@@ -153,25 +172,26 @@ class Backend extends AbstractBackend implements SyncSupport {
      * @return array
      */
 	function getCards($addressbookId) {
-		Log::debug('getCards', ['$addressbookId' => $addressbookId]);
+		$logger = $this->getLogger();
+		$logger->debug('{}({})', [__METHOD__, $addressbookId]);
 		
 		try {
-			$api = new \WT\Client\CardDAV\Api\DavCardsApi(null, $this->getCardDAVApiConfig());
+			$api = new \WT\Client\Contacts\Api\DavCardsApi(null, $this->getContactsApiConfig());
+			$logger->debug('[REST] --> getCards({})', [$addressbookId]);
 			$items = $api->getCards($addressbookId);
 			$cards = [];
 			$this->cardsByUriCache = [];
+			$logger->debug('Returned {} items', [count($items)]);
 			for ($i = 0; $i<count($items); $i++) {
+				if ($logger->isDebugEnabled()) $logger->debug('[REST] ... [{}]'.PHP_EOL.'{}', [$i, $items[$i]]);
 				$item = $items[$i];
-				if (Log::isDebugEnabled()) {
-					Log::debug('[REST] getCards()[' . $i . ']', ['$item' => strval($item)]);
-				}
 				$cards[] = $this->toSabreCard($item, false);
 				$this->cardsByUriCache[$item->getHref()] = $item;
 			}
 			return $cards;
 
-		} catch (\WT\Client\CardDAV\ApiException $ex) {
-			Log::error($ex);
+		} catch (\WT\Client\Contacts\ApiException $ex) {
+			$logger->error($ex);
 		}
 	}
 
@@ -188,35 +208,38 @@ class Backend extends AbstractBackend implements SyncSupport {
      * @return array
      */
 	function getCard($addressBookId, $cardUri) {
-		Log::debug('getCard', ['$addressBookId' => $addressBookId, '$cardUri' => $cardUri]);
+		$logger = $this->getLogger();
+		$logger->debug('{}({}, {})', [__METHOD__, $addressBookId, $cardUri]);
 		
 		try {
 			// First try to get card from cache
 			if (isset($this->cardsByUriCache)) {
 				$item = $this->cardsByUriCache[$cardUri];
 				if ($item != null) {
-					Log::debug('Card item is in cache');
+					$logger->debug('Card item is in cache');
 					return $this->toSabreCard($item, true);
 				}
 			}
 			
 			// Otherwise get card from API call
-			$api = new \WT\Client\CardDAV\Api\DavCardsApi(null, $this->getCardDAVApiConfig());
+			$api = new \WT\Client\Contacts\Api\DavCardsApi(null, $this->getContactsApiConfig());
+			$logger->debug('[REST] --> getCards({}, {})', [$addressBookId, $cardUri]);
 			$items = $api->getCards($addressBookId, [$cardUri]);
-			if (Log::isDebugEnabled()) {
+			if ($logger->isDebugEnabled()) {
+				$logger->debug('Returned {} items', [count($items)]);
 				for ($i = 0; $i<count($items); $i++) {
-					$item = $items[$i];
-					Log::debug('[REST] getCards()[' . $i . ']', ['$item' => strval($item)]);
+					$logger->debug('[REST] ... [{}]'.PHP_EOL.'{}', [$i, $items[$i]]);
 				}
 			}
-			if (count($items) == 1) {
+			
+			if (count($items) === 1) {
 				return $this->toSabreCard($items[0], true);
 			} else {
 				return false;
 			}
 
-		} catch (\WT\Client\CardDAV\ApiException $ex) {
-			Log::error($ex);
+		} catch (\WT\Client\Contacts\ApiException $ex) {
+			$logger->error($ex);
 		}
 	}
 	
@@ -233,7 +256,8 @@ class Backend extends AbstractBackend implements SyncSupport {
 	 * @return array
 	 */
 	function getMultipleCards($addressBookId, array $uris) {
-		Log::debug('getMultipleCards', ['$addressBookId' => $addressBookId, '$uris' => $uris]);
+		$logger = $this->getLogger();
+		if ($logger->isDebugEnabled()) $logger->debug('{}({}, {})', [__METHOD__, $addressBookId, json_encode($uris)]);
 		
 		if (empty($uris)) {
 			return [];
@@ -242,21 +266,20 @@ class Backend extends AbstractBackend implements SyncSupport {
 		$cards = [];
 		
 		try {
-			$api = new \WT\Client\CardDAV\Api\DavCardsApi(null, $this->getCardDAVApiConfig());
+			$api = new \WT\Client\Contacts\Api\DavCardsApi(null, $this->getContactsApiConfig());
 			foreach ($chunks as $uris) {
+				$logger->debug('[REST] --> getCards({}, {})', [$addressBookId, '...']);
 				$items = $api->getCards($addressBookId, $uris);
+				$logger->debug('Returned {} items', [count($items)]);
 				for ($i = 0; $i<count($items); $i++) {
-					$item = $items[$i];
-					if (Log::isDebugEnabled()) {
-						Log::debug('[REST] getCards()[' . $i . ']', ['$item' => strval($item)]);
-					}
-					$cards[] = $this->toSabreCard($item, true);
+					if ($logger->isDebugEnabled()) $logger->debug('[REST] ... [{}]'.PHP_EOL.'{}', [$i, $items[$i]]);
+					$cards[] = $this->toSabreCard($items[$i], true);
 				}
 			}
 			return $cards;
 
-		} catch (\WT\Client\CardDAV\ApiException $ex) {
-			Log::error($ex);
+		} catch (\WT\Client\Contacts\ApiException $ex) {
+			$logger->error($ex);
 		}
 	}
 	
@@ -286,15 +309,17 @@ class Backend extends AbstractBackend implements SyncSupport {
 	 * @return string|null
 	 */
 	function createCard($addressBookId, $cardUri, $cardData) {
-		Log::debug('createCard', ['$addressBookId' => $addressBookId, '$cardUri' => $cardUri]);
+		$logger = $this->getLogger();
+		$logger->debug('{}({}, {})', [__METHOD__, $addressBookId, $cardUri]);
 		
 		try {
-			$api = new \WT\Client\CardDAV\Api\DavCardsApi(null, $this->getCardDAVApiConfig());
+			$api = new \WT\Client\Contacts\Api\DavCardsApi(null, $this->getContactsApiConfig());
+			$logger->debug('[REST] --> addCard({})', [$addressBookId]);
 			$api->addCard($addressBookId, $this->toApiCard($cardUri, $cardData));
 			return null;
 
-		} catch (\WT\Client\CardDAV\ApiException $ex) {
-			Log::error($ex);
+		} catch (\WT\Client\Contacts\ApiException $ex) {
+			$logger->error($ex);
 		}
 	}
 	
@@ -324,15 +349,17 @@ class Backend extends AbstractBackend implements SyncSupport {
 	 * @return string|null
 	 */
 	function updateCard($addressBookId, $cardUri, $cardData) {
-		Log::debug('updateCard', ['$addressBookId' => $addressBookId, '$cardUri' => $cardUri]);
+		$logger = $this->getLogger();
+		$logger->debug('{}({}, {})', [__METHOD__, $addressBookId, $cardUri]);
 		
 		try {
-			$api = new \WT\Client\CardDAV\Api\DavCardsApi(null, $this->getCardDAVApiConfig());
+			$api = new \WT\Client\Contacts\Api\DavCardsApi(null, $this->getContactsApiConfig());
+			$logger->debug('[REST] --> updateCard({}, {})', [$addressBookId, $cardUri]);
 			$api->updateCard($addressBookId, $cardUri, $cardData);
 			return null;
 
-		} catch (\WT\Client\CardDAV\ApiException $ex) {
-			Log::error($ex);
+		} catch (\WT\Client\Contacts\ApiException $ex) {
+			$logger->error($ex);
 		}
 	}
 	
@@ -344,15 +371,17 @@ class Backend extends AbstractBackend implements SyncSupport {
 	 * @return bool
 	 */
 	function deleteCard($addressBookId, $cardUri) {
-		Log::debug('deleteCard', ['$addressBookId' => $addressBookId, '$cardUri' => $cardUri]);
+		$logger = $this->getLogger();
+		$logger->debug('{}({}, {})', [__METHOD__, $addressBookId, $cardUri]);
 		
 		try {
-			$api = new \WT\Client\CardDAV\Api\DavCardsApi(null, $this->getCardDAVApiConfig());
+			$api = new \WT\Client\Contacts\Api\DavCardsApi(null, $this->getContactsApiConfig());
+			$logger->debug('[REST] --> deleteCard({}, {})', [$addressBookId, $cardUri]);
 			$api->deleteCard($addressBookId, $cardUri);
 			return true;
 
-		} catch (\WT\Client\CardDAV\ApiException $ex) {
-			Log::error($ex);
+		} catch (\WT\Client\Contacts\ApiException $ex) {
+			$logger->error($ex);
 			return false;
 		}
 	}
@@ -414,23 +443,23 @@ class Backend extends AbstractBackend implements SyncSupport {
 	 * @return array
 	 */
 	function getChangesForAddressBook($addressBookId, $syncToken, $syncLevel, $limit = null) {
-		Log::debug('getChangesForAddressBook', ['$addressBookId' => $addressBookId, '$syncToken' => $syncToken, '$syncLevel' => $syncLevel]);
-	
+		$logger = $this->getLogger();
+		$logger->debug('{}({}, {}, {})', [__METHOD__, $addressBookId, $syncToken, $syncLevel]);
+		
 		try {
-			$api = new \WT\Client\CardDAV\Api\DavCardsApi(null, $this->getCardDAVApiConfig());
+			$api = new \WT\Client\Contacts\Api\DavCardsApi(null, $this->getContactsApiConfig());
+			$logger->debug('[REST] --> getCardsChanges({}, {}, {})', [$addressBookId, $syncToken, $limit]);
 			$changes = $api->getCardsChanges($addressBookId, $syncToken, $limit);
-			if (Log::isDebugEnabled()) {
-				Log::debug('[REST] getCardsChanges()', ['$item' => strval($changes)]);
-			}
+			if ($logger->isDebugEnabled()) $logger->debug('[REST] ...'.PHP_EOL.'{}', [json_encode($changes)]);
 			return $this->toSabreChanges($changes->getSyncToken(), $changes->getInserted(), $changes->getUpdated(), $changes->getDeleted());
 
-		} catch (\WT\Client\CardDAV\ApiException $ex) {
-			Log::error($ex);
+		} catch (\WT\Client\Contacts\ApiException $ex) {
+			$logger->error($ex);
 			return null;
 		}
 	}
 	
-	protected function toSabreAddressBook($principalUri, \WT\Client\CardDAV\Model\AddressBook $item) {
+	protected function toSabreAddressBook($principalUri, \WT\Client\Contacts\Model\AddressBook $item) {
 		$syncToken = $item->getSyncToken();
 		
 		$obj = [
@@ -449,7 +478,10 @@ class Backend extends AbstractBackend implements SyncSupport {
 		return $obj;
 	}
 	
-	protected function toSabreCard(\WT\Client\CardDAV\Model\Card $item, $fillData) {
+	protected function toSabreCard(\WT\Client\Contacts\Model\Card $item, $fillData) {
+		if (empty($item->getHref())) {
+			$this->getLogger()->warn('Found Card with missing href [{}]', [$item->getUid()]);
+		}
 		$obj = [
 			'id' => $item->getUid(),
 			'uri' => $item->getHref(),
@@ -485,7 +517,7 @@ class Backend extends AbstractBackend implements SyncSupport {
 	}
 	
 	protected function toApiAddressBookNew(array $properties) {
-		$item = new \WT\Client\CardDAV\Model\AddressBookNew();
+		$item = new \WT\Client\Contacts\Model\AddressBookNew();
 		
 		foreach($properties as $key=>$value) {
 			switch($key) {
@@ -503,7 +535,7 @@ class Backend extends AbstractBackend implements SyncSupport {
 	}
 	
 	protected function toApiAddressBookUpdate(\Sabre\DAV\PropPatch $propPatch) {
-		$item = new \WT\Client\CardDAV\Model\AddressBookUpdate();
+		$item = new \WT\Client\Contacts\Model\AddressBookUpdate();
 		$supportedProps = [
 			'{DAV:}displayname' => 'displayName',
 			'{'.Plugin::NS_CARDDAV.'}addressbook-description' => 'description'
@@ -523,18 +555,9 @@ class Backend extends AbstractBackend implements SyncSupport {
 	}
 	
 	protected function toApiCard($cardUri, $cardData) {
-		$item = new \WT\Client\CardDAV\Model\Card();
+		$item = new \WT\Client\Contacts\Model\Card();
 		$item->setHref($cardUri);
 		$item->setVcard($cardData);
 		return $item;
-	}
-	
-	protected function getCardDAVApiConfig() {
-		$config = new \WT\Client\CardDAV\Configuration();
-		$config->setUserAgent($this->bridge->getUserAgent());
-		$config->setUsername($this->bridge->getCurrentUser());
-		$config->setPassword($this->bridge->getCurrentPassword());
-		$config->setHost($this->bridge->getApiHostCardDav());
-		return $config;
 	}
 }

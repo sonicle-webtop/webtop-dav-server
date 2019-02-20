@@ -13,6 +13,7 @@ class ComposerStaticInitb9281bf2bc94a5cee27b50fa21a0b2dc
         'a1cce3d26cc15c00fcd0b3354bd72c88' => __DIR__ . '/..' . '/sabre/event/lib/Promise/functions.php',
         '3569eecfeed3bcf0bad3c998a494ecb8' => __DIR__ . '/..' . '/sabre/xml/lib/Deserializer/functions.php',
         '93aa591bc4ca510c520999e34229ee79' => __DIR__ . '/..' . '/sabre/xml/lib/Serializer/functions.php',
+        '7b11c4dc42b3b3023073cb14e519683c' => __DIR__ . '/..' . '/ralouphie/getallheaders/src/getallheaders.php',
         'c964ee0ededf28c96ebd9db5099ef910' => __DIR__ . '/..' . '/guzzlehttp/promises/src/functions_include.php',
         'a0edc8309cc5e1d60e3047b5df6b7052' => __DIR__ . '/..' . '/guzzlehttp/psr7/src/functions_include.php',
         'ebdb698ed4152ae445614b69b5e4bb6a' => __DIR__ . '/..' . '/sabre/http/lib/functions.php',
@@ -22,9 +23,9 @@ class ComposerStaticInitb9281bf2bc94a5cee27b50fa21a0b2dc
     public static $prefixLengthsPsr4 = array (
         'W' => 
         array (
-            'WT\\Client\\DAV\\' => 14,
-            'WT\\Client\\CardDAV\\' => 18,
-            'WT\\Client\\CalDAV\\' => 17,
+            'WT\\Client\\Core\\' => 15,
+            'WT\\Client\\Contacts\\' => 19,
+            'WT\\Client\\Calendar\\' => 19,
             'WT\\' => 3,
         ),
         'S' => 
@@ -61,17 +62,17 @@ class ComposerStaticInitb9281bf2bc94a5cee27b50fa21a0b2dc
     );
 
     public static $prefixDirsPsr4 = array (
-        'WT\\Client\\DAV\\' => 
+        'WT\\Client\\Core\\' => 
         array (
-            0 => __DIR__ . '/../..' . '/lib/webtop-client-dav',
+            0 => __DIR__ . '/../..' . '/lib/webtop-core-client',
         ),
-        'WT\\Client\\CardDAV\\' => 
+        'WT\\Client\\Contacts\\' => 
         array (
-            0 => __DIR__ . '/../..' . '/lib/webtop-client-carddav',
+            0 => __DIR__ . '/../..' . '/lib/webtop-contacts-client',
         ),
-        'WT\\Client\\CalDAV\\' => 
+        'WT\\Client\\Calendar\\' => 
         array (
-            0 => __DIR__ . '/../..' . '/lib/webtop-client-caldav',
+            0 => __DIR__ . '/../..' . '/lib/webtop-calendar-client',
         ),
         'WT\\' => 
         array (
@@ -143,11 +144,30 @@ class ComposerStaticInitb9281bf2bc94a5cee27b50fa21a0b2dc
         ),
     );
 
+    public static $prefixesPsr0 = array (
+        'l' => 
+        array (
+            'lf4php' => 
+            array (
+                0 => __DIR__ . '/..' . '/lf4php/lf4php/src',
+                1 => __DIR__ . '/..' . '/lf4php/lf4php-monolog/src',
+            ),
+        ),
+        'L' => 
+        array (
+            'LazyMap\\' => 
+            array (
+                0 => __DIR__ . '/..' . '/ocramius/lazy-map/src',
+            ),
+        ),
+    );
+
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
             $loader->prefixLengthsPsr4 = ComposerStaticInitb9281bf2bc94a5cee27b50fa21a0b2dc::$prefixLengthsPsr4;
             $loader->prefixDirsPsr4 = ComposerStaticInitb9281bf2bc94a5cee27b50fa21a0b2dc::$prefixDirsPsr4;
+            $loader->prefixesPsr0 = ComposerStaticInitb9281bf2bc94a5cee27b50fa21a0b2dc::$prefixesPsr0;
 
         }, null, ClassLoader::class);
     }

@@ -1,4 +1,0 @@
-{
-	"variableNamingConvention" : "camelCase",
-	"invokerPackage" : "WT\\Client\\CardDAV"
-}

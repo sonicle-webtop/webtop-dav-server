@@ -10,11 +10,14 @@
 			"role" : "Developer"
         }
     ],
+	"optimize-autoloader": true,
     "require": {
 		"php": ">=5.5.0",
 		"ext-curl": "*",
 		"ext-json": "*",
 		"ext-mbstring": "*",
+		"lf4php/lf4php": "^4.2.2",
+		"lf4php/lf4php-monolog": "^3.1.2",
 		"monolog/monolog": "^1.23",
 		"hassankhan/config": "^1.0",
 		"guzzlehttp/guzzle": "^6.2",
@@ -23,12 +26,9 @@
 	"autoload": {
 		"psr-4": {
 			"WT\\": "lib/webtop/",
-			"WT\\Client\\DAV\\": "lib/webtop-client-dav/",
-			"WT\\Client\\CalDAV\\": "lib/webtop-client-caldav/",
-			"WT\\Client\\CardDAV\\": "lib/webtop-client-carddav/"
+			"WT\\Client\\Core\\": "lib/webtop-core-client/",
+			"WT\\Client\\Calendar\\": "lib/webtop-calendar-client/",
+			"WT\\Client\\Contacts\\": "lib/webtop-contacts-client/"
 		}
-	},
-	"config": {
-		"bin-dir": "./bin"
 	}
 }

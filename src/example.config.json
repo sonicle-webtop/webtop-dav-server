@@ -1,0 +1,12 @@
+{
+	"timezone": "Europe/Rome",
+	"log": {
+		"level": "ERROR",
+		"dir": "/var/log/webtop-dav"
+	},
+	"browser": false,
+	"baseUri": "/webtop-dav/server.php",
+	"webtop": {
+		"apiBaseUrl": "http://localhost:8080/webtop"
+	}
+}

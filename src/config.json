@@ -1,9 +1,0 @@
-{
-	"baseUri": "/webtop-dav/server.php",
-	"log": {
-		"file": "/var/log/webtop-dav-server.log"
-	},
-	"api": {
-		"baseUrl": "https://yourdomain.tld/webtop"
-	}
-}

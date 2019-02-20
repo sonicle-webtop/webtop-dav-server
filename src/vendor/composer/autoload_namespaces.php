@@ -6,4 +6,6 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
+    'lf4php' => array($vendorDir . '/lf4php/lf4php/src', $vendorDir . '/lf4php/lf4php-monolog/src'),
+    'LazyMap\\' => array($vendorDir . '/ocramius/lazy-map/src'),
 );

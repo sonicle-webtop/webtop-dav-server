@@ -3,6 +3,7 @@
 namespace WT\DAV\Connector;
 
 use Sabre\HTTP;
+use lf4php\LoggerFactory;
 use WT\Log;
 use WT\DAV\Bridge;
 use WT\DAV\Exception\NotAuthenticated;
@@ -14,6 +15,10 @@ class PrincipalBackend extends \Sabre\DAVACL\PrincipalBackend\AbstractBackend {
 	
 	public function __construct(Bridge $bridge) {
 		$this->bridge = $bridge;
+	}
+	
+	protected function getLogger() {
+		return LoggerFactory::getLogger(__CLASS__);
 	}
 	
 	/**
@@ -33,13 +38,14 @@ class PrincipalBackend extends \Sabre\DAVACL\PrincipalBackend\AbstractBackend {
 	 * @return array
 	 */
 	public function getPrincipalsByPrefix($prefixPath) {
-		Log::debug('getPrincipalsByPrefix', ['prefixPath' => $prefixPath]);
+		$logger = $this->getLogger();
+		$logger->debug('{}({})', [__METHOD__, $prefixPath]);
 		
 		$principals = [];
 		if ($prefixPath == $this->principalPrefix) {
 			// We only advertise the authenticated user
 			if ($this->bridge->getCurrentUser() === false) {
-				Log::error('User not authenticated');
+				$logger->error('User not authenticated');
 				//throw new Exception('Missing authenticated user');
 				
 			} else {
@@ -58,12 +64,13 @@ class PrincipalBackend extends \Sabre\DAVACL\PrincipalBackend\AbstractBackend {
 	 * @return array
 	 */
 	public function getPrincipalByPath($path) {
-		Log::debug('getPrincipalByPath', ['path' => $path]);
+		$logger = $this->getLogger();
+		$logger->debug('{}({})', [__METHOD__, $path]);
 		
 		// In some cases this method is called without authentication data.
 		// Reply with a exception suggesting client to authenticate!
 		if ($this->bridge->getCurrentUser() === false) {
-			Log::warn('No current user found. Replying: 401 WWW-Authenticate');
+			$logger->warn('No current user found. Replying: 401 WWW-Authenticate');
 			throw new NotAuthenticated();
 		}
 		
@@ -124,7 +131,8 @@ class PrincipalBackend extends \Sabre\DAVACL\PrincipalBackend\AbstractBackend {
 	 * @return array
 	 */
 	public function searchPrincipals($prefixPath, array $searchProperties, $test = 'allof') {
-		Log::debug('searchPrincipals', ['prefixPath' => $prefixPath]);
+		$logger = $this->getLogger();
+		$logger->debug('{}({})', [__METHOD__, $prefixPath]);
 		
 		/*
 		foreach($searchProperties as $property => $value) {
@@ -140,7 +148,8 @@ class PrincipalBackend extends \Sabre\DAVACL\PrincipalBackend\AbstractBackend {
 	 * @return array
 	 */
 	public function getGroupMemberSet($principal) {
-		Log::debug('getGroupMemberSet', ['principal' => $principal]);
+		$logger = $this->getLogger();
+		$logger->debug('{}({})', [__METHOD__, $principal]);
 		
 		// TODO: for now the group principal has only one member, the user itself
 		$pri = $this->getPrincipalByPath($principal);
@@ -157,7 +166,8 @@ class PrincipalBackend extends \Sabre\DAVACL\PrincipalBackend\AbstractBackend {
 	 * @return array
 	 */
 	public function getGroupMembership($principal) {
-		Log::debug('getGroupMembership', ['principal' => $principal]);
+		$logger = $this->getLogger();
+		$logger->debug('{}({})', [__METHOD__, $principal]);
 		return [];
 	}
 	
@@ -174,7 +184,7 @@ class PrincipalBackend extends \Sabre\DAVACL\PrincipalBackend\AbstractBackend {
 		throw new Exception('Setting members of the group is not supported');
 	}
 	
-	protected function toSabrePrincipal(\WT\Client\DAV\Model\PrincipalInfo $item) {
+	protected function toSabrePrincipal(\WT\Client\Core\Model\PrincipalInfo $item) {
 		$profileUsername = $item->getProfileUsername();
 		$displayName = $item->getDisplayName();
 		
@@ -190,14 +200,5 @@ class PrincipalBackend extends \Sabre\DAVACL\PrincipalBackend\AbstractBackend {
 		}
 		
 		return $obj;
-	}
-	
-	protected function getApiConfigDav() {
-		$config = new \WT\Client\DAV\Configuration();
-		$config->setUserAgent($this->bridge->getUserAgent());
-		$config->setUsername($this->bridge->getCurrentUser());
-		$config->setPassword($this->bridge->getCurrentPassword());
-		$config->setHost($this->bridge->getApiHostDav());
-		return $config;
 	}
 }

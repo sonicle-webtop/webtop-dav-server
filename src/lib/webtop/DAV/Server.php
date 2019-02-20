@@ -7,23 +7,19 @@ use Sabre\CalDAV\Principal\Collection;
 use Sabre\CalDAV\ICSExportPlugin;
 use Sabre\CardDAV\AddressBookRoot;
 use Sabre\CardDAV\VCFExportPlugin;
+use lf4php\LoggerFactory;
 use WT\Log;
+use WT\DAV\Config;
 
 class Server {
 	private $debug;
-	private $baseUri;
 	private $bridge;
 	private $server;
 	
 	public function __construct() {
-		$this->debug = \WT\Util::getConfigValue('debug', true);
-		$this->baseUri = \WT\Util::getConfigValue('baseUri');
-		if (!isset($this->baseUri)) {
-			Log::critical('Missing baseUri configuration');
-			throw new Exception('Missing baseUri configuration');
-		}
-		$caldavEnabled = \WT\Util::getConfigValue('caldav', true);
-		$carddavEnabled = \WT\Util::getConfigValue('carddav', true);
+		$this->debug = Config::get()->getBrowserEnabled();
+		$caldavEnabled = Config::get()->getCalDAVEnabled();
+		$carddavEnabled = Config::get()->getCardDAVEnabled();
 		
 		$bridge = new Bridge();
 		$tree = [];
@@ -53,7 +49,7 @@ class Server {
 		$this->server->addPlugin(new \WT\DAV\Connector\ExceptionLoggerPlugin(Log::getLogger()));
 		
 		// Set URL explicitly due to reverse-proxy situations
-		$this->server->setBaseUri($this->baseUri);
+		$this->server->setBaseUri(Config::get()->getBaseURLPath());
 		
 		$authPlugin = new \Sabre\DAV\Auth\Plugin();
 		$authPlugin->addBackend($authBackend);
@@ -82,11 +78,12 @@ class Server {
 	}
 	
 	public function exec() {
-		Log::debug('Server launch');
+		$logger = LoggerFactory::getLogger(__CLASS__);
+		$logger->debug('Server launch');
 		// Seems that below code causes exceptions on CentOS. I keep it commented for now!
 		/*
 		if ($this->debug) {
-			Log::debug($this->server->httpRequest);
+			$logger->debug($this->server->httpRequest);
 		}
 		*/
 		$this->server->exec();
