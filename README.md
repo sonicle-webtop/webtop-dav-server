@@ -156,11 +156,11 @@ You can follow the table below in order to perform this simple migration process
 |   |                             | log.dir                    |                                                     |
 |   |                             | log.name                   | Provide if you want to override default (see above) |
 |   | api.baseUrl                 | webtop.apiBaseUrl          |                                                     |
-|   | api.dav.url                 | webtop.apiUrlPath          | It rely on default, specify it only if necessary    |
+|   | api.dav.url                 | webtop.apiUrlPath          | It relies on default, specify it only if necessary  |
 |   | api.dav.baseUrl             |                            | Not used anymore (provided by webtop.apiBaseUrl)    |
-|   | api.caldav.url              | calendar.apiUrlPath        | It rely on default, specify it only if necessary    |
+|   | api.caldav.url              | calendar.apiUrlPath        | It relies on default, specify it only if necessary  |
 |   | api.caldav.baseUrl          |                            | Not used anymore (provided by webtop.apiBaseUrl)    |
-|   | api.carddav.url             | contacts.apiUrlPath        | It rely on default, specify it only if necessary    |
+|   | api.carddav.url             | contacts.apiUrlPath        | It relies on default, specify it only if necessary  |
 |   | api.carddav.baseUrl         |                            | Not used anymore (provided by webtop.apiBaseUrl)    |
 
 Previous configuration files are still supported but you are encouraged to migrate option names to the new ones.
