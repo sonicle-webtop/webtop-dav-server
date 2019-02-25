@@ -15,6 +15,15 @@ class Util {
 		}
 	}
 	
+	public static function readVersion() {
+		$file = 'VERSION';
+		$version = '0.0.0.0';
+		if (file_exists($file)) {
+			$version = fgets(fopen($file, 'r'));
+		}
+		return $version;
+	}
+	
 	public static function stripLeadingDirSeparator($path, $separator = DIRECTORY_SEPARATOR) {
 		if ($path === $separator) {
 			return $path;

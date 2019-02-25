@@ -21,7 +21,7 @@
 		"monolog/monolog": "^1.23",
 		"hassankhan/config": "^1.0",
 		"guzzlehttp/guzzle": "^6.2",
-		"sabre/dav": "3.2.2"
+		"sabre/dav": "^3.2.2"
 	},
 	"autoload": {
 		"psr-4": {
@@ -29,6 +29,9 @@
 			"WT\\Client\\Core\\": "lib/webtop-core-client/",
 			"WT\\Client\\Calendar\\": "lib/webtop-calendar-client/",
 			"WT\\Client\\Contacts\\": "lib/webtop-contacts-client/"
-		}
+		},
+		"files": [
+			"package-info.php"
+		]
 	}
 }

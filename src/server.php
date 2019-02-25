@@ -2,7 +2,6 @@
 
 error_reporting(E_ALL & ~E_NOTICE & ~E_USER_NOTICE);
 
-require_once 'version.php';
 require_once 'vendor/autoload.php';
 
 // No php execution timeout for webdav
