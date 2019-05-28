@@ -81,7 +81,7 @@ You can instead find a fully-featured example in [example-full.config.json](./sr
 At the bare minimum, you need to set values to the following options: *log.dir*, *baseUri*, *webtop.apiBaseUrl*. (you can find them below marked with &#9888;)
 
 * `timezone` \[string]
-  The default server timezone. It must be one of the [supported timezones](http://www.php.net/manual/en/timezones.php). *(Defaults to: Europe/Rome)*
+  The default server timezone. It must be one of the [supported timezones](http://www.php.net/manual/en/timezones.php), excluding those that do not start with the following prefixes: Africa, America, Asia, Atlantic, Australia, Europe, Indian, Pacific. *(Defaults to: Europe/Rome)*
 
 * `log.level` \[string]
   The actual logging level. Allowed values are: OFF, ERROR, WARN, INFO, DEBUG, TRACE. *(Defaults to: `ERROR`)*
