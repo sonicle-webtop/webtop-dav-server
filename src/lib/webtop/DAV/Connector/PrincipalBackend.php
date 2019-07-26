@@ -70,6 +70,8 @@ class PrincipalBackend extends \Sabre\DAVACL\PrincipalBackend\AbstractBackend {
 		// In some cases this method is called without authentication data.
 		// Reply with a exception suggesting client to authenticate!
 		if ($this->bridge->getCurrentUser() === false) {
+			// Turning off "unauthenticated access" support (http://sabre.io/dav/upgrade/3.1-to-3.2/)
+			// in Server.php should limit this exception throwing and logging.
 			$logger->warn('No current user found. Replying: 401 WWW-Authenticate');
 			throw new NotAuthenticated();
 		}

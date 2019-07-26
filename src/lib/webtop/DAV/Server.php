@@ -61,7 +61,11 @@ class Server {
 		}
 		
 		$this->server->addPlugin(new \Sabre\DAV\Sync\Plugin());
-		$this->server->addPlugin(new \Sabre\DAVACL\Plugin());
+		$aclPlugin = new \Sabre\DAVACL\Plugin();
+		// Turn off "unauthenticated access" support introduced by sabre 3.2 (http://sabre.io/dav/upgrade/3.1-to-3.2/)
+		// This avoids exception tracing (and log flooding) in PrincipalBackend->getPrincipalByPath
+		$aclPlugin->allowUnauthenticatedAccess = false;
+		$this->server->addPlugin($aclPlugin);
 		
 		// calendar plugins
 		if ($caldavEnabled) {
