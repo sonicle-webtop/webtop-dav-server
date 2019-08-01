@@ -64,9 +64,9 @@ class Bridge {
 	
 	protected function getPrincipalInfo(\WT\Client\Core\Configuration $config, $username) {
 		$logger = $this->getLogger();
-		$priApi = new \WT\Client\Core\Api\DavPrincipalsApi(null, $config);
+		$api = new \WT\Client\Core\Api\PrincipalsApi(null, $config);
 		$logger->debug('[REST] --> getPrincipalInfo()');
-		$item = $priApi->getPrincipalInfo($username);
+		$item = $api->getPrincipalInfo($username);
 		if ($logger->isDebugEnabled()) $logger->debug('[REST] ...'.PHP_EOL.'{}', [$item]);
 		return $item;
 	}
