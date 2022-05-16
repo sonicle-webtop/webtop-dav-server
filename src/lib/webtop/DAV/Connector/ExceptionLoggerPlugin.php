@@ -11,6 +11,7 @@ use Sabre\DAV\Exception\NotFound;
 use Sabre\DAV\Exception\NotImplemented;
 use Sabre\DAV\Exception\PreconditionFailed;
 use Sabre\DAV\Exception\ServiceUnavailable;
+use Sabre\DAVACL\Exception\NeedPrivileges;
 
 class ExceptionLoggerPlugin extends \Sabre\DAV\ServerPlugin {
 	protected $nonFatalExceptions = [
@@ -41,7 +42,9 @@ class ExceptionLoggerPlugin extends \Sabre\DAV\ServerPlugin {
 		Conflict::class => true,
 		// happens when a certain method is not allowed to be called
 		// for example creating a folder that already exists
-		MethodNotAllowed::class => true
+		MethodNotAllowed::class => true,
+		// happens when a requested operation cannot be satisfied due to ACLs configuration
+		NeedPrivileges::class => true
 	];
 	
 	private $logger;
