@@ -33,15 +33,17 @@ class Calendar extends \Sabre\CalDAV\Calendar {
 				'principal' => $this->getOwner(),
 				'protected' => true,
 			];
-			$acl[] = [
-				'privilege' => '{DAV:}write-content',
-				'principal' => $this->getOwner(),
-				'protected' => true,
-			];
 		}
 		if (strpos($elacl, 'c') !== false) {
 			$acl[] = [
 				'privilege' => '{DAV:}bind',
+				'principal' => $this->getOwner(),
+				'protected' => true,
+			];
+		}
+		if (strpos($elacl, 'u') !== false) {
+			$acl[] = [
+				'privilege' => '{DAV:}write-content',
 				'principal' => $this->getOwner(),
 				'protected' => true,
 			];
