@@ -4,33 +4,32 @@ namespace Sabre\VObject;
 
 use PHPUnit\Framework\TestCase;
 
-class JCardTest extends TestCase {
-
-    function testToJCard() {
-
+class JCardTest extends TestCase
+{
+    public function testToJCard()
+    {
         $card = new Component\VCard([
-            "VERSION"          => "4.0",
-            "UID"              => "foo",
-            "BDAY"             => "19850407",
-            "REV"              => "19951031T222710Z",
-            "LANG"             => "nl",
-            "N"                => ["Last", "First", "Middle", "", ""],
-            "item1.TEL"        => "+1 555 123456",
-            "item1.X-AB-LABEL" => "Walkie Talkie",
-            "ADR"              => [
-                "",
-                "",
-                ["My Street", "Left Side", "Second Shack"],
-                "Hometown",
-                "PA",
-                "18252",
-                "U.S.A",
+            'VERSION' => '4.0',
+            'UID' => 'foo',
+            'BDAY' => '19850407',
+            'REV' => '19951031T222710Z',
+            'LANG' => 'nl',
+            'N' => ['Last', 'First', 'Middle', '', ''],
+            'item1.TEL' => '+1 555 123456',
+            'item1.X-AB-LABEL' => 'Walkie Talkie',
+            'ADR' => [
+                '',
+                '',
+                ['My Street', 'Left Side', 'Second Shack'],
+                'Hometown',
+                'PA',
+                '18252',
+                'U.S.A',
             ],
         ]);
 
         $card->add('BDAY', '1979-12-25', ['VALUE' => 'DATE', 'X-PARAM' => [1, 2]]);
         $card->add('BDAY', '1979-12-25T02:00:00', ['VALUE' => 'DATE-TIME']);
-
 
         $card->add('X-TRUNCATED', '--1225', ['VALUE' => 'DATE']);
         $card->add('X-TIME-LOCAL', '123000', ['VALUE' => 'TIME']);
@@ -45,153 +44,151 @@ class JCardTest extends TestCase {
         $card->add('TZ', '-0500', ['VALUE' => 'UTC-OFFSET']);
 
         $expected = [
-            "vcard",
+            'vcard',
             [
                 [
-                    "version",
-                    new \StdClass(),
-                    "text",
-                    "4.0"
+                    'version',
+                    new \stdClass(),
+                    'text',
+                    '4.0',
                 ],
                 [
-                    "prodid",
-                    new \StdClass(),
-                    "text",
-                    "-//Sabre//Sabre VObject " . Version::VERSION . "//EN",
+                    'prodid',
+                    new \stdClass(),
+                    'text',
+                    '-//Sabre//Sabre VObject '.Version::VERSION.'//EN',
                 ],
                 [
-                    "uid",
-                    new \StdClass(),
-                    "text",
-                    "foo",
+                    'uid',
+                    new \stdClass(),
+                    'text',
+                    'foo',
                 ],
                 [
-                    "bday",
-                    new \StdClass(),
-                    "date-and-or-time",
-                    "1985-04-07",
+                    'bday',
+                    new \stdClass(),
+                    'date-and-or-time',
+                    '1985-04-07',
                 ],
                 [
-                    "bday",
-                    (object)[
-                        'x-param' => [1,2],
+                    'bday',
+                    (object) [
+                        'x-param' => [1, 2],
                     ],
-                    "date",
-                    "1979-12-25",
+                    'date',
+                    '1979-12-25',
                 ],
                 [
-                    "bday",
-                    new \StdClass(),
-                    "date-time",
-                    "1979-12-25T02:00:00",
+                    'bday',
+                    new \stdClass(),
+                    'date-time',
+                    '1979-12-25T02:00:00',
                 ],
                 [
-                    "rev",
-                    new \StdClass(),
-                    "timestamp",
-                    "1995-10-31T22:27:10Z",
+                    'rev',
+                    new \stdClass(),
+                    'timestamp',
+                    '1995-10-31T22:27:10Z',
                 ],
                 [
-                    "lang",
-                    new \StdClass(),
-                    "language-tag",
-                    "nl",
+                    'lang',
+                    new \stdClass(),
+                    'language-tag',
+                    'nl',
                 ],
                 [
-                    "n",
-                    new \StdClass(),
-                    "text",
-                    ["Last", "First", "Middle", "", ""],
+                    'n',
+                    new \stdClass(),
+                    'text',
+                    ['Last', 'First', 'Middle', '', ''],
                 ],
                 [
-                    "tel",
-                    (object)[
-                        "group" => "item1",
+                    'tel',
+                    (object) [
+                        'group' => 'item1',
                     ],
-                    "text",
-                    "+1 555 123456",
+                    'text',
+                    '+1 555 123456',
                 ],
                 [
-                    "x-ab-label",
-                    (object)[
-                        "group" => "item1",
+                    'x-ab-label',
+                    (object) [
+                        'group' => 'item1',
                     ],
-                    "unknown",
-                    "Walkie Talkie",
+                    'unknown',
+                    'Walkie Talkie',
                 ],
                 [
-                    "adr",
-                    new \StdClass(),
-                    "text",
+                    'adr',
+                    new \stdClass(),
+                    'text',
                         [
-                            "",
-                            "",
-                            ["My Street", "Left Side", "Second Shack"],
-                            "Hometown",
-                            "PA",
-                            "18252",
-                            "U.S.A",
+                            '',
+                            '',
+                            ['My Street', 'Left Side', 'Second Shack'],
+                            'Hometown',
+                            'PA',
+                            '18252',
+                            'U.S.A',
                         ],
                 ],
                 [
-                    "x-truncated",
-                    new \StdClass(),
-                    "date",
-                    "--12-25",
+                    'x-truncated',
+                    new \stdClass(),
+                    'date',
+                    '--12-25',
                 ],
                 [
-                    "x-time-local",
-                    new \StdClass(),
-                    "time",
-                    "12:30:00"
+                    'x-time-local',
+                    new \stdClass(),
+                    'time',
+                    '12:30:00',
                 ],
                 [
-                    "x-time-utc",
-                    new \StdClass(),
-                    "time",
-                    "12:30:00Z"
+                    'x-time-utc',
+                    new \stdClass(),
+                    'time',
+                    '12:30:00Z',
                 ],
                 [
-                    "x-time-offset",
-                    new \StdClass(),
-                    "time",
-                    "12:30:00-08:00"
+                    'x-time-offset',
+                    new \stdClass(),
+                    'time',
+                    '12:30:00-08:00',
                 ],
                 [
-                    "x-time-reduced",
-                    new \StdClass(),
-                    "time",
-                    "23"
+                    'x-time-reduced',
+                    new \stdClass(),
+                    'time',
+                    '23',
                 ],
                 [
-                    "x-time-truncated",
-                    new \StdClass(),
-                    "time",
-                    "--30"
+                    'x-time-truncated',
+                    new \stdClass(),
+                    'time',
+                    '--30',
                 ],
                 [
-                    "x-karma-points",
-                    new \StdClass(),
-                    "integer",
-                    42
+                    'x-karma-points',
+                    new \stdClass(),
+                    'integer',
+                    42,
                 ],
                 [
-                    "x-grade",
-                    new \StdClass(),
-                    "float",
-                    1.3
+                    'x-grade',
+                    new \stdClass(),
+                    'float',
+                    1.3,
                 ],
                 [
-                    "tz",
-                    new \StdClass(),
-                    "utc-offset",
-                    "-05:00",
+                    'tz',
+                    new \stdClass(),
+                    'utc-offset',
+                    '-05:00',
                 ],
             ],
         ];
 
         $this->assertEquals($expected, $card->jsonSerialize());
-
     }
-
 }
