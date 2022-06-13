@@ -8,58 +8,30 @@ use WT\DAV\Bridge;
 class AddressBook extends \Sabre\CardDAV\AddressBook {
 	
 	/**
-     * Updates the ACL
-     *
-     * This method will receive a list of new ACE's as an array argument.
-     *
-     * @param array $acl
-     * @return void
+     * Overrides parent getChild
+	 *  - fix missing acl property (taken from getChildACL) in parent method
+	 *    (see \Sabre\CalDAV\Calendar->getChild for a reference impl.)
      */
-    function setACL(array $acl) {
-		throw new DAV\Exception\MethodNotAllowed('Changing ACL is not supported');
+	function getChild($name) {
+		$obj = $this->carddavBackend->getCard($this->addressBookInfo['id'], $name);
+		if (!$obj) throw new \Sabre\DAV\Exception\NotFound('Card not found');
+		$obj['acl'] = $this->getChildACL();
+		return new \Sabre\CardDAV\Card($this->carddavBackend, $this->addressBookInfo, $obj);
 	}
 	
 	/**
-     * Returns a list of ACE's for this node.
-     *
-     * Each ACE has the following properties:
-     *   * 'privilege', a string such as {DAV:}read or {DAV:}write. These are
-     *     currently the only supported privileges
-     *   * 'principal', a url to the principal who owns the node
-     *   * 'protected' (optional), indicating that this ACE is not allowed to
-     *      be updated.
-     *
-     * @return array
+     * Overrides parent getACL
+	 *  - returns customized ACLs based on folder/elements configuration
      */
     function getACL() {
-		$sacl = $this->addressBookInfo['{'.Bridge::NS_WEBTOP.'}acl-folder'];
-				
-		$acl = [
-			[
-				'privilege' => '{DAV:}read',
-				'principal' => $this->getOwner(),
-				'protected' => true,
-			]
-		];
-		if ((strpos($sacl, 'u') != false) || (strpos($sacl, 'd') != false)) {
-			$acl[] = [
-				'privilege' => '{DAV:}write',
-				'principal' => $this->getOwner(),
-				'protected' => true,
-			];
-		}
-		return $acl;
-	}
-	
-	/**
-     * This method returns the ACL's for card nodes in this address book.
-     * The result of this method automatically gets passed to the
-     * card nodes in this address book.
-     *
-     * @return array
-     */
-    function getChildACL() {
-		$sacl = $this->addressBookInfo['{'.Bridge::NS_WEBTOP.'}acl-elements'];
+		$foacl = $this->addressBookInfo['{'.Bridge::NS_WEBTOP.'}acl-folder'];
+		$elacl = $this->addressBookInfo['{'.Bridge::NS_WEBTOP.'}acl-elements'];
+		
+		// https://datatracker.ietf.org/doc/html/rfc3744.html#page-10
+		// https://datatracker.ietf.org/doc/html/rfc3744#page-12
+		// https://datatracker.ietf.org/doc/html/rfc6352
+		// https://opensource.apple.com/source/subversion/subversion-52/subversion/notes/webdav-acl-notes.auto.html
+		// https://svn.apache.org/repos/asf/subversion/trunk/notes/http-and-webdav/webdav-acl-notes
 		
 		$acl = [
 			[
@@ -68,9 +40,61 @@ class AddressBook extends \Sabre\CardDAV\AddressBook {
 				'protected' => true,
 			]
 		];
-		if ((strpos($sacl, 'c') != false) || (strpos($sacl, 'u') != false) || (strpos($sacl, 'd') != false)) {
+		if (strpos($foacl, 'u') !== false) {
 			$acl[] = [
-				'privilege' => '{DAV:}write',
+				'privilege' => '{DAV:}write-properties',
+				'principal' => $this->getOwner(),
+				'protected' => true,
+			];
+		}
+		if (strpos($elacl, 'c') !== false) {
+			$acl[] = [
+				'privilege' => '{DAV:}bind',
+				'principal' => $this->getOwner(),
+				'protected' => true,
+			];
+		}
+		if (strpos($elacl, 'u') !== false) {
+			$acl[] = [
+				'privilege' => '{DAV:}write-content',
+				'principal' => $this->getOwner(),
+				'protected' => true,
+			];
+		}
+		if (strpos($elacl, 'd') !== false) {
+			$acl[] = [
+				'privilege' => '{DAV:}unbind',
+				'principal' => $this->getOwner(),
+				'protected' => true,
+			];
+		}
+		return $acl;
+	}
+	
+	/**
+     * Overrides parent getChildACL
+	 *  - returns customized ACLs based on folder/elements configuration
+     */
+    function getChildACL() {
+		$foacl = $this->addressBookInfo['{'.Bridge::NS_WEBTOP.'}acl-folder'];
+		$elacl = $this->addressBookInfo['{'.Bridge::NS_WEBTOP.'}acl-elements'];
+		
+		$acl = [];
+		if (strpos($foacl, 'r') !== false) {
+			$acl[] = [
+				'privilege' => '{DAV:}read',
+				'principal' => $this->getOwner(),
+				'protected' => true,
+			];
+		}
+		if (strpos($elacl, 'u') !== false) {
+			$acl[] = [
+				'privilege' => '{DAV:}write-properties',
+				'principal' => $this->getOwner(),
+				'protected' => true,
+			];
+			$acl[] = [
+				'privilege' => '{DAV:}write-content',
 				'principal' => $this->getOwner(),
 				'protected' => true,
 			];

@@ -8,19 +8,12 @@ use WT\DAV\Bridge;
 class Calendar extends \Sabre\CalDAV\Calendar {
 	
 	/**
-     * Returns a list of ACE's for this node.
-     *
-     * Each ACE has the following properties:
-     *   * 'privilege', a string such as {DAV:}read or {DAV:}write. These are
-     *     currently the only supported privileges
-     *   * 'principal', a url to the principal who owns the node
-     *   * 'protected' (optional), indicating that this ACE is not allowed to
-     *      be updated.
-     *
-     * @return array
+     * Overrides parent getACL
+	 *  - returns customized ACLs based on folder/elements configuration
      */
     function getACL() {
-		$sacl = $this->calendarInfo['{'.Bridge::NS_WEBTOP.'}acl-folder'];
+		$foacl = $this->calendarInfo['{'.Bridge::NS_WEBTOP.'}acl-folder'];
+		$elacl = $this->calendarInfo['{'.Bridge::NS_WEBTOP.'}acl-elements'];
 		
         $acl = [
             [
@@ -29,58 +22,66 @@ class Calendar extends \Sabre\CalDAV\Calendar {
                 'protected' => true,
             ],
             [
-                'privilege' => '{DAV:}read',
-                'principal' => $this->getOwner() . '/calendar-proxy-write',
-                'protected' => true,
-            ],
-            [
-                'privilege' => '{DAV:}read',
-                'principal' => $this->getOwner() . '/calendar-proxy-read',
-                'protected' => true,
-            ],
-            [
                 'privilege' => '{' . \Sabre\CalDAV\Plugin::NS_CALDAV . '}read-free-busy',
                 'principal' => '{DAV:}authenticated',
                 'protected' => true,
             ],
-
         ];
-		if ((strpos($sacl, 'u') != false) || (strpos($sacl, 'd') != false)) {
+		if (strpos($foacl, 'u') !== false) {
 			$acl[] = [
-                'privilege' => '{DAV:}write',
-                'principal' => $this->getOwner(),
-                'protected' => true,
-            ];
-            $acl[] = [
-                'privilege' => '{DAV:}write',
-                'principal' => $this->getOwner() . '/calendar-proxy-write',
-                'protected' => true,
-            ];
+				'privilege' => '{DAV:}write-properties',
+				'principal' => $this->getOwner(),
+				'protected' => true,
+			];
+		}
+		if (strpos($elacl, 'c') !== false) {
+			$acl[] = [
+				'privilege' => '{DAV:}bind',
+				'principal' => $this->getOwner(),
+				'protected' => true,
+			];
+		}
+		if (strpos($elacl, 'u') !== false) {
+			$acl[] = [
+				'privilege' => '{DAV:}write-content',
+				'principal' => $this->getOwner(),
+				'protected' => true,
+			];
+		}
+		if (strpos($elacl, 'd') !== false) {
+			$acl[] = [
+				'privilege' => '{DAV:}unbind',
+				'principal' => $this->getOwner(),
+				'protected' => true,
+			];
 		}
         return $acl;
-
     }
 	
 	/**
-     * This method returns the ACL's for calendar objects in this calendar.
-     * The result of this method automatically gets passed to the
-     * calendar-object nodes in the calendar.
-     *
-     * @return array
+     * Overrides parent getChildACL
+	 *  - returns customized ACLs based on folder/elements configuration
      */
     function getChildACL() {
-		$sacl = $this->calendarInfo['{'.Bridge::NS_WEBTOP.'}acl-elements'];
+		$foacl = $this->calendarInfo['{'.Bridge::NS_WEBTOP.'}acl-folder'];
+		$elacl = $this->calendarInfo['{'.Bridge::NS_WEBTOP.'}acl-elements'];
 		
-		$acl = [
-			[
+		$acl = [];
+		if (strpos($foacl, 'r') !== false) {
+			$acl[] = [
 				'privilege' => '{DAV:}read',
 				'principal' => $this->getOwner(),
 				'protected' => true,
-			]
-		];
-		if ((strpos($sacl, 'c') != false) || (strpos($sacl, 'u') != false) || (strpos($sacl, 'd') != false)) {
+			];
+		}
+		if (strpos($elacl, 'u') !== false) {
 			$acl[] = [
-				'privilege' => '{DAV:}write',
+				'privilege' => '{DAV:}write-properties',
+				'principal' => $this->getOwner(),
+				'protected' => true,
+			];
+			$acl[] = [
+				'privilege' => '{DAV:}write-content',
 				'principal' => $this->getOwner(),
 				'protected' => true,
 			];
