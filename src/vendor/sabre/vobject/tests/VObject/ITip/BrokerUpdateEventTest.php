@@ -2,10 +2,10 @@
 
 namespace Sabre\VObject\ITip;
 
-class BrokerUpdateEventTest extends BrokerTester {
-
-    function testInviteChange() {
-
+class BrokerUpdateEventTest extends BrokerTester
+{
+    public function testInviteChange()
+    {
         $oldMessage = <<<ICS
 BEGIN:VCALENDAR
 VERSION:2.0
@@ -22,7 +22,6 @@ DTEND:20140716T130000Z
 END:VEVENT
 END:VCALENDAR
 ICS;
-
 
         $newMessage = <<<ICS
 BEGIN:VCALENDAR
@@ -45,15 +44,15 @@ ICS;
 
         $expected = [
             [
-                'uid'               => 'foobar',
-                'method'            => 'CANCEL',
-                'component'         => 'VEVENT',
-                'sender'            => 'mailto:strunk@example.org',
-                'senderName'        => 'Strunk',
-                'recipient'         => 'mailto:one@example.org',
-                'recipientName'     => 'One',
+                'uid' => 'foobar',
+                'method' => 'CANCEL',
+                'component' => 'VEVENT',
+                'sender' => 'mailto:strunk@example.org',
+                'senderName' => 'Strunk',
+                'recipient' => 'mailto:one@example.org',
+                'recipientName' => 'One',
                 'significantChange' => true,
-                'message'           => <<<ICS
+                'message' => <<<ICS
 BEGIN:VCALENDAR
 VERSION:2.0
 PRODID:-//Sabre//Sabre VObject $version//EN
@@ -71,18 +70,17 @@ ATTENDEE;CN=One:mailto:one@example.org
 END:VEVENT
 END:VCALENDAR
 ICS
-
             ],
             [
-                'uid'               => 'foobar',
-                'method'            => 'REQUEST',
-                'component'         => 'VEVENT',
-                'sender'            => 'mailto:strunk@example.org',
-                'senderName'        => 'Strunk',
-                'recipient'         => 'mailto:two@example.org',
-                'recipientName'     => 'Two',
+                'uid' => 'foobar',
+                'method' => 'REQUEST',
+                'component' => 'VEVENT',
+                'sender' => 'mailto:strunk@example.org',
+                'senderName' => 'Strunk',
+                'recipient' => 'mailto:two@example.org',
+                'recipientName' => 'Two',
                 'significantChange' => false,
-                'message'           => <<<ICS
+                'message' => <<<ICS
 BEGIN:VCALENDAR
 VERSION:2.0
 PRODID:-//Sabre//Sabre VObject $version//EN
@@ -98,21 +96,21 @@ ATTENDEE;CN=Two;PARTSTAT=NEEDS-ACTION:mailto:two@example.org
 ATTENDEE;CN=Three;PARTSTAT=NEEDS-ACTION:mailto:three@example.org
 DTSTART:20140716T120000Z
 DTEND:20140716T130000Z
+DTSTAMP:**ANY**
 END:VEVENT
 END:VCALENDAR
 ICS
-
             ],
             [
-                'uid'               => 'foobar',
-                'method'            => 'REQUEST',
-                'component'         => 'VEVENT',
-                'sender'            => 'mailto:strunk@example.org',
-                'senderName'        => 'Strunk',
-                'recipient'         => 'mailto:three@example.org',
-                'recipientName'     => 'Three',
+                'uid' => 'foobar',
+                'method' => 'REQUEST',
+                'component' => 'VEVENT',
+                'sender' => 'mailto:strunk@example.org',
+                'senderName' => 'Strunk',
+                'recipient' => 'mailto:three@example.org',
+                'recipientName' => 'Three',
                 'significantChange' => true,
-                'message'           => <<<ICS
+                'message' => <<<ICS
 BEGIN:VCALENDAR
 VERSION:2.0
 PRODID:-//Sabre//Sabre VObject $version//EN
@@ -128,19 +126,18 @@ ATTENDEE;CN=Two;PARTSTAT=NEEDS-ACTION:mailto:two@example.org
 ATTENDEE;CN=Three;PARTSTAT=NEEDS-ACTION:mailto:three@example.org
 DTSTART:20140716T120000Z
 DTEND:20140716T130000Z
+DTSTAMP:**ANY**
 END:VEVENT
 END:VCALENDAR
 ICS
-
             ],
         ];
 
         $this->parse($oldMessage, $newMessage, $expected, 'mailto:strunk@example.org');
-
     }
 
-    function testInviteChangeFromNonSchedulingToSchedulingObject() {
-
+    public function testInviteChangeFromNonSchedulingToSchedulingObject()
+    {
         $oldMessage = <<<ICS
 BEGIN:VCALENDAR
 VERSION:2.0
@@ -152,7 +149,6 @@ DTEND:20140716T130000Z
 END:VEVENT
 END:VCALENDAR
 ICS;
-
 
         $newMessage = <<<ICS
 BEGIN:VCALENDAR
@@ -172,14 +168,14 @@ ICS;
 
         $expected = [
             [
-                'uid'           => 'foobar',
-                'method'        => 'REQUEST',
-                'component'     => 'VEVENT',
-                'sender'        => 'mailto:strunk@example.org',
-                'senderName'    => 'Strunk',
-                'recipient'     => 'mailto:one@example.org',
+                'uid' => 'foobar',
+                'method' => 'REQUEST',
+                'component' => 'VEVENT',
+                'sender' => 'mailto:strunk@example.org',
+                'senderName' => 'Strunk',
+                'recipient' => 'mailto:one@example.org',
                 'recipientName' => 'One',
-                'message'       => <<<ICS
+                'message' => <<<ICS
 BEGIN:VCALENDAR
 VERSION:2.0
 PRODID:-//Sabre//Sabre VObject $version//EN
@@ -192,20 +188,18 @@ ORGANIZER;CN=Strunk:mailto:strunk@example.org
 ATTENDEE;CN=One;PARTSTAT=NEEDS-ACTION:mailto:one@example.org
 DTSTART:20140716T120000Z
 DTEND:20140716T130000Z
+DTSTAMP:**ANY**
 END:VEVENT
 END:VCALENDAR
 ICS
-
             ],
-
         ];
 
         $this->parse($oldMessage, $newMessage, $expected, 'mailto:strunk@example.org');
-
     }
 
-    function testInviteChangeFromSchedulingToNonSchedulingObject() {
-
+    public function testInviteChangeFromSchedulingToNonSchedulingObject()
+    {
         $oldMessage = <<<ICS
 BEGIN:VCALENDAR
 VERSION:2.0
@@ -219,7 +213,6 @@ DTEND:20140716T130000Z
 END:VEVENT
 END:VCALENDAR
 ICS;
-
 
         $newMessage = <<<ICS
 BEGIN:VCALENDAR
@@ -237,10 +230,10 @@ ICS;
 
         $expected = [
             [
-                'uid'       => 'foobar',
-                'method'    => 'CANCEL',
+                'uid' => 'foobar',
+                'method' => 'CANCEL',
                 'component' => 'VEVENT',
-                'message'   => <<<ICS
+                'message' => <<<ICS
 BEGIN:VCALENDAR
 VERSION:2.0
 PRODID:-//Sabre//Sabre VObject $version//EN
@@ -257,17 +250,14 @@ ATTENDEE;CN=One:mailto:one@example.org
 END:VEVENT
 END:VCALENDAR
 ICS
-
             ],
-
         ];
 
         $this->parse($oldMessage, $newMessage, $expected, 'mailto:strunk@example.org');
-
     }
 
-    function testNoAttendees() {
-
+    public function testNoAttendees()
+    {
         $oldMessage = <<<ICS
 BEGIN:VCALENDAR
 VERSION:2.0
@@ -279,7 +269,6 @@ DTEND:20140716T130000Z
 END:VEVENT
 END:VCALENDAR
 ICS;
-
 
         $newMessage = <<<ICS
 BEGIN:VCALENDAR
@@ -297,11 +286,10 @@ ICS;
 
         $expected = [];
         $this->parse($oldMessage, $newMessage, $expected, 'mailto:strunk@example.org');
-
     }
 
-    function testRemoveInstance() {
-
+    public function testRemoveInstance()
+    {
         $oldMessage = <<<ICS
 BEGIN:VCALENDAR
 VERSION:2.0
@@ -316,7 +304,6 @@ RRULE:FREQ=WEEKLY
 END:VEVENT
 END:VCALENDAR
 ICS;
-
 
         $newMessage = <<<ICS
 BEGIN:VCALENDAR
@@ -338,14 +325,14 @@ ICS;
 
         $expected = [
             [
-                'uid'           => 'foobar',
-                'method'        => 'REQUEST',
-                'component'     => 'VEVENT',
-                'sender'        => 'mailto:strunk@example.org',
-                'senderName'    => 'Strunk',
-                'recipient'     => 'mailto:one@example.org',
+                'uid' => 'foobar',
+                'method' => 'REQUEST',
+                'component' => 'VEVENT',
+                'sender' => 'mailto:strunk@example.org',
+                'senderName' => 'Strunk',
+                'recipient' => 'mailto:one@example.org',
                 'recipientName' => 'One',
-                'message'       => <<<ICS
+                'message' => <<<ICS
 BEGIN:VCALENDAR
 VERSION:2.0
 PRODID:-//Sabre//Sabre VObject $version//EN
@@ -360,15 +347,14 @@ DTSTART;TZID=America/Toronto:20140716T120000
 DTEND;TZID=America/Toronto:20140716T130000
 RRULE:FREQ=WEEKLY
 EXDATE;TZID=America/Toronto:20140724T120000
+DTSTAMP:**ANY**
 END:VEVENT
 END:VCALENDAR
 ICS
-
             ],
         ];
 
         $this->parse($oldMessage, $newMessage, $expected, 'mailto:strunk@example.org');
-
     }
 
     /**
@@ -377,8 +363,8 @@ ICS
      *
      * This should ensure that the message is significant for every attendee,
      */
-    function testInviteChangeSignificantChange() {
-
+    public function testInviteChangeSignificantChange()
+    {
         $oldMessage = <<<ICS
 BEGIN:VCALENDAR
 VERSION:2.0
@@ -395,7 +381,6 @@ DTEND:20140716T130000Z
 END:VEVENT
 END:VCALENDAR
 ICS;
-
 
         $newMessage = <<<ICS
 BEGIN:VCALENDAR
@@ -418,15 +403,15 @@ ICS;
 
         $expected = [
             [
-                'uid'               => 'foobar',
-                'method'            => 'CANCEL',
-                'component'         => 'VEVENT',
-                'sender'            => 'mailto:strunk@example.org',
-                'senderName'        => 'Strunk',
-                'recipient'         => 'mailto:one@example.org',
-                'recipientName'     => 'One',
+                'uid' => 'foobar',
+                'method' => 'CANCEL',
+                'component' => 'VEVENT',
+                'sender' => 'mailto:strunk@example.org',
+                'senderName' => 'Strunk',
+                'recipient' => 'mailto:one@example.org',
+                'recipientName' => 'One',
                 'significantChange' => true,
-                'message'           => <<<ICS
+                'message' => <<<ICS
 BEGIN:VCALENDAR
 VERSION:2.0
 PRODID:-//Sabre//Sabre VObject $version//EN
@@ -443,18 +428,17 @@ ATTENDEE;CN=One:mailto:one@example.org
 END:VEVENT
 END:VCALENDAR
 ICS
-
             ],
             [
-                'uid'               => 'foobar',
-                'method'            => 'REQUEST',
-                'component'         => 'VEVENT',
-                'sender'            => 'mailto:strunk@example.org',
-                'senderName'        => 'Strunk',
-                'recipient'         => 'mailto:two@example.org',
-                'recipientName'     => 'Two',
+                'uid' => 'foobar',
+                'method' => 'REQUEST',
+                'component' => 'VEVENT',
+                'sender' => 'mailto:strunk@example.org',
+                'senderName' => 'Strunk',
+                'recipient' => 'mailto:two@example.org',
+                'recipientName' => 'Two',
                 'significantChange' => true,
-                'message'           => <<<ICS
+                'message' => <<<ICS
 BEGIN:VCALENDAR
 VERSION:2.0
 PRODID:-//Sabre//Sabre VObject $version//EN
@@ -470,21 +454,21 @@ ATTENDEE;CN=Two;PARTSTAT=NEEDS-ACTION:mailto:two@example.org
 ATTENDEE;CN=Three;PARTSTAT=NEEDS-ACTION:mailto:three@example.org
 DTSTART:20140716T120000Z
 DTEND:20140716T130000Z
+DTSTAMP:**ANY**
 END:VEVENT
 END:VCALENDAR
 ICS
-
             ],
             [
-                'uid'               => 'foobar',
-                'method'            => 'REQUEST',
-                'component'         => 'VEVENT',
-                'sender'            => 'mailto:strunk@example.org',
-                'senderName'        => 'Strunk',
-                'recipient'         => 'mailto:three@example.org',
-                'recipientName'     => 'Three',
+                'uid' => 'foobar',
+                'method' => 'REQUEST',
+                'component' => 'VEVENT',
+                'sender' => 'mailto:strunk@example.org',
+                'senderName' => 'Strunk',
+                'recipient' => 'mailto:three@example.org',
+                'recipientName' => 'Three',
                 'significantChange' => true,
-                'message'           => <<<ICS
+                'message' => <<<ICS
 BEGIN:VCALENDAR
 VERSION:2.0
 PRODID:-//Sabre//Sabre VObject $version//EN
@@ -500,19 +484,18 @@ ATTENDEE;CN=Two;PARTSTAT=NEEDS-ACTION:mailto:two@example.org
 ATTENDEE;CN=Three;PARTSTAT=NEEDS-ACTION:mailto:three@example.org
 DTSTART:20140716T120000Z
 DTEND:20140716T130000Z
+DTSTAMP:**ANY**
 END:VEVENT
 END:VCALENDAR
 ICS
-
             ],
         ];
 
         $this->parse($oldMessage, $newMessage, $expected, 'mailto:strunk@example.org');
-
     }
 
-    function testInviteNoChange() {
-
+    public function testInviteNoChange()
+    {
         $oldMessage = <<<ICS
 BEGIN:VCALENDAR
 VERSION:2.0
@@ -527,7 +510,6 @@ DTEND:20140716T130000Z
 END:VEVENT
 END:VCALENDAR
 ICS;
-
 
         $newMessage = <<<ICS
 BEGIN:VCALENDAR
@@ -548,15 +530,15 @@ ICS;
 
         $expected = [
             [
-                'uid'               => 'foobar',
-                'method'            => 'REQUEST',
-                'component'         => 'VEVENT',
-                'sender'            => 'mailto:strunk@example.org',
-                'senderName'        => 'Strunk',
-                'recipient'         => 'mailto:one@example.org',
-                'recipientName'     => 'One',
+                'uid' => 'foobar',
+                'method' => 'REQUEST',
+                'component' => 'VEVENT',
+                'sender' => 'mailto:strunk@example.org',
+                'senderName' => 'Strunk',
+                'recipient' => 'mailto:one@example.org',
+                'recipientName' => 'One',
                 'significantChange' => false,
-                'message'           => <<<ICS
+                'message' => <<<ICS
 BEGIN:VCALENDAR
 VERSION:2.0
 PRODID:-//Sabre//Sabre VObject $version//EN
@@ -570,20 +552,18 @@ ATTENDEE;CN=Strunk;PARTSTAT=ACCEPTED:mailto:strunk@example.org
 ATTENDEE;CN=One;PARTSTAT=NEEDS-ACTION:mailto:one@example.org
 DTSTART:20140716T120000Z
 DTEND:20140716T130000Z
+DTSTAMP:**ANY**
 END:VEVENT
 END:VCALENDAR
 ICS
-
             ],
-
         ];
 
         $this->parse($oldMessage, $newMessage, $expected, 'mailto:strunk@example.org');
-
     }
 
-    function testInviteNoChangeForceSend() {
-
+    public function testInviteNoChangeForceSend()
+    {
         $oldMessage = <<<ICS
 BEGIN:VCALENDAR
 VERSION:2.0
@@ -598,7 +578,6 @@ DTEND:20140716T130000Z
 END:VEVENT
 END:VCALENDAR
 ICS;
-
 
         $newMessage = <<<ICS
 BEGIN:VCALENDAR
@@ -619,15 +598,15 @@ ICS;
 
         $expected = [
             [
-                'uid'               => 'foobar',
-                'method'            => 'REQUEST',
-                'component'         => 'VEVENT',
-                'sender'            => 'mailto:strunk@example.org',
-                'senderName'        => 'Strunk',
-                'recipient'         => 'mailto:one@example.org',
-                'recipientName'     => 'One',
+                'uid' => 'foobar',
+                'method' => 'REQUEST',
+                'component' => 'VEVENT',
+                'sender' => 'mailto:strunk@example.org',
+                'senderName' => 'Strunk',
+                'recipient' => 'mailto:one@example.org',
+                'recipientName' => 'One',
                 'significantChange' => true,
-                'message'           => <<<ICS
+                'message' => <<<ICS
 BEGIN:VCALENDAR
 VERSION:2.0
 PRODID:-//Sabre//Sabre VObject $version//EN
@@ -641,20 +620,18 @@ ATTENDEE;CN=Strunk;PARTSTAT=ACCEPTED:mailto:strunk@example.org
 ATTENDEE;CN=One;PARTSTAT=NEEDS-ACTION:mailto:one@example.org
 DTSTART:20140716T120000Z
 DTEND:20140716T130000Z
+DTSTAMP:**ANY**
 END:VEVENT
 END:VCALENDAR
 ICS
-
             ],
-
         ];
 
         $this->parse($oldMessage, $newMessage, $expected, 'mailto:strunk@example.org');
-
     }
 
-    function testInviteRemoveAttendees() {
-
+    public function testInviteRemoveAttendees()
+    {
         $oldMessage = <<<ICS
 BEGIN:VCALENDAR
 VERSION:2.0
@@ -671,7 +648,6 @@ DTEND:20140716T130000Z
 END:VEVENT
 END:VCALENDAR
 ICS;
-
 
         $newMessage = <<<ICS
 BEGIN:VCALENDAR
@@ -690,15 +666,15 @@ ICS;
 
         $expected = [
             [
-                'uid'               => 'foobar',
-                'method'            => 'CANCEL',
-                'component'         => 'VEVENT',
-                'sender'            => 'mailto:strunk@example.org',
-                'senderName'        => 'Strunk',
-                'recipient'         => 'mailto:one@example.org',
-                'recipientName'     => 'One',
+                'uid' => 'foobar',
+                'method' => 'CANCEL',
+                'component' => 'VEVENT',
+                'sender' => 'mailto:strunk@example.org',
+                'senderName' => 'Strunk',
+                'recipient' => 'mailto:one@example.org',
+                'recipientName' => 'One',
                 'significantChange' => true,
-                'message'           => <<<ICS
+                'message' => <<<ICS
 BEGIN:VCALENDAR
 VERSION:2.0
 PRODID:-//Sabre//Sabre VObject $version//EN
@@ -716,18 +692,17 @@ ATTENDEE;CN=One:mailto:one@example.org
 END:VEVENT
 END:VCALENDAR
 ICS
-
             ],
             [
-                'uid'               => 'foobar',
-                'method'            => 'CANCEL',
-                'component'         => 'VEVENT',
-                'sender'            => 'mailto:strunk@example.org',
-                'senderName'        => 'Strunk',
-                'recipient'         => 'mailto:two@example.org',
-                'recipientName'     => 'Two',
+                'uid' => 'foobar',
+                'method' => 'CANCEL',
+                'component' => 'VEVENT',
+                'sender' => 'mailto:strunk@example.org',
+                'senderName' => 'Strunk',
+                'recipient' => 'mailto:two@example.org',
+                'recipientName' => 'Two',
                 'significantChange' => true,
-                'message'           => <<<ICS
+                'message' => <<<ICS
 BEGIN:VCALENDAR
 VERSION:2.0
 PRODID:-//Sabre//Sabre VObject $version//EN
@@ -745,16 +720,14 @@ ATTENDEE;CN=Two:mailto:two@example.org
 END:VEVENT
 END:VCALENDAR
 ICS
-
             ],
         ];
 
         $result = $this->parse($oldMessage, $newMessage, $expected, 'mailto:strunk@example.org');
-
     }
 
-    function testInviteChangeExdateOrder() {
-
+    public function testInviteChangeExdateOrder()
+    {
         $oldMessage = <<<ICS
 BEGIN:VCALENDAR
 VERSION:2.0
@@ -778,7 +751,6 @@ EXDATE:20150108T160000Z
 END:VEVENT
 END:VCALENDAR
 ICS;
-
 
         $newMessage = <<<ICS
 BEGIN:VCALENDAR
@@ -806,15 +778,15 @@ ICS;
 
         $expected = [
             [
-                'uid'               => 'foobar',
-                'method'            => 'REQUEST',
-                'component'         => 'VEVENT',
-                'sender'            => 'mailto:strunk@example.org',
-                'senderName'        => 'Strunk',
-                'recipient'         => 'mailto:one@example.org',
-                'recipientName'     => 'One',
+                'uid' => 'foobar',
+                'method' => 'REQUEST',
+                'component' => 'VEVENT',
+                'sender' => 'mailto:strunk@example.org',
+                'senderName' => 'Strunk',
+                'recipient' => 'mailto:one@example.org',
+                'recipientName' => 'One',
                 'significantChange' => false,
-                'message'           => <<<ICS
+                'message' => <<<ICS
 BEGIN:VCALENDAR
 VERSION:2.0
 PRODID:-//Sabre//Sabre VObject $version//EN
@@ -833,14 +805,13 @@ DTEND:20141211T170000Z
 RRULE:FREQ=WEEKLY
 EXDATE:20150101T160000Z
 EXDATE:20150108T160000Z,20141225T160000Z
+DTSTAMP:**ANY**
 END:VEVENT
 END:VCALENDAR
 ICS
-
             ],
         ];
 
         $this->parse($oldMessage, $newMessage, $expected, 'mailto:strunk@example.org');
-
     }
 }

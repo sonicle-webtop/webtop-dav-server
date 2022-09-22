@@ -1,6 +1,35 @@
 ChangeLog
 =========
 
+4.2.2 (2020-01-14)
+------------------
+
+* #465: Add TZ in iTip REPLY iTip messages
+* #486: Add PHONE-NUMBER value type (used for TEL in vCard 3.0)
+
+4.2.1 (2019-12-18)
+------------------
+
+* #469, #451: fix compat with php 7.4
+* #443: prevent running in indefinte loop
+* #449: Preventing creating a component for a root document
+* #450: Fix parse with option Forgiving with trailing equal
+* #459: fixed typo in VCalendar which resulting in usage of the wrong TimeZone
+* #462: Broker::parseEventForOrganizer copies DTSTAMP from $eventInfo that causes broken scheduling
+
+4.2.0 (2019-02-19)
+------------------
+
+* #432: DTSTAMP must be specified in UTC
+* #435: ORGANIZER e-mail address are case-insensitive
+* #441: Repairing BASE64 encoded vCard version 3
+
+4.2.0-alpha1 (2018-09-26)
+-------------------------
+
+* #412: Broker: add timezone to CANCEL messages
+* #424: Support php7.3
+
 4.1.6 (2018-04-20)
 ------------------
 
@@ -29,7 +58,7 @@ ChangeLog
 
 * #363: Repair script and de-duplicate properties that are only allowed once,
   but appear more than once. (@ddolcimascolo).
-* #377: Addes Pacific Time (US & Canada) as exchange timezone
+* #377: Added Pacific Time (US & Canada) as exchange timezone
 * #384: Added fallback for VCards without `FN`
 
 
