@@ -8,7 +8,6 @@ use Sabre\CalDAV\Plugin;
 use Sabre\CalDAV\Xml\Property\SupportedCalendarComponentSet;
 use Sabre\CalDAV\Xml\Property\ScheduleCalendarTransp;
 use lf4php\LoggerFactory;
-use WT\Log;
 use WT\DAV\Bridge;
 use WT\DAV\Config;
 

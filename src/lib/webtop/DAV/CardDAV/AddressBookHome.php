@@ -2,8 +2,6 @@
 
 namespace WT\DAV\CardDAV;
 
-use WT\Log;
-
 class AddressBookHome extends \Sabre\CardDAV\AddressBookHome {
 	
 	/**

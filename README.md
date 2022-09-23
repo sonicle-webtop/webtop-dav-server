@@ -82,47 +82,37 @@ At the bare minimum, you need to set values to the following options: *log.dir*,
 
 * `timezone` \[string]
   The default server timezone. It must be one of the [supported timezones](http://www.php.net/manual/en/timezones.php), excluding those that do not start with the following prefixes: Africa, America, Asia, Atlantic, Australia, Europe, Indian, Pacific. *(Defaults to: Europe/Rome)*
-
 * `log.level` \[string]
   The actual logging level. Allowed values are: OFF, ERROR, WARN, INFO, DEBUG, TRACE. *(Defaults to: `ERROR`)*
-
 * &#9888; `log.dir` \[string]
   A path that points to the directory where the log files (see below) will be written. (without trailling separator)
-
+* `log.file` [string]
+  This can be used for specifying the log full file-name directly, instead of using `log.dir` (and `log.name`). This takes precedence over the previous ones.
 * `log.name` \[string]
   The log filename. *(Defaults to: `server.log`)*
-
 * `browser` \[boolean]
   True to activate plugin and listings accessible from the browser. *(Defaults to: false)*
   (previous name was `debug`, see below)
-
 * `caldav` \[boolean]
   False to disable support to CalDAV. *(Defaults to: true)*
-
 * `carddav` \[boolean]
   False to disable support to CardDAV. *(Defaults to: true)*
-
 * &#9888; `baseUri` \[string]
   Path that points exactly to server main script. To find out what this should be, try to open server.php in your browser, and simply strip off the protocol and domainname.
   So if you access the server as `http://yourdomain.tld/webtop-dav/server.php`, then your base URI would be `/webtop-dav/server.php`.
   If you want a prettier URL, you must use mod_rewrite or some other rewriting system.
-
 * &#9888; `webtop.apiBaseUrl` \[string]
   This server relies on REST APIs in order to gather all the information for serving clients. This URL reflects the address at which the current WebTop installation responds to. Note that since this is basically a server-to-server configuration, you could use local addresses; this will speed-up HTTP requests. Eg. `http://localhost:8080/webtop`.
   (previous name was `api.baseUrl`, see below)
-
 * `webtop.apiUrlPath` \[string]
   Path, added to the base, to target the REST endpoint for core related calls. This should not be changed. *(Defaults to: `/api/com.sonicle.webtop.core/v1`)*
   (previous name was `api.dav.url`, see below)
-
 * `calendar.apiUrlPath` \[string]
   Path, added to the base, to target the REST endpoint for calendar related calls. This should not be changed. *(Defaults to: `/api/com.sonicle.webtop.calendar/v1`)*
   (previous name was `api.caldav.url`, see below)
-
 * `contacts.apiUrlPath` \[string]
   Path, added to the base, to target the REST endpoint for calendar related calls. This should not be changed. *(Defaults to: `/api/com.sonicle.webtop.contacts/v1`)*
   (previous name was `api.carddav.url`, see below)
-
 * `tasks.apiUrlPath` \[string]
   Path, added to the base, to target the REST endpoint for tasks related calls. This should not be changed. *(Defaults to: `/api/com.sonicle.webtop.tasks/v1`)*
 
@@ -149,19 +139,19 @@ Server version 3.2.2.5 brings a new configuration file. It basically standardize
 
 You can follow the table below in order to perform this simple migration process; options not explicitly listed have not been changed.
 
-|   | Old name (before v.3.2.2.5) | New name (since v.3.2.2.5) | Comments                                            |
-|---|-----------------------------|----------------------------|-----------------------------------------------------|
-|   | debug                       | browser                    |                                                     |
-|   | log.file                    |                            | Has been splitted across dir + name                 |
-|   |                             | log.dir                    |                                                     |
-|   |                             | log.name                   | Provide if you want to override default (see above) |
-|   | api.baseUrl                 | webtop.apiBaseUrl          |                                                     |
-|   | api.dav.url                 | webtop.apiUrlPath          | It relies on default, specify it only if necessary  |
-|   | api.dav.baseUrl             |                            | Not used anymore (provided by webtop.apiBaseUrl)    |
-|   | api.caldav.url              | calendar.apiUrlPath        | It relies on default, specify it only if necessary  |
-|   | api.caldav.baseUrl          |                            | Not used anymore (provided by webtop.apiBaseUrl)    |
-|   | api.carddav.url             | contacts.apiUrlPath        | It relies on default, specify it only if necessary  |
-|   | api.carddav.baseUrl         |                            | Not used anymore (provided by webtop.apiBaseUrl)    |
+|      | Old name (before v.3.2.2.5) | New name (since v.3.2.2.5) | Comments                                            |
+| ---- | --------------------------- | -------------------------- | --------------------------------------------------- |
+|      | debug                       | browser                    |                                                     |
+|      | log.file                    | log.file                   | Provide if you want to specify the full name        |
+|      |                             | log.dir                    |                                                     |
+|      |                             | log.name                   | Provide if you want to override default (see above) |
+|      | api.baseUrl                 | webtop.apiBaseUrl          |                                                     |
+|      | api.dav.url                 | webtop.apiUrlPath          | It relies on default, specify it only if necessary  |
+|      | api.dav.baseUrl             |                            | Not used anymore (provided by webtop.apiBaseUrl)    |
+|      | api.caldav.url              | calendar.apiUrlPath        | It relies on default, specify it only if necessary  |
+|      | api.caldav.baseUrl          |                            | Not used anymore (provided by webtop.apiBaseUrl)    |
+|      | api.carddav.url             | contacts.apiUrlPath        | It relies on default, specify it only if necessary  |
+|      | api.carddav.baseUrl         |                            | Not used anymore (provided by webtop.apiBaseUrl)    |
 
 Previous configuration files are still supported but you are encouraged to migrate option names to the new ones.
 

@@ -4,7 +4,6 @@ namespace WT\DAV\Connector;
 
 use Sabre\HTTP;
 use lf4php\LoggerFactory;
-use WT\Log;
 use WT\DAV\Bridge;
 use WT\DAV\Exception\NotAuthenticated;
 
