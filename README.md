@@ -87,7 +87,7 @@ At the bare minimum, you need to set values to the following options: *log.dir*,
 * &#9888; `log.dir` \[string]
   A path that points to the directory where the log files (see below) will be written. (without trailling separator)
 * `log.file` [string]
-  This can be used for specifying the log full file-name directly, instead of using `log.dir` (and `log.name`). This takes precedence over the previous ones.
+  This can be used for specifying the log full file-name directly, instead of using `log.dir` (and `log.name`). This takes precedence over the previous ones. NB: If you want to redirect all logging output to stdout you can simply point this property to `php://stdout`.
 * `log.name` \[string]
   The log filename. *(Defaults to: `server.log`)*
 * `browser` \[boolean]
