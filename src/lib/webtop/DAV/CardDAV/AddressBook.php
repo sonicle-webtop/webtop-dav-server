@@ -2,7 +2,6 @@
 
 namespace WT\DAV\CardDAV;
 
-use WT\Log;
 use WT\DAV\Bridge;
 
 class AddressBook extends \Sabre\CardDAV\AddressBook {

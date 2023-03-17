@@ -6,7 +6,6 @@ use Sabre\CardDAV\Backend\AbstractBackend;
 use Sabre\CardDAV\Backend\SyncSupport;
 use Sabre\CardDAV\Plugin;
 use lf4php\LoggerFactory;
-use WT\Log;
 use WT\DAV\Bridge;
 use WT\DAV\Config;
 

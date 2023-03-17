@@ -2,8 +2,6 @@
 
 namespace WT\DAV\CalDAV;
 
-use WT\Log;
-
 class CalendarRoot extends \Sabre\CalDAV\CalendarRoot {
 	
 	/**

@@ -2,7 +2,6 @@
 
 namespace WT\DAV\CalDAV;
 
-use WT\Log;
 use WT\DAV\Bridge;
 
 class CalendarHome extends \Sabre\CalDAV\CalendarHome {

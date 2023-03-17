@@ -3,7 +3,6 @@
 namespace WT\DAV;
 
 use lf4php\LoggerFactory;
-use WT\Log;
 use WT\DAV\Config;
 
 class Bridge {

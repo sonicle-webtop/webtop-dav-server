@@ -69,15 +69,12 @@ class Config extends AbstractConfig {
 	}
 	
 	public function getLogFile() {
-		// Delete after compatibility transition...
-		$v = $this->getValue('log.file', $this->oldDefaults);
+		$v = $this->getValue('log.file', $this->defaults);
 		if (!empty($v)) {
-			trigger_error("Configuration 'log.file' is deprecated: please use 'log.dir' and/or 'log.name' instead.", E_USER_NOTICE);
 			return $v;
+		} else {
+			return $this->getLogDir().'/'.$this->getLogName();
 		}
-		return $this->getLogDir().'/'.$this->getLogName();
-		// Uncomment after compatibility transition...
-		//return $this->getLogDir().'/'.$this->getLogName();
 	}
 	
 	public function getBrowserEnabled() {
