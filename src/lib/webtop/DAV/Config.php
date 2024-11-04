@@ -28,16 +28,16 @@ class Config extends AbstractConfig {
 		'caldav' => true,
 		'carddav' => true,
 		'webtop.apiUrlPath' => '/api/com.sonicle.webtop.core/v1',
-		'calendar.apiUrlPath' => '/api/com.sonicle.webtop.calendar/v1',
-		'contacts.apiUrlPath' => '/api/com.sonicle.webtop.contacts/v1',
-		'tasks.apiUrlPath' => '/api/com.sonicle.webtop.tasks/v1'
+		'calendar.apiUrlPath' => '/api/com.sonicle.webtop.calendar/v2',
+		'contacts.apiUrlPath' => '/api/com.sonicle.webtop.contacts/v2',
+		'tasks.apiUrlPath' => '/api/com.sonicle.webtop.tasks/v2'
 	];
 	// Delete after compatibility transition...
 	private $oldDefaults = [
 		'debug' => false,
 		'api.dav.url' => '/api/com.sonicle.webtop.core/v1',
-		'api.caldav.url' => '/api/com.sonicle.webtop.calendar/v1',
-		'api.carddav.url' => '/api/com.sonicle.webtop.contacts/v1'
+		'api.caldav.url' => '/api/com.sonicle.webtop.calendar/v2',
+		'api.carddav.url' => '/api/com.sonicle.webtop.contacts/v2'
 	];
 	
 	protected function __construct($file) {

@@ -314,7 +314,7 @@ class Backend extends AbstractBackend implements SyncSupport {
 		try {
 			$api = new \WT\Client\Contacts\Api\DavCardsApi(null, $this->getContactsApiConfig());
 			$logger->debug('[REST] --> addCard({})', [$addressBookId]);
-			$api->addCard($addressBookId, $this->toApiCard($cardUri, $cardData));
+			$api->addCard($addressBookId, $this->toApiCardNew($cardUri, $cardData));
 			return null;
 
 		} catch (\WT\Client\Contacts\ApiException $ex) {
@@ -458,7 +458,7 @@ class Backend extends AbstractBackend implements SyncSupport {
 		}
 	}
 	
-	protected function toSabreAddressBook($principalUri, \WT\Client\Contacts\Model\AddressBook $item) {
+	protected function toSabreAddressBook($principalUri, \WT\Client\Contacts\Model\DavAddressBook $item) {
 		$syncToken = $item->getSyncToken();
 		
 		$obj = [
@@ -477,7 +477,7 @@ class Backend extends AbstractBackend implements SyncSupport {
 		return $obj;
 	}
 	
-	protected function toSabreCard(\WT\Client\Contacts\Model\Card $item, $fillData) {
+	protected function toSabreCard(\WT\Client\Contacts\Model\DavCard $item, $fillData) {
 		if (empty($item->getHref())) {
 			$this->getLogger()->warn('Found Card with missing href [{}]', [$item->getUid()]);
 		}
@@ -516,7 +516,7 @@ class Backend extends AbstractBackend implements SyncSupport {
 	}
 	
 	protected function toApiAddressBookNew(array $properties) {
-		$item = new \WT\Client\Contacts\Model\AddressBookNew();
+		$item = new \WT\Client\Contacts\Model\DavAddressBookNew();
 		
 		foreach($properties as $key=>$value) {
 			switch($key) {
@@ -534,7 +534,7 @@ class Backend extends AbstractBackend implements SyncSupport {
 	}
 	
 	protected function toApiAddressBookUpdate(\Sabre\DAV\PropPatch $propPatch) {
-		$item = new \WT\Client\Contacts\Model\AddressBookUpdate();
+		$item = new \WT\Client\Contacts\Model\DavAddressBookUpdate();
 		$supportedProps = [
 			'{DAV:}displayname' => 'displayName',
 			'{'.Plugin::NS_CARDDAV.'}addressbook-description' => 'description'
@@ -553,8 +553,8 @@ class Backend extends AbstractBackend implements SyncSupport {
 		return $item;
 	}
 	
-	protected function toApiCard($cardUri, $cardData) {
-		$item = new \WT\Client\Contacts\Model\Card();
+	protected function toApiCardNew($cardUri, $cardData) {
+		$item = new \WT\Client\Contacts\Model\DavCardNew();
 		$item->setHref($cardUri);
 		$item->setVcard($cardData);
 		return $item;

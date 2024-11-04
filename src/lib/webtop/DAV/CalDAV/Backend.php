@@ -568,7 +568,7 @@ class Backend extends AbstractBackend implements SyncSupport {
 		}
 	}
 	
-	protected function toSabreCalendar($principalUri, \WT\Client\Calendar\Model\Calendar $item, $order) {
+	protected function toSabreCalendar($principalUri, \WT\Client\Calendar\Model\DavCalendar $item, $order) {
 		$syncToken = $item->getSyncToken();
 		
 		$obj = [
@@ -592,7 +592,7 @@ class Backend extends AbstractBackend implements SyncSupport {
 		return $obj;
 	}
 	
-	protected function toSabreCalObject(\WT\Client\Calendar\Model\CalObject $item, $component, $fillData) {
+	protected function toSabreCalObject(\WT\Client\Calendar\Model\DavCalObject $item, $component, $fillData) {
 		if (empty($item->getHref())) {
 			$this->getLogger()->warn('Found CalObject with missing href [{}]', [$item->getUid()]);
 		}
@@ -631,7 +631,7 @@ class Backend extends AbstractBackend implements SyncSupport {
 	}
 	
 	protected function toApiCalendarNew(array $properties) {
-		$item = new \WT\Client\Calendar\Model\CalendarNew();
+		$item = new \WT\Client\Calendar\Model\DavCalendarNew();
 		
 		foreach($properties as $key=>$value) {
 			switch($key) {
@@ -649,7 +649,7 @@ class Backend extends AbstractBackend implements SyncSupport {
 	}
 	
 	protected function toApiCalendarUpdate(\Sabre\DAV\PropPatch $propPatch) {
-		$item = new \WT\Client\Calendar\Model\CalendarUpdate();
+		$item = new \WT\Client\Calendar\Model\DavCalendarUpdate();
 		$supportedProps = [
 			'{DAV:}displayname' => 'displayName',
 			'{'.Plugin::NS_CALDAV.'}calendar-description' => 'description'
@@ -669,7 +669,7 @@ class Backend extends AbstractBackend implements SyncSupport {
 	}
 	
 	protected function toApiCalObjectNew($objectUri, $calendarData) {
-		$item = new \WT\Client\Calendar\Model\CalObjectNew();
+		$item = new \WT\Client\Calendar\Model\DavCalObjectNew();
 		$item->setHref($objectUri);
 		$item->setIcalendar($calendarData);
 		return $item;

@@ -8,7 +8,7 @@ DIR="`pwd`"
 if [ $# -lt 3 ]
 then
 	echo "Usage: $0 codegen-jar-file openapi-spec-file client-name"
-	echo "  example: $0 swagger-codegen-cli.jar swagger20.json webtop-client-swagger20"
+	echo "  example: $0 swagger-codegen-cli.jar swagger30.json webtop-client-swagger30"
 	exit 1
 fi
 
