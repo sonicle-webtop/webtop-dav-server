@@ -59,7 +59,7 @@ class Backend extends AbstractBackend implements SyncSupport {
 		$logger->debug('{}({})', [__METHOD__, $principalUri]);
 		
 		try {
-			$api = new \WT\Client\Contacts\Api\DavAddressbooksApi(null, $this->getContactsApiConfig());
+			$api = new \WT\Client\Contacts\Api\DavApi(null, $this->getContactsApiConfig());
 			$items = $api->getAddressBooks();
 			$addressBooks = [];
 			$logger->debug('Returned {} items', [count($items)]);
@@ -90,7 +90,7 @@ class Backend extends AbstractBackend implements SyncSupport {
 		$logger->debug('{}({}, {}, ...)', [__METHOD__, $principalUri, $url]);
 		
 		try {
-			$api = new \WT\Client\Contacts\Api\DavAddressbooksApi(null, $this->getContactsApiConfig());
+			$api = new \WT\Client\Contacts\Api\DavApi(null, $this->getContactsApiConfig());
 			$logger->debug('[REST] --> addAddressBook()');
 			$item = $api->addAddressBook($this->toApiAddressBookNew($properties));
 			if ($logger->isDebugEnabled()) $logger->debug('[REST] ...'.PHP_EOL.'{}', [$item]);
@@ -122,7 +122,7 @@ class Backend extends AbstractBackend implements SyncSupport {
 		$logger->debug('{}({})', [__METHOD__, $addressBookId]);
 		
 		try {
-			$api = new \WT\Client\Contacts\Api\DavAddressbooksApi(null, $this->getContactsApiConfig());
+			$api = new \WT\Client\Contacts\Api\DavApi(null, $this->getContactsApiConfig());
 			$logger->debug('[REST] --> updateAddressBook()');
 			$api->updateAddressBook($this->toApiAddressBookUpdate($propPatch));
 
@@ -142,7 +142,7 @@ class Backend extends AbstractBackend implements SyncSupport {
 		$logger->debug('{}({})', [__METHOD__, $addressBookId]);
 		
 		try {			
-			$api = new \WT\Client\Contacts\Api\DavAddressbooksApi(null, $this->getContactsApiConfig());
+			$api = new \WT\Client\Contacts\Api\DavApi(null, $this->getContactsApiConfig());
 			$logger->debug('[REST] --> deleteAddressBook({})', [$addressBookId]);
 			$api->deleteAddressBook($addressBookId);
 
@@ -175,7 +175,7 @@ class Backend extends AbstractBackend implements SyncSupport {
 		$logger->debug('{}({})', [__METHOD__, $addressbookId]);
 		
 		try {
-			$api = new \WT\Client\Contacts\Api\DavCardsApi(null, $this->getContactsApiConfig());
+			$api = new \WT\Client\Contacts\Api\DavApi(null, $this->getContactsApiConfig());
 			$logger->debug('[REST] --> getCards({})', [$addressbookId]);
 			$items = $api->getCards($addressbookId);
 			$cards = [];
@@ -221,7 +221,7 @@ class Backend extends AbstractBackend implements SyncSupport {
 			}
 			
 			// Otherwise get card from API call
-			$api = new \WT\Client\Contacts\Api\DavCardsApi(null, $this->getContactsApiConfig());
+			$api = new \WT\Client\Contacts\Api\DavApi(null, $this->getContactsApiConfig());
 			$logger->debug('[REST] --> getCards({}, {})', [$addressBookId, $cardUri]);
 			$items = $api->getCards($addressBookId, [$cardUri]);
 			if ($logger->isDebugEnabled()) {
@@ -265,7 +265,7 @@ class Backend extends AbstractBackend implements SyncSupport {
 		$cards = [];
 		
 		try {
-			$api = new \WT\Client\Contacts\Api\DavCardsApi(null, $this->getContactsApiConfig());
+			$api = new \WT\Client\Contacts\Api\DavApi(null, $this->getContactsApiConfig());
 			foreach ($chunks as $uris) {
 				$logger->debug('[REST] --> getCards({}, {})', [$addressBookId, '...']);
 				$items = $api->getCards($addressBookId, $uris);
@@ -312,7 +312,7 @@ class Backend extends AbstractBackend implements SyncSupport {
 		$logger->debug('{}({}, {})', [__METHOD__, $addressBookId, $cardUri]);
 		
 		try {
-			$api = new \WT\Client\Contacts\Api\DavCardsApi(null, $this->getContactsApiConfig());
+			$api = new \WT\Client\Contacts\Api\DavApi(null, $this->getContactsApiConfig());
 			$logger->debug('[REST] --> addCard({})', [$addressBookId]);
 			$api->addCard($addressBookId, $this->toApiCardNew($cardUri, $cardData));
 			return null;
@@ -352,7 +352,7 @@ class Backend extends AbstractBackend implements SyncSupport {
 		$logger->debug('{}({}, {})', [__METHOD__, $addressBookId, $cardUri]);
 		
 		try {
-			$api = new \WT\Client\Contacts\Api\DavCardsApi(null, $this->getContactsApiConfig());
+			$api = new \WT\Client\Contacts\Api\DavApi(null, $this->getContactsApiConfig());
 			$logger->debug('[REST] --> updateCard({}, {})', [$addressBookId, $cardUri]);
 			$api->updateCard($addressBookId, $cardUri, $cardData);
 			return null;
@@ -374,7 +374,7 @@ class Backend extends AbstractBackend implements SyncSupport {
 		$logger->debug('{}({}, {})', [__METHOD__, $addressBookId, $cardUri]);
 		
 		try {
-			$api = new \WT\Client\Contacts\Api\DavCardsApi(null, $this->getContactsApiConfig());
+			$api = new \WT\Client\Contacts\Api\DavApi(null, $this->getContactsApiConfig());
 			$logger->debug('[REST] --> deleteCard({}, {})', [$addressBookId, $cardUri]);
 			$api->deleteCard($addressBookId, $cardUri);
 			return true;
@@ -446,7 +446,7 @@ class Backend extends AbstractBackend implements SyncSupport {
 		$logger->debug('{}({}, {}, {})', [__METHOD__, $addressBookId, $syncToken, $syncLevel]);
 		
 		try {
-			$api = new \WT\Client\Contacts\Api\DavCardsApi(null, $this->getContactsApiConfig());
+			$api = new \WT\Client\Contacts\Api\DavApi(null, $this->getContactsApiConfig());
 			$logger->debug('[REST] --> getCardsChanges({}, {}, {})', [$addressBookId, $syncToken, $limit]);
 			$changes = $api->getCardsChanges($addressBookId, $syncToken, $limit);
 			if ($logger->isDebugEnabled()) $logger->debug('[REST] ...'.PHP_EOL.'{}', [json_encode($changes)]);
