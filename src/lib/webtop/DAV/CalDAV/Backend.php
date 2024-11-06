@@ -330,7 +330,7 @@ class Backend extends AbstractBackend implements SyncSupport {
 		try {
 			$api = new \WT\Client\Calendar\Api\DavApi(null, $this->getCalendarApiConfig());
 			$logger->debug('[REST] --> addCalObject({})', [$calendarId]);
-			$api->addCalObject($calendarId, $this->toApiCalObjectNew($objectUri, $calendarData));
+			$api->addCalObject($this->toApiCalObjectNew($objectUri, $calendarData), $calendarId);
 			return null;
 
 		} catch (\WT\Client\Calendar\ApiException $ex) {
@@ -364,7 +364,7 @@ class Backend extends AbstractBackend implements SyncSupport {
 		try {
 			$api = new \WT\Client\Calendar\Api\DavApi(null, $this->getCalendarApiConfig());
 			$logger->debug('[REST] --> updateCalObject({}, {})', [$calendarId, $objectUri]);
-			$api->updateCalObject($calendarId, $objectUri, $calendarData);
+			$api->updateCalObject($calendarData, $calendarId, $objectUri);
 			return null;
 
 		} catch (\WT\Client\Calendar\ApiException $ex) {

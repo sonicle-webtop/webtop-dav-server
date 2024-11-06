@@ -314,7 +314,7 @@ class Backend extends AbstractBackend implements SyncSupport {
 		try {
 			$api = new \WT\Client\Contacts\Api\DavApi(null, $this->getContactsApiConfig());
 			$logger->debug('[REST] --> addCard({})', [$addressBookId]);
-			$api->addCard($addressBookId, $this->toApiCardNew($cardUri, $cardData));
+			$api->addCard($this->toApiCardNew($cardUri, $cardData), $addressBookId);
 			return null;
 
 		} catch (\WT\Client\Contacts\ApiException $ex) {
@@ -354,7 +354,7 @@ class Backend extends AbstractBackend implements SyncSupport {
 		try {
 			$api = new \WT\Client\Contacts\Api\DavApi(null, $this->getContactsApiConfig());
 			$logger->debug('[REST] --> updateCard({}, {})', [$addressBookId, $cardUri]);
-			$api->updateCard($addressBookId, $cardUri, $cardData);
+			$api->updateCard($cardData, $addressBookId, $cardUri);
 			return null;
 
 		} catch (\WT\Client\Contacts\ApiException $ex) {
