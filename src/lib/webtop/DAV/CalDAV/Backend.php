@@ -64,7 +64,7 @@ class Backend extends AbstractBackend implements SyncSupport {
 		$logger->debug('{}({})', [__METHOD__, $principalUri]);
 		
 		try {
-			$api = new \WT\Client\Calendar\Api\DavCalendarsApi(null, $this->getCalendarApiConfig());
+			$api = new \WT\Client\Calendar\Api\DavApi(null, $this->getCalendarApiConfig());
 			$items = $api->getCalendars();
 			$calendars = [];
 			$logger->debug('Returned {} items', [count($items)]);
@@ -97,7 +97,7 @@ class Backend extends AbstractBackend implements SyncSupport {
 		$logger->debug('{}({}, {}, ...)', [__METHOD__, $principalUri, $calendarUri]);
 		
 		try {
-			$api = new \WT\Client\Calendar\Api\DavCalendarsApi(null, $this->getCalendarApiConfig());
+			$api = new \WT\Client\Calendar\Api\DavApi(null, $this->getCalendarApiConfig());
 			$logger->debug('[REST] --> addCalendar()');
 			$item = $api->addCalendar($this->toApiCalendarNew($properties));
 			if ($logger->isDebugEnabled()) $logger->debug('[REST] ...'.PHP_EOL.'{}', [$item]);
@@ -129,7 +129,7 @@ class Backend extends AbstractBackend implements SyncSupport {
 		$logger->debug('{}({})', [__METHOD__, $calendarId]);
 		
 		try {
-			$api = new \WT\Client\Calendar\Api\DavCalendarsApi(null, $this->getCalendarApiConfig());
+			$api = new \WT\Client\Calendar\Api\DavApi(null, $this->getCalendarApiConfig());
 			$logger->debug('[REST] --> updateCalendar()');
 			$api->updateCalendar($this->toApiCalendarUpdate($propPatch));
 
@@ -149,7 +149,7 @@ class Backend extends AbstractBackend implements SyncSupport {
 		$logger->debug('{}({})', [__METHOD__, $calendarId]);
 		
 		try {			
-			$api = new \WT\Client\Calendar\Api\DavCalendarsApi(null, $this->getCalendarApiConfig());
+			$api = new \WT\Client\Calendar\Api\DavApi(null, $this->getCalendarApiConfig());
 			$logger->debug('[REST] --> deleteCalendar({})', [$calendarId]);
 			$api->deleteCalendar($calendarId);
 
@@ -194,7 +194,7 @@ class Backend extends AbstractBackend implements SyncSupport {
 		$logger->debug('{}({})', [__METHOD__, $calendarId]);
 		
 		try {
-			$api = new \WT\Client\Calendar\Api\DavCalObjectsApi(null, $this->getCalendarApiConfig());
+			$api = new \WT\Client\Calendar\Api\DavApi(null, $this->getCalendarApiConfig());
 			$logger->debug('[REST] --> getCalObjects({})', [$calendarId]);
 			$items = $api->getCalObjects($calendarId);
 			$objs = [];
@@ -244,7 +244,7 @@ class Backend extends AbstractBackend implements SyncSupport {
 			}
 			
 			// Otherwise get object from API call
-			$api = new \WT\Client\Calendar\Api\DavCalObjectsApi(null, $this->getCalendarApiConfig());
+			$api = new \WT\Client\Calendar\Api\DavApi(null, $this->getCalendarApiConfig());
 			$logger->debug('[REST] --> getCalObjects({}, {})', [$calendarId, $objectUri]);
 			$items = $api->getCalObjects($calendarId, [$objectUri]);
 			if ($logger->isDebugEnabled()) {
@@ -288,7 +288,7 @@ class Backend extends AbstractBackend implements SyncSupport {
 		$cards = [];
 		
 		try {
-			$api = new \WT\Client\Calendar\Api\DavCalObjectsApi(null, $this->getCalendarApiConfig());
+			$api = new \WT\Client\Calendar\Api\DavApi(null, $this->getCalendarApiConfig());
 			foreach ($chunks as $uris) {
 				$logger->debug('[REST] --> getCalObjects({}, {})', [$calendarId, '...']);
 				$items = $api->getCalObjects($calendarId, $uris);
@@ -328,9 +328,9 @@ class Backend extends AbstractBackend implements SyncSupport {
 		$logger->debug('{}({}, {})', [__METHOD__, $calendarId, $objectUri]);
 		
 		try {
-			$api = new \WT\Client\Calendar\Api\DavCalObjectsApi(null, $this->getCalendarApiConfig());
+			$api = new \WT\Client\Calendar\Api\DavApi(null, $this->getCalendarApiConfig());
 			$logger->debug('[REST] --> addCalObject({})', [$calendarId]);
-			$api->addCalObject($calendarId, $this->toApiCalObjectNew($objectUri, $calendarData));
+			$api->addCalObject($this->toApiCalObjectNew($objectUri, $calendarData), $calendarId);
 			return null;
 
 		} catch (\WT\Client\Calendar\ApiException $ex) {
@@ -362,9 +362,9 @@ class Backend extends AbstractBackend implements SyncSupport {
 		$logger->debug('{}({}, {})', [__METHOD__, $calendarId, $objectUri]);
 		
 		try {
-			$api = new \WT\Client\Calendar\Api\DavCalObjectsApi(null, $this->getCalendarApiConfig());
+			$api = new \WT\Client\Calendar\Api\DavApi(null, $this->getCalendarApiConfig());
 			$logger->debug('[REST] --> updateCalObject({}, {})', [$calendarId, $objectUri]);
-			$api->updateCalObject($calendarId, $objectUri, $calendarData);
+			$api->updateCalObject($calendarData, $calendarId, $objectUri);
 			return null;
 
 		} catch (\WT\Client\Calendar\ApiException $ex) {
@@ -386,7 +386,7 @@ class Backend extends AbstractBackend implements SyncSupport {
 		$logger->debug('{}({}, {})', [__METHOD__, $calendarId, $objectUri]);
 		
 		try {
-			$api = new \WT\Client\Calendar\Api\DavCalObjectsApi(null, $this->getCalendarApiConfig());
+			$api = new \WT\Client\Calendar\Api\DavApi(null, $this->getCalendarApiConfig());
 			$logger->debug('[REST] --> deleteCalObject({}, {})', [$calendarId, $objectUri]);
 			$api->deleteCalObject($calendarId, $objectUri);
 			return true;
@@ -556,7 +556,7 @@ class Backend extends AbstractBackend implements SyncSupport {
 		$logger->debug('{}({}, {}, {})', [__METHOD__, $calendarId, $syncToken, $syncLevel]);
 	
 		try {
-			$api = new \WT\Client\Calendar\Api\DavCalObjectsApi(null, $this->getCalendarApiConfig());
+			$api = new \WT\Client\Calendar\Api\DavApi(null, $this->getCalendarApiConfig());
 			$logger->debug('[REST] --> getCalObjectsChanges({}, {}, {})', [$calendarId, $syncToken, $limit]);
 			$changes = $api->getCalObjectsChanges($calendarId, $syncToken, $limit);
 			if ($logger->isDebugEnabled()) $logger->debug('[REST] ...'.PHP_EOL.'{}', [json_encode($changes)]);
@@ -568,7 +568,7 @@ class Backend extends AbstractBackend implements SyncSupport {
 		}
 	}
 	
-	protected function toSabreCalendar($principalUri, \WT\Client\Calendar\Model\Calendar $item, $order) {
+	protected function toSabreCalendar($principalUri, \WT\Client\Calendar\Model\DavCalendar $item, $order) {
 		$syncToken = $item->getSyncToken();
 		
 		$obj = [
@@ -592,7 +592,7 @@ class Backend extends AbstractBackend implements SyncSupport {
 		return $obj;
 	}
 	
-	protected function toSabreCalObject(\WT\Client\Calendar\Model\CalObject $item, $component, $fillData) {
+	protected function toSabreCalObject(\WT\Client\Calendar\Model\DavCalObject $item, $component, $fillData) {
 		if (empty($item->getHref())) {
 			$this->getLogger()->warn('Found CalObject with missing href [{}]', [$item->getUid()]);
 		}
@@ -631,7 +631,7 @@ class Backend extends AbstractBackend implements SyncSupport {
 	}
 	
 	protected function toApiCalendarNew(array $properties) {
-		$item = new \WT\Client\Calendar\Model\CalendarNew();
+		$item = new \WT\Client\Calendar\Model\DavCalendarNew();
 		
 		foreach($properties as $key=>$value) {
 			switch($key) {
@@ -649,7 +649,7 @@ class Backend extends AbstractBackend implements SyncSupport {
 	}
 	
 	protected function toApiCalendarUpdate(\Sabre\DAV\PropPatch $propPatch) {
-		$item = new \WT\Client\Calendar\Model\CalendarUpdate();
+		$item = new \WT\Client\Calendar\Model\DavCalendarUpdate();
 		$supportedProps = [
 			'{DAV:}displayname' => 'displayName',
 			'{'.Plugin::NS_CALDAV.'}calendar-description' => 'description'
@@ -669,7 +669,7 @@ class Backend extends AbstractBackend implements SyncSupport {
 	}
 	
 	protected function toApiCalObjectNew($objectUri, $calendarData) {
-		$item = new \WT\Client\Calendar\Model\CalObjectNew();
+		$item = new \WT\Client\Calendar\Model\DavCalObjectNew();
 		$item->setHref($objectUri);
 		$item->setIcalendar($calendarData);
 		return $item;

@@ -4,6 +4,9 @@
 
 This package adds DAV capabilities to WebTop platform and allows access to [Calendar](https://github.com/sonicle-webtop/webtop-calendar) and [Contact](https://github.com/sonicle-webtop/webtop-contacts) services via standard CalDAV and CardDAV clients like Lightning.
 
+ &#9888; Version `3.2.2.22` requires different RestAPI enpoint versions for some services.
+Make sure to have at least WebTop release **wt-5.27.0** (pay attention to updated services versions below).
+
 ## Requirements
 
 This backend is built on top of [SabreDAV](http://sabre.io/) v.3.2.2, so you need to satisfy at least sabre/dav [requirements](http://sabre.io/dav/install/).
@@ -11,7 +14,7 @@ Then, summing:
 
 * PHP >= 5.5.X
 * Apache with mod_php
-* WebTop instance supporting DAV REST API (core >= v.5.2.0, calendar >= v.5.2.0, contacts >= v.5.2.0)
+* WebTop instance supporting DAV REST API (core >= v.5.2.0, calendar >= v.5.21.0, contacts >= v.5.18.0)
 
 ## Installation
 
@@ -108,13 +111,13 @@ At the bare minimum, you need to set values to the following options: *log.dir*,
   Path, added to the base, to target the REST endpoint for core related calls. This should not be changed. *(Defaults to: `/api/com.sonicle.webtop.core/v1`)*
   (previous name was `api.dav.url`, see below)
 * `calendar.apiUrlPath` \[string]
-  Path, added to the base, to target the REST endpoint for calendar related calls. This should not be changed. *(Defaults to: `/api/com.sonicle.webtop.calendar/v1`)*
+  Path, added to the base, to target the REST endpoint for calendar related calls. This should not be changed. *(Defaults to: `/api/com.sonicle.webtop.calendar/v2`)*
   (previous name was `api.caldav.url`, see below)
 * `contacts.apiUrlPath` \[string]
-  Path, added to the base, to target the REST endpoint for calendar related calls. This should not be changed. *(Defaults to: `/api/com.sonicle.webtop.contacts/v1`)*
+  Path, added to the base, to target the REST endpoint for calendar related calls. This should not be changed. *(Defaults to: `/api/com.sonicle.webtop.contacts/v2`)*
   (previous name was `api.carddav.url`, see below)
 * `tasks.apiUrlPath` \[string]
-  Path, added to the base, to target the REST endpoint for tasks related calls. This should not be changed. *(Defaults to: `/api/com.sonicle.webtop.tasks/v1`)*
+  Path, added to the base, to target the REST endpoint for tasks related calls. This should not be changed. *(Defaults to: `/api/com.sonicle.webtop.tasks/v2`)*
 
 #### Example
 
