@@ -73,7 +73,7 @@ class DavApi
         Configuration $config = null,
         HeaderSelector $selector = null
     ) {
-        $this->client = $client ?: new Client(['verify' => false]);
+        $this->client = $client ?: new Client();
         $this->config = $config ?: new Configuration();
         $this->headerSelector = $selector ?: new HeaderSelector();
     }
@@ -94,7 +94,7 @@ class DavApi
      * @param  \WT\Client\Calendar\Model\DavCalObjectNew $body body (required)
      * @param  string $calendarUid Calendar UID (required)
      *
-     * @throws {{invokerPackage}}\ApiException on non-2xx response
+     * @throws \WT\Client\Calendar\ApiException on non-2xx response
      * @throws \InvalidArgumentException
      * @return void
      */
@@ -111,7 +111,7 @@ class DavApi
      * @param  \WT\Client\Calendar\Model\DavCalObjectNew $body (required)
      * @param  string $calendarUid Calendar UID (required)
      *
-     * @throws {{invokerPackage}}\ApiException on non-2xx response
+     * @throws \WT\Client\Calendar\ApiException on non-2xx response
      * @throws \InvalidArgumentException
      * @return array of null, HTTP status code, HTTP response headers (array of strings)
      */
@@ -300,7 +300,7 @@ class DavApi
 
             } else {
                 // for HTTP post (form)
-                $httpBody = \GuzzleHttp\Psr7\build_query($formParams);
+                $httpBody = \GuzzleHttp\Psr7\Query::build($formParams);
             }
         }
 
@@ -308,10 +308,12 @@ class DavApi
         if ($this->config->getUsername() !== null || $this->config->getPassword() !== null) {
             $headers['Authorization'] = 'Basic ' . base64_encode($this->config->getUsername() . ":" . $this->config->getPassword());
         }
+        // this endpoint requires Bearer token
+        if ($this->config->getAccessToken() !== null) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
 
-        // PULL REQUEST -->
         $defaultHeaders = $this->config->getDefaultHeaders();
-        // <-- PULL REQUEST
         if ($this->config->getUserAgent()) {
             $defaultHeaders['User-Agent'] = $this->config->getUserAgent();
         }
@@ -322,7 +324,7 @@ class DavApi
             $headers
         );
 
-        $query = \GuzzleHttp\Psr7\build_query($queryParams);
+        $query = \GuzzleHttp\Psr7\Query::build($queryParams);
         return new Request(
             'POST',
             $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
@@ -338,7 +340,7 @@ class DavApi
      *
      * @param  \WT\Client\Calendar\Model\DavCalendarNew $body body (required)
      *
-     * @throws {{invokerPackage}}\ApiException on non-2xx response
+     * @throws \WT\Client\Calendar\ApiException on non-2xx response
      * @throws \InvalidArgumentException
      * @return \WT\Client\Calendar\Model\DavCalendar
      */
@@ -355,7 +357,7 @@ class DavApi
      *
      * @param  \WT\Client\Calendar\Model\DavCalendarNew $body (required)
      *
-     * @throws {{invokerPackage}}\ApiException on non-2xx response
+     * @throws \WT\Client\Calendar\ApiException on non-2xx response
      * @throws \InvalidArgumentException
      * @return array of \WT\Client\Calendar\Model\DavCalendar, HTTP status code, HTTP response headers (array of strings)
      */
@@ -397,7 +399,7 @@ class DavApi
                 $content = $responseBody; //stream goes to serializer
             } else {
                 $content = $responseBody->getContents();
-                if ($returnType !== 'string') {
+                if (!in_array($returnType, ['string','integer','bool'])) {
                     $content = json_decode($content);
                 }
             }
@@ -563,7 +565,7 @@ class DavApi
 
             } else {
                 // for HTTP post (form)
-                $httpBody = \GuzzleHttp\Psr7\build_query($formParams);
+                $httpBody = \GuzzleHttp\Psr7\Query::build($formParams);
             }
         }
 
@@ -571,10 +573,12 @@ class DavApi
         if ($this->config->getUsername() !== null || $this->config->getPassword() !== null) {
             $headers['Authorization'] = 'Basic ' . base64_encode($this->config->getUsername() . ":" . $this->config->getPassword());
         }
+        // this endpoint requires Bearer token
+        if ($this->config->getAccessToken() !== null) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
 
-        // PULL REQUEST -->
         $defaultHeaders = $this->config->getDefaultHeaders();
-        // <-- PULL REQUEST
         if ($this->config->getUserAgent()) {
             $defaultHeaders['User-Agent'] = $this->config->getUserAgent();
         }
@@ -585,7 +589,7 @@ class DavApi
             $headers
         );
 
-        $query = \GuzzleHttp\Psr7\build_query($queryParams);
+        $query = \GuzzleHttp\Psr7\Query::build($queryParams);
         return new Request(
             'POST',
             $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
@@ -602,7 +606,7 @@ class DavApi
      * @param  string $calendarUid Calendar UID (required)
      * @param  string $href CalObject reference URI (required)
      *
-     * @throws {{invokerPackage}}\ApiException on non-2xx response
+     * @throws \WT\Client\Calendar\ApiException on non-2xx response
      * @throws \InvalidArgumentException
      * @return void
      */
@@ -619,7 +623,7 @@ class DavApi
      * @param  string $calendarUid Calendar UID (required)
      * @param  string $href CalObject reference URI (required)
      *
-     * @throws {{invokerPackage}}\ApiException on non-2xx response
+     * @throws \WT\Client\Calendar\ApiException on non-2xx response
      * @throws \InvalidArgumentException
      * @return array of null, HTTP status code, HTTP response headers (array of strings)
      */
@@ -813,7 +817,7 @@ class DavApi
 
             } else {
                 // for HTTP post (form)
-                $httpBody = \GuzzleHttp\Psr7\build_query($formParams);
+                $httpBody = \GuzzleHttp\Psr7\Query::build($formParams);
             }
         }
 
@@ -821,10 +825,12 @@ class DavApi
         if ($this->config->getUsername() !== null || $this->config->getPassword() !== null) {
             $headers['Authorization'] = 'Basic ' . base64_encode($this->config->getUsername() . ":" . $this->config->getPassword());
         }
+        // this endpoint requires Bearer token
+        if ($this->config->getAccessToken() !== null) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
 
-        // PULL REQUEST -->
         $defaultHeaders = $this->config->getDefaultHeaders();
-        // <-- PULL REQUEST
         if ($this->config->getUserAgent()) {
             $defaultHeaders['User-Agent'] = $this->config->getUserAgent();
         }
@@ -835,7 +841,7 @@ class DavApi
             $headers
         );
 
-        $query = \GuzzleHttp\Psr7\build_query($queryParams);
+        $query = \GuzzleHttp\Psr7\Query::build($queryParams);
         return new Request(
             'DELETE',
             $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
@@ -851,7 +857,7 @@ class DavApi
      *
      * @param  string $calendarUid Calendar UID (required)
      *
-     * @throws {{invokerPackage}}\ApiException on non-2xx response
+     * @throws \WT\Client\Calendar\ApiException on non-2xx response
      * @throws \InvalidArgumentException
      * @return void
      */
@@ -867,7 +873,7 @@ class DavApi
      *
      * @param  string $calendarUid Calendar UID (required)
      *
-     * @throws {{invokerPackage}}\ApiException on non-2xx response
+     * @throws \WT\Client\Calendar\ApiException on non-2xx response
      * @throws \InvalidArgumentException
      * @return array of null, HTTP status code, HTTP response headers (array of strings)
      */
@@ -1044,7 +1050,7 @@ class DavApi
 
             } else {
                 // for HTTP post (form)
-                $httpBody = \GuzzleHttp\Psr7\build_query($formParams);
+                $httpBody = \GuzzleHttp\Psr7\Query::build($formParams);
             }
         }
 
@@ -1052,10 +1058,12 @@ class DavApi
         if ($this->config->getUsername() !== null || $this->config->getPassword() !== null) {
             $headers['Authorization'] = 'Basic ' . base64_encode($this->config->getUsername() . ":" . $this->config->getPassword());
         }
+        // this endpoint requires Bearer token
+        if ($this->config->getAccessToken() !== null) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
 
-        // PULL REQUEST -->
         $defaultHeaders = $this->config->getDefaultHeaders();
-        // <-- PULL REQUEST
         if ($this->config->getUserAgent()) {
             $defaultHeaders['User-Agent'] = $this->config->getUserAgent();
         }
@@ -1066,7 +1074,7 @@ class DavApi
             $headers
         );
 
-        $query = \GuzzleHttp\Psr7\build_query($queryParams);
+        $query = \GuzzleHttp\Psr7\Query::build($queryParams);
         return new Request(
             'DELETE',
             $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
@@ -1083,7 +1091,7 @@ class DavApi
      * @param  string $calendarUid Calendar UID (required)
      * @param  string $href CalObject reference URI (required)
      *
-     * @throws {{invokerPackage}}\ApiException on non-2xx response
+     * @throws \WT\Client\Calendar\ApiException on non-2xx response
      * @throws \InvalidArgumentException
      * @return \WT\Client\Calendar\Model\DavCalObject
      */
@@ -1101,7 +1109,7 @@ class DavApi
      * @param  string $calendarUid Calendar UID (required)
      * @param  string $href CalObject reference URI (required)
      *
-     * @throws {{invokerPackage}}\ApiException on non-2xx response
+     * @throws \WT\Client\Calendar\ApiException on non-2xx response
      * @throws \InvalidArgumentException
      * @return array of \WT\Client\Calendar\Model\DavCalObject, HTTP status code, HTTP response headers (array of strings)
      */
@@ -1143,7 +1151,7 @@ class DavApi
                 $content = $responseBody; //stream goes to serializer
             } else {
                 $content = $responseBody->getContents();
-                if ($returnType !== 'string') {
+                if (!in_array($returnType, ['string','integer','bool'])) {
                     $content = json_decode($content);
                 }
             }
@@ -1331,7 +1339,7 @@ class DavApi
 
             } else {
                 // for HTTP post (form)
-                $httpBody = \GuzzleHttp\Psr7\build_query($formParams);
+                $httpBody = \GuzzleHttp\Psr7\Query::build($formParams);
             }
         }
 
@@ -1339,10 +1347,12 @@ class DavApi
         if ($this->config->getUsername() !== null || $this->config->getPassword() !== null) {
             $headers['Authorization'] = 'Basic ' . base64_encode($this->config->getUsername() . ":" . $this->config->getPassword());
         }
+        // this endpoint requires Bearer token
+        if ($this->config->getAccessToken() !== null) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
 
-        // PULL REQUEST -->
         $defaultHeaders = $this->config->getDefaultHeaders();
-        // <-- PULL REQUEST
         if ($this->config->getUserAgent()) {
             $defaultHeaders['User-Agent'] = $this->config->getUserAgent();
         }
@@ -1353,7 +1363,7 @@ class DavApi
             $headers
         );
 
-        $query = \GuzzleHttp\Psr7\build_query($queryParams);
+        $query = \GuzzleHttp\Psr7\Query::build($queryParams);
         return new Request(
             'GET',
             $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
@@ -1370,7 +1380,7 @@ class DavApi
      * @param  string $calendarUid Calendar UID (required)
      * @param  string[] $hrefs hrefs (optional)
      *
-     * @throws {{invokerPackage}}\ApiException on non-2xx response
+     * @throws \WT\Client\Calendar\ApiException on non-2xx response
      * @throws \InvalidArgumentException
      * @return \WT\Client\Calendar\Model\DavCalObject[]
      */
@@ -1388,7 +1398,7 @@ class DavApi
      * @param  string $calendarUid Calendar UID (required)
      * @param  string[] $hrefs (optional)
      *
-     * @throws {{invokerPackage}}\ApiException on non-2xx response
+     * @throws \WT\Client\Calendar\ApiException on non-2xx response
      * @throws \InvalidArgumentException
      * @return array of \WT\Client\Calendar\Model\DavCalObject[], HTTP status code, HTTP response headers (array of strings)
      */
@@ -1430,7 +1440,7 @@ class DavApi
                 $content = $responseBody; //stream goes to serializer
             } else {
                 $content = $responseBody->getContents();
-                if ($returnType !== 'string') {
+                if (!in_array($returnType, ['string','integer','bool'])) {
                     $content = json_decode($content);
                 }
             }
@@ -1556,12 +1566,18 @@ class DavApi
         $multipart = false;
 
         // query params
-        // PULL REQUEST -->
-        if (is_array($hrefs)) {
-            //$hrefs = ObjectSerializer::serializeCollection($hrefs, 'csv', true);
-			$queryParams['hrefs'] = $hrefs;
-        }
-        // <-- PULL REQUEST
+		if (is_array($hrefs)) {
+			// serialization for arrays with 'multi' format will be skipped: param is returned as is!
+			$hrefs = ObjectSerializer::serializeCollection($hrefs, 'multi', true);
+		}
+        if ($hrefs !== null) {
+			// if still an array simply assign it to queryParams
+            if (is_array($hrefs)) {
+				$queryParams['hrefs'] = $hrefs;
+			} else {
+				$queryParams['hrefs'] = ObjectSerializer::toQueryValue($hrefs, null);
+			}		
+		}
 
         // path params
         if ($calendarUid !== null) {
@@ -1611,7 +1627,7 @@ class DavApi
 
             } else {
                 // for HTTP post (form)
-                $httpBody = \GuzzleHttp\Psr7\build_query($formParams);
+                $httpBody = \GuzzleHttp\Psr7\Query::build($formParams);
             }
         }
 
@@ -1619,10 +1635,12 @@ class DavApi
         if ($this->config->getUsername() !== null || $this->config->getPassword() !== null) {
             $headers['Authorization'] = 'Basic ' . base64_encode($this->config->getUsername() . ":" . $this->config->getPassword());
         }
+        // this endpoint requires Bearer token
+        if ($this->config->getAccessToken() !== null) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
 
-        // PULL REQUEST -->
         $defaultHeaders = $this->config->getDefaultHeaders();
-        // <-- PULL REQUEST
         if ($this->config->getUserAgent()) {
             $defaultHeaders['User-Agent'] = $this->config->getUserAgent();
         }
@@ -1633,7 +1651,7 @@ class DavApi
             $headers
         );
 
-        $query = \GuzzleHttp\Psr7\build_query($queryParams);
+        $query = \GuzzleHttp\Psr7\Query::build($queryParams);
         return new Request(
             'GET',
             $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
@@ -1651,7 +1669,7 @@ class DavApi
      * @param  string $syncToken Marks changes starting point (optional)
      * @param  int $limit Limits the number of returned results (optional)
      *
-     * @throws {{invokerPackage}}\ApiException on non-2xx response
+     * @throws \WT\Client\Calendar\ApiException on non-2xx response
      * @throws \InvalidArgumentException
      * @return \WT\Client\Calendar\Model\DavCalObjectsChanges
      */
@@ -1670,7 +1688,7 @@ class DavApi
      * @param  string $syncToken Marks changes starting point (optional)
      * @param  int $limit Limits the number of returned results (optional)
      *
-     * @throws {{invokerPackage}}\ApiException on non-2xx response
+     * @throws \WT\Client\Calendar\ApiException on non-2xx response
      * @throws \InvalidArgumentException
      * @return array of \WT\Client\Calendar\Model\DavCalObjectsChanges, HTTP status code, HTTP response headers (array of strings)
      */
@@ -1712,7 +1730,7 @@ class DavApi
                 $content = $responseBody; //stream goes to serializer
             } else {
                 $content = $responseBody->getContents();
-                if ($returnType !== 'string') {
+                if (!in_array($returnType, ['string','integer','bool'])) {
                     $content = json_decode($content);
                 }
             }
@@ -1842,14 +1860,22 @@ class DavApi
 
         // query params
         if ($syncToken !== null) {
-            $queryParams['syncToken'] = ObjectSerializer::toQueryValue($syncToken);
-        }
-        // <-- PULL REQUEST
+			// if still an array simply assign it to queryParams
+            if (is_array($syncToken)) {
+				$queryParams['syncToken'] = $syncToken;
+			} else {
+				$queryParams['syncToken'] = ObjectSerializer::toQueryValue($syncToken, null);
+			}		
+		}
         // query params
         if ($limit !== null) {
-            $queryParams['limit'] = ObjectSerializer::toQueryValue($limit);
-        }
-        // <-- PULL REQUEST
+			// if still an array simply assign it to queryParams
+            if (is_array($limit)) {
+				$queryParams['limit'] = $limit;
+			} else {
+				$queryParams['limit'] = ObjectSerializer::toQueryValue($limit, null);
+			}		
+		}
 
         // path params
         if ($calendarUid !== null) {
@@ -1899,7 +1925,7 @@ class DavApi
 
             } else {
                 // for HTTP post (form)
-                $httpBody = \GuzzleHttp\Psr7\build_query($formParams);
+                $httpBody = \GuzzleHttp\Psr7\Query::build($formParams);
             }
         }
 
@@ -1907,10 +1933,12 @@ class DavApi
         if ($this->config->getUsername() !== null || $this->config->getPassword() !== null) {
             $headers['Authorization'] = 'Basic ' . base64_encode($this->config->getUsername() . ":" . $this->config->getPassword());
         }
+        // this endpoint requires Bearer token
+        if ($this->config->getAccessToken() !== null) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
 
-        // PULL REQUEST -->
         $defaultHeaders = $this->config->getDefaultHeaders();
-        // <-- PULL REQUEST
         if ($this->config->getUserAgent()) {
             $defaultHeaders['User-Agent'] = $this->config->getUserAgent();
         }
@@ -1921,7 +1949,7 @@ class DavApi
             $headers
         );
 
-        $query = \GuzzleHttp\Psr7\build_query($queryParams);
+        $query = \GuzzleHttp\Psr7\Query::build($queryParams);
         return new Request(
             'GET',
             $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
@@ -1937,7 +1965,7 @@ class DavApi
      *
      * @param  string $calendarUid Calendar UID (required)
      *
-     * @throws {{invokerPackage}}\ApiException on non-2xx response
+     * @throws \WT\Client\Calendar\ApiException on non-2xx response
      * @throws \InvalidArgumentException
      * @return \WT\Client\Calendar\Model\DavCalendar
      */
@@ -1954,7 +1982,7 @@ class DavApi
      *
      * @param  string $calendarUid Calendar UID (required)
      *
-     * @throws {{invokerPackage}}\ApiException on non-2xx response
+     * @throws \WT\Client\Calendar\ApiException on non-2xx response
      * @throws \InvalidArgumentException
      * @return array of \WT\Client\Calendar\Model\DavCalendar, HTTP status code, HTTP response headers (array of strings)
      */
@@ -1996,7 +2024,7 @@ class DavApi
                 $content = $responseBody; //stream goes to serializer
             } else {
                 $content = $responseBody->getContents();
-                if ($returnType !== 'string') {
+                if (!in_array($returnType, ['string','integer','bool'])) {
                     $content = json_decode($content);
                 }
             }
@@ -2167,7 +2195,7 @@ class DavApi
 
             } else {
                 // for HTTP post (form)
-                $httpBody = \GuzzleHttp\Psr7\build_query($formParams);
+                $httpBody = \GuzzleHttp\Psr7\Query::build($formParams);
             }
         }
 
@@ -2175,10 +2203,12 @@ class DavApi
         if ($this->config->getUsername() !== null || $this->config->getPassword() !== null) {
             $headers['Authorization'] = 'Basic ' . base64_encode($this->config->getUsername() . ":" . $this->config->getPassword());
         }
+        // this endpoint requires Bearer token
+        if ($this->config->getAccessToken() !== null) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
 
-        // PULL REQUEST -->
         $defaultHeaders = $this->config->getDefaultHeaders();
-        // <-- PULL REQUEST
         if ($this->config->getUserAgent()) {
             $defaultHeaders['User-Agent'] = $this->config->getUserAgent();
         }
@@ -2189,7 +2219,7 @@ class DavApi
             $headers
         );
 
-        $query = \GuzzleHttp\Psr7\build_query($queryParams);
+        $query = \GuzzleHttp\Psr7\Query::build($queryParams);
         return new Request(
             'GET',
             $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
@@ -2204,7 +2234,7 @@ class DavApi
      * List all calendars
      *
      *
-     * @throws {{invokerPackage}}\ApiException on non-2xx response
+     * @throws \WT\Client\Calendar\ApiException on non-2xx response
      * @throws \InvalidArgumentException
      * @return \WT\Client\Calendar\Model\DavCalendar[]
      */
@@ -2220,7 +2250,7 @@ class DavApi
      * List all calendars
      *
      *
-     * @throws {{invokerPackage}}\ApiException on non-2xx response
+     * @throws \WT\Client\Calendar\ApiException on non-2xx response
      * @throws \InvalidArgumentException
      * @return array of \WT\Client\Calendar\Model\DavCalendar[], HTTP status code, HTTP response headers (array of strings)
      */
@@ -2262,7 +2292,7 @@ class DavApi
                 $content = $responseBody; //stream goes to serializer
             } else {
                 $content = $responseBody->getContents();
-                if ($returnType !== 'string') {
+                if (!in_array($returnType, ['string','integer','bool'])) {
                     $content = json_decode($content);
                 }
             }
@@ -2416,7 +2446,7 @@ class DavApi
 
             } else {
                 // for HTTP post (form)
-                $httpBody = \GuzzleHttp\Psr7\build_query($formParams);
+                $httpBody = \GuzzleHttp\Psr7\Query::build($formParams);
             }
         }
 
@@ -2424,10 +2454,12 @@ class DavApi
         if ($this->config->getUsername() !== null || $this->config->getPassword() !== null) {
             $headers['Authorization'] = 'Basic ' . base64_encode($this->config->getUsername() . ":" . $this->config->getPassword());
         }
+        // this endpoint requires Bearer token
+        if ($this->config->getAccessToken() !== null) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
 
-        // PULL REQUEST -->
         $defaultHeaders = $this->config->getDefaultHeaders();
-        // <-- PULL REQUEST
         if ($this->config->getUserAgent()) {
             $defaultHeaders['User-Agent'] = $this->config->getUserAgent();
         }
@@ -2438,7 +2470,7 @@ class DavApi
             $headers
         );
 
-        $query = \GuzzleHttp\Psr7\build_query($queryParams);
+        $query = \GuzzleHttp\Psr7\Query::build($queryParams);
         return new Request(
             'GET',
             $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
@@ -2456,7 +2488,7 @@ class DavApi
      * @param  string $calendarUid Calendar UID (required)
      * @param  string $href CalObject reference URI (required)
      *
-     * @throws {{invokerPackage}}\ApiException on non-2xx response
+     * @throws \WT\Client\Calendar\ApiException on non-2xx response
      * @throws \InvalidArgumentException
      * @return void
      */
@@ -2474,7 +2506,7 @@ class DavApi
      * @param  string $calendarUid Calendar UID (required)
      * @param  string $href CalObject reference URI (required)
      *
-     * @throws {{invokerPackage}}\ApiException on non-2xx response
+     * @throws \WT\Client\Calendar\ApiException on non-2xx response
      * @throws \InvalidArgumentException
      * @return array of null, HTTP status code, HTTP response headers (array of strings)
      */
@@ -2680,7 +2712,7 @@ class DavApi
 
             } else {
                 // for HTTP post (form)
-                $httpBody = \GuzzleHttp\Psr7\build_query($formParams);
+                $httpBody = \GuzzleHttp\Psr7\Query::build($formParams);
             }
         }
 
@@ -2688,10 +2720,12 @@ class DavApi
         if ($this->config->getUsername() !== null || $this->config->getPassword() !== null) {
             $headers['Authorization'] = 'Basic ' . base64_encode($this->config->getUsername() . ":" . $this->config->getPassword());
         }
+        // this endpoint requires Bearer token
+        if ($this->config->getAccessToken() !== null) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
 
-        // PULL REQUEST -->
         $defaultHeaders = $this->config->getDefaultHeaders();
-        // <-- PULL REQUEST
         if ($this->config->getUserAgent()) {
             $defaultHeaders['User-Agent'] = $this->config->getUserAgent();
         }
@@ -2702,7 +2736,7 @@ class DavApi
             $headers
         );
 
-        $query = \GuzzleHttp\Psr7\build_query($queryParams);
+        $query = \GuzzleHttp\Psr7\Query::build($queryParams);
         return new Request(
             'PUT',
             $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
@@ -2719,7 +2753,7 @@ class DavApi
      * @param  \WT\Client\Calendar\Model\DavCalendarUpdate $body body (required)
      * @param  string $calendarUid Calendar UID (required)
      *
-     * @throws {{invokerPackage}}\ApiException on non-2xx response
+     * @throws \WT\Client\Calendar\ApiException on non-2xx response
      * @throws \InvalidArgumentException
      * @return void
      */
@@ -2736,7 +2770,7 @@ class DavApi
      * @param  \WT\Client\Calendar\Model\DavCalendarUpdate $body (required)
      * @param  string $calendarUid Calendar UID (required)
      *
-     * @throws {{invokerPackage}}\ApiException on non-2xx response
+     * @throws \WT\Client\Calendar\ApiException on non-2xx response
      * @throws \InvalidArgumentException
      * @return array of null, HTTP status code, HTTP response headers (array of strings)
      */
@@ -2925,7 +2959,7 @@ class DavApi
 
             } else {
                 // for HTTP post (form)
-                $httpBody = \GuzzleHttp\Psr7\build_query($formParams);
+                $httpBody = \GuzzleHttp\Psr7\Query::build($formParams);
             }
         }
 
@@ -2933,10 +2967,12 @@ class DavApi
         if ($this->config->getUsername() !== null || $this->config->getPassword() !== null) {
             $headers['Authorization'] = 'Basic ' . base64_encode($this->config->getUsername() . ":" . $this->config->getPassword());
         }
+        // this endpoint requires Bearer token
+        if ($this->config->getAccessToken() !== null) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
 
-        // PULL REQUEST -->
         $defaultHeaders = $this->config->getDefaultHeaders();
-        // <-- PULL REQUEST
         if ($this->config->getUserAgent()) {
             $defaultHeaders['User-Agent'] = $this->config->getUserAgent();
         }
@@ -2947,7 +2983,7 @@ class DavApi
             $headers
         );
 
-        $query = \GuzzleHttp\Psr7\build_query($queryParams);
+        $query = \GuzzleHttp\Psr7\Query::build($queryParams);
         return new Request(
             'PUT',
             $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),

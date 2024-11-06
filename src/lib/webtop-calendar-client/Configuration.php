@@ -59,21 +59,21 @@ class Configuration
      *
      * @var string
      */
-    protected $accessToken = '';
+    protected $accessToken = null;
 
     /**
      * Username for HTTP basic authentication
      *
      * @var string
      */
-    protected $username = '';
+    protected $username = null;
 
     /**
      * Password for HTTP basic authentication
      *
      * @var string
      */
-    protected $password = '';
+    protected $password = null;
 
     /**
      * The host
@@ -88,15 +88,13 @@ class Configuration
      * @var string
      */
     protected $userAgent = 'Swagger-Codegen/1.0.0/php';
-    
-    // PULL REQUEST -->
+
     /**
      * Associate array to store default HTTP headers(s)
      *
      * @var string[]
      */
     protected $defaultHeaders = [];
-    // <-- PULL REQUEST
 
     /**
      * Debug switch (default set to false)
@@ -299,8 +297,7 @@ class Configuration
         return $this->userAgent;
     }
 
-    // PULL REQUEST -->
-	/**
+    /**
 	 * Adds a HTTP header to the default set.
      * This will overwrite any previous values with the same name.
      *
@@ -324,7 +321,6 @@ class Configuration
     {
         return $this->defaultHeaders;
     }
-    // <-- PULL REQUEST
 
     /**
      * Sets debug flag

@@ -356,19 +356,13 @@ use {{invokerPackage}}\ObjectSerializer;
         {{#queryParams}}
         // query params
         {{#collectionFormat}}
-		if (is_array(${{paramName}})) {
-			// serialization for arrays with 'multi' format will be skipped: param is returned as is!
-			${{paramName}} = ObjectSerializer::serializeCollection(${{paramName}}, '{{collectionFormat}}', true);
-		}
+        if (is_array(${{paramName}})) {
+            ${{paramName}} = ObjectSerializer::serializeCollection(${{paramName}}, '{{collectionFormat}}', true);
+        }
         {{/collectionFormat}}
         if (${{paramName}} !== null) {
-			// if still an array simply assign it to queryParams
-            if (is_array(${{paramName}})) {
-				$queryParams['{{baseName}}'] = ${{paramName}};
-			} else {
-				$queryParams['{{baseName}}'] = ObjectSerializer::toQueryValue(${{paramName}}, {{#dataFormat}}'{{{dataFormat}}}'{{/dataFormat}}{{^dataFormat}}null{{/dataFormat}});
-			}		
-		}
+            $queryParams['{{baseName}}'] = ObjectSerializer::toQueryValue(${{paramName}}, {{#dataFormat}}'{{{dataFormat}}}'{{/dataFormat}}{{^dataFormat}}null{{/dataFormat}});
+        }
         {{/queryParams}}
         {{#headerParams}}
         // header params
@@ -473,10 +467,10 @@ use {{invokerPackage}}\ObjectSerializer;
         }
         {{/isBasic}}
         {{#isBearer}}
-        // this endpoint requires Bearer token
-        if ($this->config->getAccessToken() !== null) {
+            // // this endpoint requires Bearer token
+            if ($this->config->getAccessToken() !== null) {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
-        }
+            }
         {{/isBearer}}
         {{#isOAuth}}
         // this endpoint requires OAuth (access token)
@@ -486,7 +480,7 @@ use {{invokerPackage}}\ObjectSerializer;
         {{/isOAuth}}
         {{/authMethods}}
 
-        $defaultHeaders = $this->config->getDefaultHeaders();
+        $defaultHeaders = [];
         if ($this->config->getUserAgent()) {
             $defaultHeaders['User-Agent'] = $this->config->getUserAgent();
         }
