@@ -314,6 +314,7 @@ class Backend extends AbstractBackend implements SyncSupport {
 		try {
 			$api = new \WT\Client\Contacts\Api\DavApi(null, $this->getContactsApiConfig());
 			$logger->debug('[REST] --> addCard({})', [$addressBookId]);
+			if ($logger->isTraceEnabled()) $logger->trace('[{}]'.PHP_EOL.'{}', [$cardUri, $cardData]);
 			$api->addCard($this->toApiCardNew($cardUri, $cardData), $addressBookId);
 			return null;
 
@@ -354,6 +355,7 @@ class Backend extends AbstractBackend implements SyncSupport {
 		try {
 			$api = new \WT\Client\Contacts\Api\DavApi(null, $this->getContactsApiConfig());
 			$logger->debug('[REST] --> updateCard({}, {})', [$addressBookId, $cardUri]);
+			if ($logger->isTraceEnabled()) $logger->trace('[{}]'.PHP_EOL.'{}', [$cardUri, $cardData]);
 			$api->updateCard($cardData, $addressBookId, $cardUri);
 			return null;
 

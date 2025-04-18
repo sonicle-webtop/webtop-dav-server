@@ -330,6 +330,7 @@ class Backend extends AbstractBackend implements SyncSupport {
 		try {
 			$api = new \WT\Client\Calendar\Api\DavApi(null, $this->getCalendarApiConfig());
 			$logger->debug('[REST] --> addCalObject({})', [$calendarId]);
+			if ($logger->isTraceEnabled()) $logger->trace('[{}]'.PHP_EOL.'{}', [$objectUri, $calendarData]);
 			$api->addCalObject($this->toApiCalObjectNew($objectUri, $calendarData), $calendarId);
 			return null;
 
@@ -364,6 +365,7 @@ class Backend extends AbstractBackend implements SyncSupport {
 		try {
 			$api = new \WT\Client\Calendar\Api\DavApi(null, $this->getCalendarApiConfig());
 			$logger->debug('[REST] --> updateCalObject({}, {})', [$calendarId, $objectUri]);
+			if ($logger->isTraceEnabled()) $logger->trace('[{}]'.PHP_EOL.'{}', [$objectUri, $calendarData]);
 			$api->updateCalObject($calendarData, $calendarId, $objectUri);
 			return null;
 
