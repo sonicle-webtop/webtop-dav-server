@@ -14,7 +14,9 @@ use WT\DAV\Config;
 class Backend extends AbstractBackend implements SyncSupport {
 	
 	protected $bridge;
-	protected $calObjectsByUriCache;
+	protected $cacheCalendarsByUid; // Dictionary cache: $cache[$uid] -> calendar item
+	protected $cacheCalObjectsByHref; // Flat dictionary cache: $cache[$calendarId."\0".$href] -> calObject. calendarId is part of the key because hrefs are only unique within a calendar, not across all of a principal's calendars.
+	protected $cacheCalObjectsFetchedKeys; // Tracks completed fetches: $cache[$calendarId."\0".$sinceKey] -> hrefs returned by that fetch
 	
 	public function __construct(Bridge $bridge) {
 		$this->bridge = $bridge;
@@ -32,6 +34,76 @@ class Backend extends AbstractBackend implements SyncSupport {
 	
 	protected function getLogger() {
 		return LoggerFactory::getLogger(__CLASS__);
+	}
+	
+	protected function doGetDavCalendars() {
+		$logger = $this->getLogger();
+		
+		if (isset($this->cacheCalendarsByUid)) {
+			$logger->debug('Returning {} items from cache', [count($this->cacheCalendarsByUid)]);
+			return $this->cacheCalendarsByUid;
+			
+		} else {
+			try {
+				$api = new \WT\Client\Calendar\Api\DavApi(null, $this->getCalendarApiConfig());
+				$logger->debug('[REST] --> getDavCalendars()');
+				$items = $api->getDavCalendars();
+				$logger->debug('Returned {} items', [count($items)]);
+				$cacheByUid = [];
+				for ($i = 0; $i<count($items); $i++) {
+					$item = $items[$i];
+					if ($logger->isTraceEnabled()) $logger->trace('[REST] ... [{}]'.PHP_EOL.'{}', [$i, $item]);
+					$cacheByUid[$item->getUid()] = $item; // Cache RAW item for later!
+				}
+				$this->cacheCalendarsByUid = $cacheByUid;
+				return $cacheByUid;
+				
+			} catch (\WT\Client\Calendar\ApiException $ex) {
+				$logger->error($ex);
+			}
+		}
+	}
+	
+	protected function doGetDavCalendarObjects($calendarId, $since = null) {
+		$logger = $this->getLogger();
+
+		$sinceKey = '*';
+		if (!is_null($since)) $sinceKey = $since->format('YmdHis');
+		$fetchKey = $calendarId."\0".$sinceKey;
+
+		if (isset($this->cacheCalObjectsFetchedKeys) && array_key_exists($fetchKey, $this->cacheCalObjectsFetchedKeys)) {
+			$hrefs = $this->cacheCalObjectsFetchedKeys[$fetchKey];
+			$logger->debug('Returning {} items from cache', [count($hrefs)]);
+			$result = [];
+			foreach ($hrefs as $href) {
+				$result[$href] = $this->cacheCalObjectsByHref[$calendarId."\0".$href];
+			}
+			return $result;
+
+		} else {
+			try {
+				$api = new \WT\Client\Calendar\Api\DavApi(null, $this->getCalendarApiConfig());
+				$since2 = !is_null($since) ? $since->format('Y-m-d\TH:i:s\Z') : null;
+				$logger->debug('[REST] --> getDavCalObjects({}, null, {})', [$calendarId, $since2]);
+				$items = $api->getDavCalObjects($calendarId, null, $since2);
+				$logger->debug('Returned {} items', [count($items)]);
+				$result = [];
+				$hrefs = [];
+				for ($i = 0; $i<count($items); $i++) {
+					$item = $items[$i];
+					if ($logger->isTraceEnabled()) $logger->trace('[REST] ... [{}]'.PHP_EOL.'{}', [$i, $item]);
+					$href = $item->getHref();
+					$this->cacheCalObjectsByHref[$calendarId."\0".$href] = $item; // Cache RAW item for later, shared across all since-buckets for this calendar!
+					$hrefs[] = $href;
+					$result[$href] = $item;
+				}
+				$this->cacheCalObjectsFetchedKeys[$fetchKey] = $hrefs;
+				return $result;
+
+			} catch (\WT\Client\Calendar\ApiException $ex) {
+				$logger->error($ex);
+			}
+		}
 	}
 	
     /**
@@ -63,22 +135,15 @@ class Backend extends AbstractBackend implements SyncSupport {
 		$logger = $this->getLogger();
 		$logger->debug('{}({})', [__METHOD__, $principalUri]);
 		
-		try {
-			$api = new \WT\Client\Calendar\Api\DavApi(null, $this->getCalendarApiConfig());
-			$items = $api->getCalendars();
-			$calendars = [];
-			$logger->debug('Returned {} items', [count($items)]);
-			for ($i = 0; $i<count($items); $i++) {
-				if ($logger->isDebugEnabled()) $logger->debug('[REST] ... [{}]'.PHP_EOL.'{}', [$i, $items[$i]]);
-				$calendars[] = $this->toSabreCalendar($principalUri, $items[$i], $i);
-			}
-			return $calendars;
-
-		} catch (\WT\Client\Calendar\ApiException $ex) {
-			$logger->error($ex);
+		$items = $this->doGetDavCalendars();
+		$result = [];
+		$i = 0;
+		foreach ($items as $item) {
+			$result[] = $this->toSabreCalendar($principalUri, $item, $i++);
 		}
+		return $result;
 	}
-
+	
 	/**
 	 * Creates a new calendar for a principal.
 	 *
@@ -98,9 +163,12 @@ class Backend extends AbstractBackend implements SyncSupport {
 		
 		try {
 			$api = new \WT\Client\Calendar\Api\DavApi(null, $this->getCalendarApiConfig());
-			$logger->debug('[REST] --> addCalendar()');
-			$item = $api->addCalendar($this->toApiCalendarNew($properties));
-			if ($logger->isDebugEnabled()) $logger->debug('[REST] ...'.PHP_EOL.'{}', [$item]);
+			$logger->debug('[REST] --> addDavCalendar()');
+			$item = $api->addDavCalendar($this->toApiCalendarNew($properties));
+			if ($logger->isTraceEnabled()) $logger->trace('[REST] ...'.PHP_EOL.'{}', [$item]);
+			
+			unset($this->cacheCalendarsByUid); // Cleanup cache
+			
 			return $item->getUid();
 
 		} catch (\WT\Client\Calendar\ApiException $ex) {
@@ -130,8 +198,10 @@ class Backend extends AbstractBackend implements SyncSupport {
 		
 		try {
 			$api = new \WT\Client\Calendar\Api\DavApi(null, $this->getCalendarApiConfig());
-			$logger->debug('[REST] --> updateCalendar()');
-			$api->updateCalendar($this->toApiCalendarUpdate($propPatch));
+			$logger->debug('[REST] --> updateDavCalendar()');
+			$api->updateDavCalendar($this->toApiCalendarUpdate($propPatch));
+			
+			unset($this->cacheCalendarsByUid); // Cleanup cache
 
 		} catch (\WT\Client\Calendar\ApiException $ex) {
 			$logger->error($ex);
@@ -150,8 +220,10 @@ class Backend extends AbstractBackend implements SyncSupport {
 		
 		try {			
 			$api = new \WT\Client\Calendar\Api\DavApi(null, $this->getCalendarApiConfig());
-			$logger->debug('[REST] --> deleteCalendar({})', [$calendarId]);
-			$api->deleteCalendar($calendarId);
+			$logger->debug('[REST] --> deleteDavCalendar({})', [$calendarId]);
+			$api->deleteDavCalendar($calendarId);
+			
+			unset($this->cacheCalendarsByUid); // Cleanup cache
 
 		} catch (\WT\Client\Calendar\ApiException $ex) {
 			$logger->error($ex);
@@ -193,24 +265,12 @@ class Backend extends AbstractBackend implements SyncSupport {
 		$logger = $this->getLogger();
 		$logger->debug('{}({})', [__METHOD__, $calendarId]);
 		
-		try {
-			$api = new \WT\Client\Calendar\Api\DavApi(null, $this->getCalendarApiConfig());
-			$logger->debug('[REST] --> getCalObjects({})', [$calendarId]);
-			$items = $api->getCalObjects($calendarId);
-			$objs = [];
-			$this->calObjectsByUriCache = [];
-			$logger->debug('Returned {} items', [count($items)]);
-			for ($i = 0; $i<count($items); $i++) {
-				if ($logger->isDebugEnabled()) $logger->debug('[REST] ... [{}]'.PHP_EOL.'{}', [$i, $items[$i]]);
-				$item = $items[$i];
-				$this->calObjectsByUriCache[$item->getHref()] = $item; // Cache item for later
-				$objs[] = $this->toSabreCalObject($item, 'vevent', false);
-			}
-			return $objs;
-
-		} catch (\WT\Client\Calendar\ApiException $ex) {
-			$logger->error($ex);
+		$items = $this->doGetDavCalendarObjects($calendarId, null);
+		$result = [];
+		foreach ($items as $item) {
+			$result[] = $this->toSabreCalObject($item, 'vevent', false);
 		}
+		return $result;
 	}
 
 	/**
@@ -232,36 +292,38 @@ class Backend extends AbstractBackend implements SyncSupport {
 	function getCalendarObject($calendarId, $objectUri) {
 		$logger = $this->getLogger();
 		$logger->debug('{}({}, {})', [__METHOD__, $calendarId, $objectUri]);
-		
-		try {
-			// First try to get objects from cache
-			if (isset($this->calObjectsByUriCache)) {
-				$item = $this->calObjectsByUriCache[$objectUri];
-				if ($item != null) {
-					$logger->debug('Object item is in cache');
-					return $this->toSabreCalObject($item, 'vevent', true);
-				}
-			}
-			
-			// Otherwise get object from API call
-			$api = new \WT\Client\Calendar\Api\DavApi(null, $this->getCalendarApiConfig());
-			$logger->debug('[REST] --> getCalObjects({}, {})', [$calendarId, $objectUri]);
-			$items = $api->getCalObjects($calendarId, [$objectUri]);
-			if ($logger->isDebugEnabled()) {
-				$logger->debug('Returned {} items', [count($items)]);
-				for ($i = 0; $i<count($items); $i++) {
-					$logger->debug('[REST] ... [{}]'.PHP_EOL.'{}', [$i, $items[$i]]);
-				}
-			}
-			
-			if (count($items) === 1) {
-				return $this->toSabreCalObject($items[0], 'vevent', true);
-			} else {
-				return false;
-			}
 
-		} catch (\WT\Client\Calendar\ApiException $ex) {
-			$logger->error($ex);
+		$hrefKey = $calendarId."\0".$objectUri;
+		if (isset($this->cacheCalObjectsByHref) && array_key_exists($hrefKey, $this->cacheCalObjectsByHref)) {
+			$logger->debug('Returning object from cache [{}]', $objectUri);
+			return $this->toSabreCalObject($this->cacheCalObjectsByHref[$hrefKey], 'vevent', true);
+		}
+
+		$cacheByHref = $this->doGetDavCalendarObjects($calendarId, null);
+		if (isset($cacheByHref) && !is_null($cacheByHref) && array_key_exists($objectUri, $cacheByHref)) {
+			$logger->debug('Returning object from cache [{}]', $objectUri);
+			return $this->toSabreCalObject($cacheByHref[$objectUri], 'vevent', true);
+
+		} else {
+			try {
+				$api = new \WT\Client\Calendar\Api\DavApi(null, $this->getCalendarApiConfig());
+				$logger->debug('[REST] --> getDavCalObjects({}, {})', [$calendarId, $objectUri]);
+				$items = $api->getDavCalObjects($calendarId, [$objectUri]);
+				$logger->debug('Returned {} items', [count($items)]);
+				if ($logger->isTraceEnabled()) {
+					for ($i = 0; $i<count($items); $i++) {
+						$logger->trace('[REST] ... [{}]'.PHP_EOL.'{}', [$i, $items[$i]]);
+					}
+				}
+				if (count($items) === 1) {
+					$this->cacheCalObjectsByHref[$hrefKey] = $items[0];
+					return $this->toSabreCalObject($items[0], 'vevent', true);
+				} else {
+					return false;
+				}
+			} catch (\WT\Client\Calendar\ApiException $ex) {
+				$logger->error($ex);
+			}
 		}
 	}
 
@@ -285,20 +347,22 @@ class Backend extends AbstractBackend implements SyncSupport {
 			return [];
 		}
 		$chunks = array_chunk($uris, 50);
-		$cards = [];
+		$result = [];
 		
 		try {
 			$api = new \WT\Client\Calendar\Api\DavApi(null, $this->getCalendarApiConfig());
 			foreach ($chunks as $uris) {
-				$logger->debug('[REST] --> getCalObjects({}, {})', [$calendarId, '...']);
-				$items = $api->getCalObjects($calendarId, $uris);
+				$logger->debug('[REST] --> getDavCalObjects({}, {})', [$calendarId, '(many)']);
+				$items = $api->getDavCalObjects($calendarId, $uris);
 				$logger->debug('Returned {} items', [count($items)]);
 				for ($i = 0; $i<count($items); $i++) {
-					if ($logger->isDebugEnabled()) $logger->debug('[REST] ... [{}]'.PHP_EOL.'{}', [$i, $items[$i]]);
-					$cards[] = $this->toSabreCalObject($items[$i], 'vevent', true);
+					$item = $items[$i];
+					if ($logger->isTraceEnabled()) $logger->trace('[REST] ... [{}]'.PHP_EOL.'{}', [$i, $item]);
+					$this->cacheCalObjectsByHref[$calendarId."\0".$item->getHref()] = $item; // Write-through: does not mark this calendar/since-key as fully fetched
+					$result[] = $this->toSabreCalObject($item, 'vevent', true);
 				}
 			}
-			return $cards;
+			return $result;
 
 		} catch (\WT\Client\Calendar\ApiException $ex) {
 			$logger->error($ex);
@@ -329,9 +393,13 @@ class Backend extends AbstractBackend implements SyncSupport {
 		
 		try {
 			$api = new \WT\Client\Calendar\Api\DavApi(null, $this->getCalendarApiConfig());
-			$logger->debug('[REST] --> addCalObject({})', [$calendarId]);
+			$logger->debug('[REST] --> addDavCalObject({})', [$calendarId]);
 			if ($logger->isTraceEnabled()) $logger->trace('[{}]'.PHP_EOL.'{}', [$objectUri, $calendarData]);
-			$api->addCalObject($this->toApiCalObjectNew($objectUri, $calendarData), $calendarId);
+			$api->addDavCalObject($this->toApiCalObjectNew($objectUri, $calendarData), $calendarId);
+			
+			unset($this->cacheCalObjectsByHref); // Cleanup cache
+			unset($this->cacheCalObjectsFetchedKeys); // Cleanup cache
+			
 			return null;
 
 		} catch (\WT\Client\Calendar\ApiException $ex) {
@@ -364,9 +432,13 @@ class Backend extends AbstractBackend implements SyncSupport {
 		
 		try {
 			$api = new \WT\Client\Calendar\Api\DavApi(null, $this->getCalendarApiConfig());
-			$logger->debug('[REST] --> updateCalObject({}, {})', [$calendarId, $objectUri]);
+			$logger->debug('[REST] --> updateDavCalObject({}, {})', [$calendarId, $objectUri]);
 			if ($logger->isTraceEnabled()) $logger->trace('[{}]'.PHP_EOL.'{}', [$objectUri, $calendarData]);
-			$api->updateCalObject($calendarData, $calendarId, $objectUri);
+			$api->updateDavCalObject($calendarData, $calendarId, $objectUri);
+			
+			unset($this->cacheCalObjectsByHref); // Cleanup cache
+			unset($this->cacheCalObjectsFetchedKeys); // Cleanup cache
+			
 			return null;
 
 		} catch (\WT\Client\Calendar\ApiException $ex) {
@@ -389,8 +461,12 @@ class Backend extends AbstractBackend implements SyncSupport {
 		
 		try {
 			$api = new \WT\Client\Calendar\Api\DavApi(null, $this->getCalendarApiConfig());
-			$logger->debug('[REST] --> deleteCalObject({}, {})', [$calendarId, $objectUri]);
-			$api->deleteCalObject($calendarId, $objectUri);
+			$logger->debug('[REST] --> deleteDavCalObject({}, {})', [$calendarId, $objectUri]);
+			$api->deleteDavCalObject($calendarId, $objectUri);
+			
+			unset($this->cacheCalObjectsByHref); // Cleanup cache
+			unset($this->cacheCalObjectsFetchedKeys); // Cleanup cache
+			
 			return true;
 
 		} catch (\WT\Client\Calendar\ApiException $ex) {
@@ -452,24 +528,17 @@ class Backend extends AbstractBackend implements SyncSupport {
 		$logger = $this->getLogger();
 		if ($logger->isDebugEnabled()) $logger->debug('{}({}, {})', [__METHOD__, $calendarId, json_encode($filters)]);
 		
-		// Currently we do not support fileters. For now its ok but to improve
-		// performances, especially with big calendars, this is a feature to
-		// put in roadmap. Therefore simply call the super method.
+		$since = $this->extractSinceFilter($filters);
 		
-		return parent::calendarQuery($calendarId, $filters);
-		//throw new \Sabre\DAV\Exception\NotImplemented("calendar-query request is not supported yet");
-		
-		/*
-		$start = $end = null;
-		$types = array();
-		foreach ($filters['comp-filters'] as $filter) {
-			
-			if (is_array($filter['time-range']) && isset($filter['time-range']['start'], $filter['time-range']['end'])) {
-				$start = $filter['time-range']['start']->getTimestamp();
-				$end = $filter['time-range']['end']->getTimestamp();
+		$result = [];
+		$items = $this->doGetDavCalendarObjects($calendarId, $since);
+		foreach ($items as $item) {
+			$object = $this->toSabreCalObject($item, 'vevent', true);
+			if ($this->validateFilterForObject($object, $filters)) {
+				$result[] = $object['uri'];
 			}
 		}
-		*/
+		return $result;
 	}
 
 	/**
@@ -559,15 +628,37 @@ class Backend extends AbstractBackend implements SyncSupport {
 	
 		try {
 			$api = new \WT\Client\Calendar\Api\DavApi(null, $this->getCalendarApiConfig());
-			$logger->debug('[REST] --> getCalObjectsChanges({}, {}, {})', [$calendarId, $syncToken, $limit]);
-			$changes = $api->getCalObjectsChanges($calendarId, $syncToken, $limit);
-			if ($logger->isDebugEnabled()) $logger->debug('[REST] ...'.PHP_EOL.'{}', [json_encode($changes)]);
+			$logger->debug('[REST] --> getDavCalObjectsChanges({}, {}, {})', [$calendarId, $syncToken, $limit]);
+			$changes = $api->getDavCalObjectsChanges($calendarId, $syncToken, $limit);
+			if ($logger->isTraceEnabled()) $logger->trace('[REST] ...'.PHP_EOL.'{}', [json_encode($changes)]);
 			return $this->toSabreChanges($changes->getSyncToken(), $changes->getInserted(), $changes->getUpdated(), $changes->getDeleted());
 
 		} catch (\WT\Client\Calendar\ApiException $ex) {
 			$logger->error($ex);
 			return null;
 		}
+	}
+	
+	/**
+	 * Extracts the time-range lower bound ('start'), if any, from a
+	 * calendar-query REPORT filter tree, formatted as an ISO-8601 UTC..
+	 *
+	 * Sabre only ever places a time-range filter on a component comp-filter
+	 * (VEVENT/VTODO/...), never on the top-level VCALENDAR one - see
+	 * Sabre\CalDAV\Xml\Filter\CompFilter::xmlDeserialize() - and RFC 4791
+	 * 9.9 mandates that time-range boundaries are always expressed in UTC,
+	 * so no timezone conversion should ever actually be needed here; it's
+	 * done defensively anyway.
+	 * @param array $filters
+	 * @return string|null
+	 */
+	protected function extractSinceFilter(array $filters) {
+		foreach ($filters['comp-filters'] as $compFilter) {
+			if (is_array($compFilter['time-range']) && $compFilter['time-range']['start'] instanceof \DateTimeInterface) {
+				return $compFilter['time-range']['start']->setTimezone(new \DateTimeZone('UTC'));
+			}
+		}
+		return null;
 	}
 	
 	protected function toSabreCalendar($principalUri, \WT\Client\Calendar\Model\DavCalendar $item, $order) {

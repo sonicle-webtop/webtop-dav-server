@@ -87,7 +87,7 @@ class DavApi
     }
 
     /**
-     * Operation addCalObject
+     * Operation addDavCalObject
      *
      * Adds a new calendar object
      *
@@ -98,13 +98,13 @@ class DavApi
      * @throws \InvalidArgumentException
      * @return void
      */
-    public function addCalObject($body, $calendarUid)
+    public function addDavCalObject($body, $calendarUid)
     {
-        $this->addCalObjectWithHttpInfo($body, $calendarUid);
+        $this->addDavCalObjectWithHttpInfo($body, $calendarUid);
     }
 
     /**
-     * Operation addCalObjectWithHttpInfo
+     * Operation addDavCalObjectWithHttpInfo
      *
      * Adds a new calendar object
      *
@@ -115,10 +115,10 @@ class DavApi
      * @throws \InvalidArgumentException
      * @return array of null, HTTP status code, HTTP response headers (array of strings)
      */
-    public function addCalObjectWithHttpInfo($body, $calendarUid)
+    public function addDavCalObjectWithHttpInfo($body, $calendarUid)
     {
         $returnType = '';
-        $request = $this->addCalObjectRequest($body, $calendarUid);
+        $request = $this->addDavCalObjectRequest($body, $calendarUid);
 
         try {
             $options = $this->createHttpClientOption();
@@ -158,7 +158,7 @@ class DavApi
     }
 
     /**
-     * Operation addCalObjectAsync
+     * Operation addDavCalObjectAsync
      *
      * Adds a new calendar object
      *
@@ -168,9 +168,9 @@ class DavApi
      * @throws \InvalidArgumentException
      * @return \GuzzleHttp\Promise\PromiseInterface
      */
-    public function addCalObjectAsync($body, $calendarUid)
+    public function addDavCalObjectAsync($body, $calendarUid)
     {
-        return $this->addCalObjectAsyncWithHttpInfo($body, $calendarUid)
+        return $this->addDavCalObjectAsyncWithHttpInfo($body, $calendarUid)
             ->then(
                 function ($response) {
                     return $response[0];
@@ -179,7 +179,7 @@ class DavApi
     }
 
     /**
-     * Operation addCalObjectAsyncWithHttpInfo
+     * Operation addDavCalObjectAsyncWithHttpInfo
      *
      * Adds a new calendar object
      *
@@ -189,10 +189,10 @@ class DavApi
      * @throws \InvalidArgumentException
      * @return \GuzzleHttp\Promise\PromiseInterface
      */
-    public function addCalObjectAsyncWithHttpInfo($body, $calendarUid)
+    public function addDavCalObjectAsyncWithHttpInfo($body, $calendarUid)
     {
         $returnType = '';
-        $request = $this->addCalObjectRequest($body, $calendarUid);
+        $request = $this->addDavCalObjectRequest($body, $calendarUid);
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -218,7 +218,7 @@ class DavApi
     }
 
     /**
-     * Create request for operation 'addCalObject'
+     * Create request for operation 'addDavCalObject'
      *
      * @param  \WT\Client\Calendar\Model\DavCalObjectNew $body (required)
      * @param  string $calendarUid Calendar UID (required)
@@ -226,18 +226,18 @@ class DavApi
      * @throws \InvalidArgumentException
      * @return \GuzzleHttp\Psr7\Request
      */
-    protected function addCalObjectRequest($body, $calendarUid)
+    protected function addDavCalObjectRequest($body, $calendarUid)
     {
         // verify the required parameter 'body' is set
         if ($body === null || (is_array($body) && count($body) === 0)) {
             throw new \InvalidArgumentException(
-                'Missing the required parameter $body when calling addCalObject'
+                'Missing the required parameter $body when calling addDavCalObject'
             );
         }
         // verify the required parameter 'calendarUid' is set
         if ($calendarUid === null || (is_array($calendarUid) && count($calendarUid) === 0)) {
             throw new \InvalidArgumentException(
-                'Missing the required parameter $calendarUid when calling addCalObject'
+                'Missing the required parameter $calendarUid when calling addDavCalObject'
             );
         }
 
@@ -304,6 +304,15 @@ class DavApi
             }
         }
 
+        // this endpoint requires Bearer token
+        if ($this->config->getAccessToken() !== null) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+        // this endpoint requires API key authentication
+        $apiKey = $this->config->getApiKeyWithPrefix('X-Auth-Username');
+        if ($apiKey !== null) {
+            $headers['X-Auth-Username'] = $apiKey;
+        }
         // this endpoint requires HTTP basic authentication
         if ($this->config->getUsername() !== null || $this->config->getPassword() !== null) {
             $headers['Authorization'] = 'Basic ' . base64_encode($this->config->getUsername() . ":" . $this->config->getPassword());
@@ -334,7 +343,7 @@ class DavApi
     }
 
     /**
-     * Operation addCalendar
+     * Operation addDavCalendar
      *
      * Adds a new calendar
      *
@@ -344,14 +353,14 @@ class DavApi
      * @throws \InvalidArgumentException
      * @return \WT\Client\Calendar\Model\DavCalendar
      */
-    public function addCalendar($body)
+    public function addDavCalendar($body)
     {
-        list($response) = $this->addCalendarWithHttpInfo($body);
+        list($response) = $this->addDavCalendarWithHttpInfo($body);
         return $response;
     }
 
     /**
-     * Operation addCalendarWithHttpInfo
+     * Operation addDavCalendarWithHttpInfo
      *
      * Adds a new calendar
      *
@@ -361,10 +370,10 @@ class DavApi
      * @throws \InvalidArgumentException
      * @return array of \WT\Client\Calendar\Model\DavCalendar, HTTP status code, HTTP response headers (array of strings)
      */
-    public function addCalendarWithHttpInfo($body)
+    public function addDavCalendarWithHttpInfo($body)
     {
         $returnType = '\WT\Client\Calendar\Model\DavCalendar';
-        $request = $this->addCalendarRequest($body);
+        $request = $this->addDavCalendarRequest($body);
 
         try {
             $options = $this->createHttpClientOption();
@@ -426,7 +435,7 @@ class DavApi
     }
 
     /**
-     * Operation addCalendarAsync
+     * Operation addDavCalendarAsync
      *
      * Adds a new calendar
      *
@@ -435,9 +444,9 @@ class DavApi
      * @throws \InvalidArgumentException
      * @return \GuzzleHttp\Promise\PromiseInterface
      */
-    public function addCalendarAsync($body)
+    public function addDavCalendarAsync($body)
     {
-        return $this->addCalendarAsyncWithHttpInfo($body)
+        return $this->addDavCalendarAsyncWithHttpInfo($body)
             ->then(
                 function ($response) {
                     return $response[0];
@@ -446,7 +455,7 @@ class DavApi
     }
 
     /**
-     * Operation addCalendarAsyncWithHttpInfo
+     * Operation addDavCalendarAsyncWithHttpInfo
      *
      * Adds a new calendar
      *
@@ -455,10 +464,10 @@ class DavApi
      * @throws \InvalidArgumentException
      * @return \GuzzleHttp\Promise\PromiseInterface
      */
-    public function addCalendarAsyncWithHttpInfo($body)
+    public function addDavCalendarAsyncWithHttpInfo($body)
     {
         $returnType = '\WT\Client\Calendar\Model\DavCalendar';
-        $request = $this->addCalendarRequest($body);
+        $request = $this->addDavCalendarRequest($body);
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -498,19 +507,19 @@ class DavApi
     }
 
     /**
-     * Create request for operation 'addCalendar'
+     * Create request for operation 'addDavCalendar'
      *
      * @param  \WT\Client\Calendar\Model\DavCalendarNew $body (required)
      *
      * @throws \InvalidArgumentException
      * @return \GuzzleHttp\Psr7\Request
      */
-    protected function addCalendarRequest($body)
+    protected function addDavCalendarRequest($body)
     {
         // verify the required parameter 'body' is set
         if ($body === null || (is_array($body) && count($body) === 0)) {
             throw new \InvalidArgumentException(
-                'Missing the required parameter $body when calling addCalendar'
+                'Missing the required parameter $body when calling addDavCalendar'
             );
         }
 
@@ -569,6 +578,15 @@ class DavApi
             }
         }
 
+        // this endpoint requires Bearer token
+        if ($this->config->getAccessToken() !== null) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+        // this endpoint requires API key authentication
+        $apiKey = $this->config->getApiKeyWithPrefix('X-Auth-Username');
+        if ($apiKey !== null) {
+            $headers['X-Auth-Username'] = $apiKey;
+        }
         // this endpoint requires HTTP basic authentication
         if ($this->config->getUsername() !== null || $this->config->getPassword() !== null) {
             $headers['Authorization'] = 'Basic ' . base64_encode($this->config->getUsername() . ":" . $this->config->getPassword());
@@ -599,7 +617,7 @@ class DavApi
     }
 
     /**
-     * Operation deleteCalObject
+     * Operation deleteDavCalObject
      *
      * Deletes a calendar object
      *
@@ -610,13 +628,13 @@ class DavApi
      * @throws \InvalidArgumentException
      * @return void
      */
-    public function deleteCalObject($calendarUid, $href)
+    public function deleteDavCalObject($calendarUid, $href)
     {
-        $this->deleteCalObjectWithHttpInfo($calendarUid, $href);
+        $this->deleteDavCalObjectWithHttpInfo($calendarUid, $href);
     }
 
     /**
-     * Operation deleteCalObjectWithHttpInfo
+     * Operation deleteDavCalObjectWithHttpInfo
      *
      * Deletes a calendar object
      *
@@ -627,10 +645,10 @@ class DavApi
      * @throws \InvalidArgumentException
      * @return array of null, HTTP status code, HTTP response headers (array of strings)
      */
-    public function deleteCalObjectWithHttpInfo($calendarUid, $href)
+    public function deleteDavCalObjectWithHttpInfo($calendarUid, $href)
     {
         $returnType = '';
-        $request = $this->deleteCalObjectRequest($calendarUid, $href);
+        $request = $this->deleteDavCalObjectRequest($calendarUid, $href);
 
         try {
             $options = $this->createHttpClientOption();
@@ -670,7 +688,7 @@ class DavApi
     }
 
     /**
-     * Operation deleteCalObjectAsync
+     * Operation deleteDavCalObjectAsync
      *
      * Deletes a calendar object
      *
@@ -680,9 +698,9 @@ class DavApi
      * @throws \InvalidArgumentException
      * @return \GuzzleHttp\Promise\PromiseInterface
      */
-    public function deleteCalObjectAsync($calendarUid, $href)
+    public function deleteDavCalObjectAsync($calendarUid, $href)
     {
-        return $this->deleteCalObjectAsyncWithHttpInfo($calendarUid, $href)
+        return $this->deleteDavCalObjectAsyncWithHttpInfo($calendarUid, $href)
             ->then(
                 function ($response) {
                     return $response[0];
@@ -691,7 +709,7 @@ class DavApi
     }
 
     /**
-     * Operation deleteCalObjectAsyncWithHttpInfo
+     * Operation deleteDavCalObjectAsyncWithHttpInfo
      *
      * Deletes a calendar object
      *
@@ -701,10 +719,10 @@ class DavApi
      * @throws \InvalidArgumentException
      * @return \GuzzleHttp\Promise\PromiseInterface
      */
-    public function deleteCalObjectAsyncWithHttpInfo($calendarUid, $href)
+    public function deleteDavCalObjectAsyncWithHttpInfo($calendarUid, $href)
     {
         $returnType = '';
-        $request = $this->deleteCalObjectRequest($calendarUid, $href);
+        $request = $this->deleteDavCalObjectRequest($calendarUid, $href);
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -730,7 +748,7 @@ class DavApi
     }
 
     /**
-     * Create request for operation 'deleteCalObject'
+     * Create request for operation 'deleteDavCalObject'
      *
      * @param  string $calendarUid Calendar UID (required)
      * @param  string $href CalObject reference URI (required)
@@ -738,18 +756,18 @@ class DavApi
      * @throws \InvalidArgumentException
      * @return \GuzzleHttp\Psr7\Request
      */
-    protected function deleteCalObjectRequest($calendarUid, $href)
+    protected function deleteDavCalObjectRequest($calendarUid, $href)
     {
         // verify the required parameter 'calendarUid' is set
         if ($calendarUid === null || (is_array($calendarUid) && count($calendarUid) === 0)) {
             throw new \InvalidArgumentException(
-                'Missing the required parameter $calendarUid when calling deleteCalObject'
+                'Missing the required parameter $calendarUid when calling deleteDavCalObject'
             );
         }
         // verify the required parameter 'href' is set
         if ($href === null || (is_array($href) && count($href) === 0)) {
             throw new \InvalidArgumentException(
-                'Missing the required parameter $href when calling deleteCalObject'
+                'Missing the required parameter $href when calling deleteDavCalObject'
             );
         }
 
@@ -821,6 +839,15 @@ class DavApi
             }
         }
 
+        // this endpoint requires Bearer token
+        if ($this->config->getAccessToken() !== null) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+        // this endpoint requires API key authentication
+        $apiKey = $this->config->getApiKeyWithPrefix('X-Auth-Username');
+        if ($apiKey !== null) {
+            $headers['X-Auth-Username'] = $apiKey;
+        }
         // this endpoint requires HTTP basic authentication
         if ($this->config->getUsername() !== null || $this->config->getPassword() !== null) {
             $headers['Authorization'] = 'Basic ' . base64_encode($this->config->getUsername() . ":" . $this->config->getPassword());
@@ -851,7 +878,7 @@ class DavApi
     }
 
     /**
-     * Operation deleteCalendar
+     * Operation deleteDavCalendar
      *
      * Deletes a calendar
      *
@@ -861,13 +888,13 @@ class DavApi
      * @throws \InvalidArgumentException
      * @return void
      */
-    public function deleteCalendar($calendarUid)
+    public function deleteDavCalendar($calendarUid)
     {
-        $this->deleteCalendarWithHttpInfo($calendarUid);
+        $this->deleteDavCalendarWithHttpInfo($calendarUid);
     }
 
     /**
-     * Operation deleteCalendarWithHttpInfo
+     * Operation deleteDavCalendarWithHttpInfo
      *
      * Deletes a calendar
      *
@@ -877,10 +904,10 @@ class DavApi
      * @throws \InvalidArgumentException
      * @return array of null, HTTP status code, HTTP response headers (array of strings)
      */
-    public function deleteCalendarWithHttpInfo($calendarUid)
+    public function deleteDavCalendarWithHttpInfo($calendarUid)
     {
         $returnType = '';
-        $request = $this->deleteCalendarRequest($calendarUid);
+        $request = $this->deleteDavCalendarRequest($calendarUid);
 
         try {
             $options = $this->createHttpClientOption();
@@ -920,7 +947,7 @@ class DavApi
     }
 
     /**
-     * Operation deleteCalendarAsync
+     * Operation deleteDavCalendarAsync
      *
      * Deletes a calendar
      *
@@ -929,9 +956,9 @@ class DavApi
      * @throws \InvalidArgumentException
      * @return \GuzzleHttp\Promise\PromiseInterface
      */
-    public function deleteCalendarAsync($calendarUid)
+    public function deleteDavCalendarAsync($calendarUid)
     {
-        return $this->deleteCalendarAsyncWithHttpInfo($calendarUid)
+        return $this->deleteDavCalendarAsyncWithHttpInfo($calendarUid)
             ->then(
                 function ($response) {
                     return $response[0];
@@ -940,7 +967,7 @@ class DavApi
     }
 
     /**
-     * Operation deleteCalendarAsyncWithHttpInfo
+     * Operation deleteDavCalendarAsyncWithHttpInfo
      *
      * Deletes a calendar
      *
@@ -949,10 +976,10 @@ class DavApi
      * @throws \InvalidArgumentException
      * @return \GuzzleHttp\Promise\PromiseInterface
      */
-    public function deleteCalendarAsyncWithHttpInfo($calendarUid)
+    public function deleteDavCalendarAsyncWithHttpInfo($calendarUid)
     {
         $returnType = '';
-        $request = $this->deleteCalendarRequest($calendarUid);
+        $request = $this->deleteDavCalendarRequest($calendarUid);
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -978,19 +1005,19 @@ class DavApi
     }
 
     /**
-     * Create request for operation 'deleteCalendar'
+     * Create request for operation 'deleteDavCalendar'
      *
      * @param  string $calendarUid Calendar UID (required)
      *
      * @throws \InvalidArgumentException
      * @return \GuzzleHttp\Psr7\Request
      */
-    protected function deleteCalendarRequest($calendarUid)
+    protected function deleteDavCalendarRequest($calendarUid)
     {
         // verify the required parameter 'calendarUid' is set
         if ($calendarUid === null || (is_array($calendarUid) && count($calendarUid) === 0)) {
             throw new \InvalidArgumentException(
-                'Missing the required parameter $calendarUid when calling deleteCalendar'
+                'Missing the required parameter $calendarUid when calling deleteDavCalendar'
             );
         }
 
@@ -1054,6 +1081,15 @@ class DavApi
             }
         }
 
+        // this endpoint requires Bearer token
+        if ($this->config->getAccessToken() !== null) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+        // this endpoint requires API key authentication
+        $apiKey = $this->config->getApiKeyWithPrefix('X-Auth-Username');
+        if ($apiKey !== null) {
+            $headers['X-Auth-Username'] = $apiKey;
+        }
         // this endpoint requires HTTP basic authentication
         if ($this->config->getUsername() !== null || $this->config->getPassword() !== null) {
             $headers['Authorization'] = 'Basic ' . base64_encode($this->config->getUsername() . ":" . $this->config->getPassword());
@@ -1084,7 +1120,7 @@ class DavApi
     }
 
     /**
-     * Operation getCalObject
+     * Operation getDavCalObject
      *
      * Get a single calendar object
      *
@@ -1095,14 +1131,14 @@ class DavApi
      * @throws \InvalidArgumentException
      * @return \WT\Client\Calendar\Model\DavCalObject
      */
-    public function getCalObject($calendarUid, $href)
+    public function getDavCalObject($calendarUid, $href)
     {
-        list($response) = $this->getCalObjectWithHttpInfo($calendarUid, $href);
+        list($response) = $this->getDavCalObjectWithHttpInfo($calendarUid, $href);
         return $response;
     }
 
     /**
-     * Operation getCalObjectWithHttpInfo
+     * Operation getDavCalObjectWithHttpInfo
      *
      * Get a single calendar object
      *
@@ -1113,10 +1149,10 @@ class DavApi
      * @throws \InvalidArgumentException
      * @return array of \WT\Client\Calendar\Model\DavCalObject, HTTP status code, HTTP response headers (array of strings)
      */
-    public function getCalObjectWithHttpInfo($calendarUid, $href)
+    public function getDavCalObjectWithHttpInfo($calendarUid, $href)
     {
         $returnType = '\WT\Client\Calendar\Model\DavCalObject';
-        $request = $this->getCalObjectRequest($calendarUid, $href);
+        $request = $this->getDavCalObjectRequest($calendarUid, $href);
 
         try {
             $options = $this->createHttpClientOption();
@@ -1178,7 +1214,7 @@ class DavApi
     }
 
     /**
-     * Operation getCalObjectAsync
+     * Operation getDavCalObjectAsync
      *
      * Get a single calendar object
      *
@@ -1188,9 +1224,9 @@ class DavApi
      * @throws \InvalidArgumentException
      * @return \GuzzleHttp\Promise\PromiseInterface
      */
-    public function getCalObjectAsync($calendarUid, $href)
+    public function getDavCalObjectAsync($calendarUid, $href)
     {
-        return $this->getCalObjectAsyncWithHttpInfo($calendarUid, $href)
+        return $this->getDavCalObjectAsyncWithHttpInfo($calendarUid, $href)
             ->then(
                 function ($response) {
                     return $response[0];
@@ -1199,7 +1235,7 @@ class DavApi
     }
 
     /**
-     * Operation getCalObjectAsyncWithHttpInfo
+     * Operation getDavCalObjectAsyncWithHttpInfo
      *
      * Get a single calendar object
      *
@@ -1209,10 +1245,10 @@ class DavApi
      * @throws \InvalidArgumentException
      * @return \GuzzleHttp\Promise\PromiseInterface
      */
-    public function getCalObjectAsyncWithHttpInfo($calendarUid, $href)
+    public function getDavCalObjectAsyncWithHttpInfo($calendarUid, $href)
     {
         $returnType = '\WT\Client\Calendar\Model\DavCalObject';
-        $request = $this->getCalObjectRequest($calendarUid, $href);
+        $request = $this->getDavCalObjectRequest($calendarUid, $href);
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -1252,7 +1288,7 @@ class DavApi
     }
 
     /**
-     * Create request for operation 'getCalObject'
+     * Create request for operation 'getDavCalObject'
      *
      * @param  string $calendarUid Calendar UID (required)
      * @param  string $href CalObject reference URI (required)
@@ -1260,18 +1296,18 @@ class DavApi
      * @throws \InvalidArgumentException
      * @return \GuzzleHttp\Psr7\Request
      */
-    protected function getCalObjectRequest($calendarUid, $href)
+    protected function getDavCalObjectRequest($calendarUid, $href)
     {
         // verify the required parameter 'calendarUid' is set
         if ($calendarUid === null || (is_array($calendarUid) && count($calendarUid) === 0)) {
             throw new \InvalidArgumentException(
-                'Missing the required parameter $calendarUid when calling getCalObject'
+                'Missing the required parameter $calendarUid when calling getDavCalObject'
             );
         }
         // verify the required parameter 'href' is set
         if ($href === null || (is_array($href) && count($href) === 0)) {
             throw new \InvalidArgumentException(
-                'Missing the required parameter $href when calling getCalObject'
+                'Missing the required parameter $href when calling getDavCalObject'
             );
         }
 
@@ -1343,6 +1379,15 @@ class DavApi
             }
         }
 
+        // this endpoint requires Bearer token
+        if ($this->config->getAccessToken() !== null) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+        // this endpoint requires API key authentication
+        $apiKey = $this->config->getApiKeyWithPrefix('X-Auth-Username');
+        if ($apiKey !== null) {
+            $headers['X-Auth-Username'] = $apiKey;
+        }
         // this endpoint requires HTTP basic authentication
         if ($this->config->getUsername() !== null || $this->config->getPassword() !== null) {
             $headers['Authorization'] = 'Basic ' . base64_encode($this->config->getUsername() . ":" . $this->config->getPassword());
@@ -1373,39 +1418,41 @@ class DavApi
     }
 
     /**
-     * Operation getCalObjects
+     * Operation getDavCalObjects
      *
      * List all calendar objects belonging to a specific calendar
      *
      * @param  string $calendarUid Calendar UID (required)
      * @param  string[] $hrefs hrefs (optional)
+     * @param  string $since The date and time (inclusive) to filter results, represented in ISO 8601 format and UTC time. (optional)
      *
      * @throws \WT\Client\Calendar\ApiException on non-2xx response
      * @throws \InvalidArgumentException
      * @return \WT\Client\Calendar\Model\DavCalObject[]
      */
-    public function getCalObjects($calendarUid, $hrefs = null)
+    public function getDavCalObjects($calendarUid, $hrefs = null, $since = null)
     {
-        list($response) = $this->getCalObjectsWithHttpInfo($calendarUid, $hrefs);
+        list($response) = $this->getDavCalObjectsWithHttpInfo($calendarUid, $hrefs, $since);
         return $response;
     }
 
     /**
-     * Operation getCalObjectsWithHttpInfo
+     * Operation getDavCalObjectsWithHttpInfo
      *
      * List all calendar objects belonging to a specific calendar
      *
      * @param  string $calendarUid Calendar UID (required)
      * @param  string[] $hrefs (optional)
+     * @param  string $since The date and time (inclusive) to filter results, represented in ISO 8601 format and UTC time. (optional)
      *
      * @throws \WT\Client\Calendar\ApiException on non-2xx response
      * @throws \InvalidArgumentException
      * @return array of \WT\Client\Calendar\Model\DavCalObject[], HTTP status code, HTTP response headers (array of strings)
      */
-    public function getCalObjectsWithHttpInfo($calendarUid, $hrefs = null)
+    public function getDavCalObjectsWithHttpInfo($calendarUid, $hrefs = null, $since = null)
     {
         $returnType = '\WT\Client\Calendar\Model\DavCalObject[]';
-        $request = $this->getCalObjectsRequest($calendarUid, $hrefs);
+        $request = $this->getDavCalObjectsRequest($calendarUid, $hrefs, $since);
 
         try {
             $options = $this->createHttpClientOption();
@@ -1467,19 +1514,20 @@ class DavApi
     }
 
     /**
-     * Operation getCalObjectsAsync
+     * Operation getDavCalObjectsAsync
      *
      * List all calendar objects belonging to a specific calendar
      *
      * @param  string $calendarUid Calendar UID (required)
      * @param  string[] $hrefs (optional)
+     * @param  string $since The date and time (inclusive) to filter results, represented in ISO 8601 format and UTC time. (optional)
      *
      * @throws \InvalidArgumentException
      * @return \GuzzleHttp\Promise\PromiseInterface
      */
-    public function getCalObjectsAsync($calendarUid, $hrefs = null)
+    public function getDavCalObjectsAsync($calendarUid, $hrefs = null, $since = null)
     {
-        return $this->getCalObjectsAsyncWithHttpInfo($calendarUid, $hrefs)
+        return $this->getDavCalObjectsAsyncWithHttpInfo($calendarUid, $hrefs, $since)
             ->then(
                 function ($response) {
                     return $response[0];
@@ -1488,20 +1536,21 @@ class DavApi
     }
 
     /**
-     * Operation getCalObjectsAsyncWithHttpInfo
+     * Operation getDavCalObjectsAsyncWithHttpInfo
      *
      * List all calendar objects belonging to a specific calendar
      *
      * @param  string $calendarUid Calendar UID (required)
      * @param  string[] $hrefs (optional)
+     * @param  string $since The date and time (inclusive) to filter results, represented in ISO 8601 format and UTC time. (optional)
      *
      * @throws \InvalidArgumentException
      * @return \GuzzleHttp\Promise\PromiseInterface
      */
-    public function getCalObjectsAsyncWithHttpInfo($calendarUid, $hrefs = null)
+    public function getDavCalObjectsAsyncWithHttpInfo($calendarUid, $hrefs = null, $since = null)
     {
         $returnType = '\WT\Client\Calendar\Model\DavCalObject[]';
-        $request = $this->getCalObjectsRequest($calendarUid, $hrefs);
+        $request = $this->getDavCalObjectsRequest($calendarUid, $hrefs, $since);
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -1541,20 +1590,21 @@ class DavApi
     }
 
     /**
-     * Create request for operation 'getCalObjects'
+     * Create request for operation 'getDavCalObjects'
      *
      * @param  string $calendarUid Calendar UID (required)
      * @param  string[] $hrefs (optional)
+     * @param  string $since The date and time (inclusive) to filter results, represented in ISO 8601 format and UTC time. (optional)
      *
      * @throws \InvalidArgumentException
      * @return \GuzzleHttp\Psr7\Request
      */
-    protected function getCalObjectsRequest($calendarUid, $hrefs = null)
+    protected function getDavCalObjectsRequest($calendarUid, $hrefs = null, $since = null)
     {
         // verify the required parameter 'calendarUid' is set
         if ($calendarUid === null || (is_array($calendarUid) && count($calendarUid) === 0)) {
             throw new \InvalidArgumentException(
-                'Missing the required parameter $calendarUid when calling getCalObjects'
+                'Missing the required parameter $calendarUid when calling getDavCalObjects'
             );
         }
 
@@ -1576,6 +1626,15 @@ class DavApi
 				$queryParams['hrefs'] = $hrefs;
 			} else {
 				$queryParams['hrefs'] = ObjectSerializer::toQueryValue($hrefs, null);
+			}		
+		}
+        // query params
+        if ($since !== null) {
+			// if still an array simply assign it to queryParams
+            if (is_array($since)) {
+				$queryParams['since'] = $since;
+			} else {
+				$queryParams['since'] = ObjectSerializer::toQueryValue($since, null);
 			}		
 		}
 
@@ -1631,6 +1690,15 @@ class DavApi
             }
         }
 
+        // this endpoint requires Bearer token
+        if ($this->config->getAccessToken() !== null) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+        // this endpoint requires API key authentication
+        $apiKey = $this->config->getApiKeyWithPrefix('X-Auth-Username');
+        if ($apiKey !== null) {
+            $headers['X-Auth-Username'] = $apiKey;
+        }
         // this endpoint requires HTTP basic authentication
         if ($this->config->getUsername() !== null || $this->config->getPassword() !== null) {
             $headers['Authorization'] = 'Basic ' . base64_encode($this->config->getUsername() . ":" . $this->config->getPassword());
@@ -1661,7 +1729,7 @@ class DavApi
     }
 
     /**
-     * Operation getCalObjectsChanges
+     * Operation getDavCalObjectsChanges
      *
      * Get calendar object changes
      *
@@ -1673,14 +1741,14 @@ class DavApi
      * @throws \InvalidArgumentException
      * @return \WT\Client\Calendar\Model\DavCalObjectsChanges
      */
-    public function getCalObjectsChanges($calendarUid, $syncToken = null, $limit = null)
+    public function getDavCalObjectsChanges($calendarUid, $syncToken = null, $limit = null)
     {
-        list($response) = $this->getCalObjectsChangesWithHttpInfo($calendarUid, $syncToken, $limit);
+        list($response) = $this->getDavCalObjectsChangesWithHttpInfo($calendarUid, $syncToken, $limit);
         return $response;
     }
 
     /**
-     * Operation getCalObjectsChangesWithHttpInfo
+     * Operation getDavCalObjectsChangesWithHttpInfo
      *
      * Get calendar object changes
      *
@@ -1692,10 +1760,10 @@ class DavApi
      * @throws \InvalidArgumentException
      * @return array of \WT\Client\Calendar\Model\DavCalObjectsChanges, HTTP status code, HTTP response headers (array of strings)
      */
-    public function getCalObjectsChangesWithHttpInfo($calendarUid, $syncToken = null, $limit = null)
+    public function getDavCalObjectsChangesWithHttpInfo($calendarUid, $syncToken = null, $limit = null)
     {
         $returnType = '\WT\Client\Calendar\Model\DavCalObjectsChanges';
-        $request = $this->getCalObjectsChangesRequest($calendarUid, $syncToken, $limit);
+        $request = $this->getDavCalObjectsChangesRequest($calendarUid, $syncToken, $limit);
 
         try {
             $options = $this->createHttpClientOption();
@@ -1757,7 +1825,7 @@ class DavApi
     }
 
     /**
-     * Operation getCalObjectsChangesAsync
+     * Operation getDavCalObjectsChangesAsync
      *
      * Get calendar object changes
      *
@@ -1768,9 +1836,9 @@ class DavApi
      * @throws \InvalidArgumentException
      * @return \GuzzleHttp\Promise\PromiseInterface
      */
-    public function getCalObjectsChangesAsync($calendarUid, $syncToken = null, $limit = null)
+    public function getDavCalObjectsChangesAsync($calendarUid, $syncToken = null, $limit = null)
     {
-        return $this->getCalObjectsChangesAsyncWithHttpInfo($calendarUid, $syncToken, $limit)
+        return $this->getDavCalObjectsChangesAsyncWithHttpInfo($calendarUid, $syncToken, $limit)
             ->then(
                 function ($response) {
                     return $response[0];
@@ -1779,7 +1847,7 @@ class DavApi
     }
 
     /**
-     * Operation getCalObjectsChangesAsyncWithHttpInfo
+     * Operation getDavCalObjectsChangesAsyncWithHttpInfo
      *
      * Get calendar object changes
      *
@@ -1790,10 +1858,10 @@ class DavApi
      * @throws \InvalidArgumentException
      * @return \GuzzleHttp\Promise\PromiseInterface
      */
-    public function getCalObjectsChangesAsyncWithHttpInfo($calendarUid, $syncToken = null, $limit = null)
+    public function getDavCalObjectsChangesAsyncWithHttpInfo($calendarUid, $syncToken = null, $limit = null)
     {
         $returnType = '\WT\Client\Calendar\Model\DavCalObjectsChanges';
-        $request = $this->getCalObjectsChangesRequest($calendarUid, $syncToken, $limit);
+        $request = $this->getDavCalObjectsChangesRequest($calendarUid, $syncToken, $limit);
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -1833,7 +1901,7 @@ class DavApi
     }
 
     /**
-     * Create request for operation 'getCalObjectsChanges'
+     * Create request for operation 'getDavCalObjectsChanges'
      *
      * @param  string $calendarUid Calendar UID (required)
      * @param  string $syncToken Marks changes starting point (optional)
@@ -1842,12 +1910,12 @@ class DavApi
      * @throws \InvalidArgumentException
      * @return \GuzzleHttp\Psr7\Request
      */
-    protected function getCalObjectsChangesRequest($calendarUid, $syncToken = null, $limit = null)
+    protected function getDavCalObjectsChangesRequest($calendarUid, $syncToken = null, $limit = null)
     {
         // verify the required parameter 'calendarUid' is set
         if ($calendarUid === null || (is_array($calendarUid) && count($calendarUid) === 0)) {
             throw new \InvalidArgumentException(
-                'Missing the required parameter $calendarUid when calling getCalObjectsChanges'
+                'Missing the required parameter $calendarUid when calling getDavCalObjectsChanges'
             );
         }
 
@@ -1929,6 +1997,15 @@ class DavApi
             }
         }
 
+        // this endpoint requires Bearer token
+        if ($this->config->getAccessToken() !== null) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+        // this endpoint requires API key authentication
+        $apiKey = $this->config->getApiKeyWithPrefix('X-Auth-Username');
+        if ($apiKey !== null) {
+            $headers['X-Auth-Username'] = $apiKey;
+        }
         // this endpoint requires HTTP basic authentication
         if ($this->config->getUsername() !== null || $this->config->getPassword() !== null) {
             $headers['Authorization'] = 'Basic ' . base64_encode($this->config->getUsername() . ":" . $this->config->getPassword());
@@ -1959,7 +2036,7 @@ class DavApi
     }
 
     /**
-     * Operation getCalendar
+     * Operation getDavCalendar
      *
      * Gets a single calendar
      *
@@ -1969,14 +2046,14 @@ class DavApi
      * @throws \InvalidArgumentException
      * @return \WT\Client\Calendar\Model\DavCalendar
      */
-    public function getCalendar($calendarUid)
+    public function getDavCalendar($calendarUid)
     {
-        list($response) = $this->getCalendarWithHttpInfo($calendarUid);
+        list($response) = $this->getDavCalendarWithHttpInfo($calendarUid);
         return $response;
     }
 
     /**
-     * Operation getCalendarWithHttpInfo
+     * Operation getDavCalendarWithHttpInfo
      *
      * Gets a single calendar
      *
@@ -1986,10 +2063,10 @@ class DavApi
      * @throws \InvalidArgumentException
      * @return array of \WT\Client\Calendar\Model\DavCalendar, HTTP status code, HTTP response headers (array of strings)
      */
-    public function getCalendarWithHttpInfo($calendarUid)
+    public function getDavCalendarWithHttpInfo($calendarUid)
     {
         $returnType = '\WT\Client\Calendar\Model\DavCalendar';
-        $request = $this->getCalendarRequest($calendarUid);
+        $request = $this->getDavCalendarRequest($calendarUid);
 
         try {
             $options = $this->createHttpClientOption();
@@ -2051,7 +2128,7 @@ class DavApi
     }
 
     /**
-     * Operation getCalendarAsync
+     * Operation getDavCalendarAsync
      *
      * Gets a single calendar
      *
@@ -2060,9 +2137,9 @@ class DavApi
      * @throws \InvalidArgumentException
      * @return \GuzzleHttp\Promise\PromiseInterface
      */
-    public function getCalendarAsync($calendarUid)
+    public function getDavCalendarAsync($calendarUid)
     {
-        return $this->getCalendarAsyncWithHttpInfo($calendarUid)
+        return $this->getDavCalendarAsyncWithHttpInfo($calendarUid)
             ->then(
                 function ($response) {
                     return $response[0];
@@ -2071,7 +2148,7 @@ class DavApi
     }
 
     /**
-     * Operation getCalendarAsyncWithHttpInfo
+     * Operation getDavCalendarAsyncWithHttpInfo
      *
      * Gets a single calendar
      *
@@ -2080,10 +2157,10 @@ class DavApi
      * @throws \InvalidArgumentException
      * @return \GuzzleHttp\Promise\PromiseInterface
      */
-    public function getCalendarAsyncWithHttpInfo($calendarUid)
+    public function getDavCalendarAsyncWithHttpInfo($calendarUid)
     {
         $returnType = '\WT\Client\Calendar\Model\DavCalendar';
-        $request = $this->getCalendarRequest($calendarUid);
+        $request = $this->getDavCalendarRequest($calendarUid);
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -2123,19 +2200,19 @@ class DavApi
     }
 
     /**
-     * Create request for operation 'getCalendar'
+     * Create request for operation 'getDavCalendar'
      *
      * @param  string $calendarUid Calendar UID (required)
      *
      * @throws \InvalidArgumentException
      * @return \GuzzleHttp\Psr7\Request
      */
-    protected function getCalendarRequest($calendarUid)
+    protected function getDavCalendarRequest($calendarUid)
     {
         // verify the required parameter 'calendarUid' is set
         if ($calendarUid === null || (is_array($calendarUid) && count($calendarUid) === 0)) {
             throw new \InvalidArgumentException(
-                'Missing the required parameter $calendarUid when calling getCalendar'
+                'Missing the required parameter $calendarUid when calling getDavCalendar'
             );
         }
 
@@ -2199,6 +2276,15 @@ class DavApi
             }
         }
 
+        // this endpoint requires Bearer token
+        if ($this->config->getAccessToken() !== null) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+        // this endpoint requires API key authentication
+        $apiKey = $this->config->getApiKeyWithPrefix('X-Auth-Username');
+        if ($apiKey !== null) {
+            $headers['X-Auth-Username'] = $apiKey;
+        }
         // this endpoint requires HTTP basic authentication
         if ($this->config->getUsername() !== null || $this->config->getPassword() !== null) {
             $headers['Authorization'] = 'Basic ' . base64_encode($this->config->getUsername() . ":" . $this->config->getPassword());
@@ -2229,7 +2315,7 @@ class DavApi
     }
 
     /**
-     * Operation getCalendars
+     * Operation getDavCalendars
      *
      * List all calendars
      *
@@ -2238,14 +2324,14 @@ class DavApi
      * @throws \InvalidArgumentException
      * @return \WT\Client\Calendar\Model\DavCalendar[]
      */
-    public function getCalendars()
+    public function getDavCalendars()
     {
-        list($response) = $this->getCalendarsWithHttpInfo();
+        list($response) = $this->getDavCalendarsWithHttpInfo();
         return $response;
     }
 
     /**
-     * Operation getCalendarsWithHttpInfo
+     * Operation getDavCalendarsWithHttpInfo
      *
      * List all calendars
      *
@@ -2254,10 +2340,10 @@ class DavApi
      * @throws \InvalidArgumentException
      * @return array of \WT\Client\Calendar\Model\DavCalendar[], HTTP status code, HTTP response headers (array of strings)
      */
-    public function getCalendarsWithHttpInfo()
+    public function getDavCalendarsWithHttpInfo()
     {
         $returnType = '\WT\Client\Calendar\Model\DavCalendar[]';
-        $request = $this->getCalendarsRequest();
+        $request = $this->getDavCalendarsRequest();
 
         try {
             $options = $this->createHttpClientOption();
@@ -2319,7 +2405,7 @@ class DavApi
     }
 
     /**
-     * Operation getCalendarsAsync
+     * Operation getDavCalendarsAsync
      *
      * List all calendars
      *
@@ -2327,9 +2413,9 @@ class DavApi
      * @throws \InvalidArgumentException
      * @return \GuzzleHttp\Promise\PromiseInterface
      */
-    public function getCalendarsAsync()
+    public function getDavCalendarsAsync()
     {
-        return $this->getCalendarsAsyncWithHttpInfo()
+        return $this->getDavCalendarsAsyncWithHttpInfo()
             ->then(
                 function ($response) {
                     return $response[0];
@@ -2338,7 +2424,7 @@ class DavApi
     }
 
     /**
-     * Operation getCalendarsAsyncWithHttpInfo
+     * Operation getDavCalendarsAsyncWithHttpInfo
      *
      * List all calendars
      *
@@ -2346,10 +2432,10 @@ class DavApi
      * @throws \InvalidArgumentException
      * @return \GuzzleHttp\Promise\PromiseInterface
      */
-    public function getCalendarsAsyncWithHttpInfo()
+    public function getDavCalendarsAsyncWithHttpInfo()
     {
         $returnType = '\WT\Client\Calendar\Model\DavCalendar[]';
-        $request = $this->getCalendarsRequest();
+        $request = $this->getDavCalendarsRequest();
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -2389,13 +2475,13 @@ class DavApi
     }
 
     /**
-     * Create request for operation 'getCalendars'
+     * Create request for operation 'getDavCalendars'
      *
      *
      * @throws \InvalidArgumentException
      * @return \GuzzleHttp\Psr7\Request
      */
-    protected function getCalendarsRequest()
+    protected function getDavCalendarsRequest()
     {
 
         $resourcePath = '/caldav/calendars';
@@ -2450,6 +2536,15 @@ class DavApi
             }
         }
 
+        // this endpoint requires Bearer token
+        if ($this->config->getAccessToken() !== null) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+        // this endpoint requires API key authentication
+        $apiKey = $this->config->getApiKeyWithPrefix('X-Auth-Username');
+        if ($apiKey !== null) {
+            $headers['X-Auth-Username'] = $apiKey;
+        }
         // this endpoint requires HTTP basic authentication
         if ($this->config->getUsername() !== null || $this->config->getPassword() !== null) {
             $headers['Authorization'] = 'Basic ' . base64_encode($this->config->getUsername() . ":" . $this->config->getPassword());
@@ -2480,7 +2575,7 @@ class DavApi
     }
 
     /**
-     * Operation updateCalObject
+     * Operation updateDavCalObject
      *
      * Updates a calendar object
      *
@@ -2492,13 +2587,13 @@ class DavApi
      * @throws \InvalidArgumentException
      * @return void
      */
-    public function updateCalObject($body, $calendarUid, $href)
+    public function updateDavCalObject($body, $calendarUid, $href)
     {
-        $this->updateCalObjectWithHttpInfo($body, $calendarUid, $href);
+        $this->updateDavCalObjectWithHttpInfo($body, $calendarUid, $href);
     }
 
     /**
-     * Operation updateCalObjectWithHttpInfo
+     * Operation updateDavCalObjectWithHttpInfo
      *
      * Updates a calendar object
      *
@@ -2510,10 +2605,10 @@ class DavApi
      * @throws \InvalidArgumentException
      * @return array of null, HTTP status code, HTTP response headers (array of strings)
      */
-    public function updateCalObjectWithHttpInfo($body, $calendarUid, $href)
+    public function updateDavCalObjectWithHttpInfo($body, $calendarUid, $href)
     {
         $returnType = '';
-        $request = $this->updateCalObjectRequest($body, $calendarUid, $href);
+        $request = $this->updateDavCalObjectRequest($body, $calendarUid, $href);
 
         try {
             $options = $this->createHttpClientOption();
@@ -2553,7 +2648,7 @@ class DavApi
     }
 
     /**
-     * Operation updateCalObjectAsync
+     * Operation updateDavCalObjectAsync
      *
      * Updates a calendar object
      *
@@ -2564,9 +2659,9 @@ class DavApi
      * @throws \InvalidArgumentException
      * @return \GuzzleHttp\Promise\PromiseInterface
      */
-    public function updateCalObjectAsync($body, $calendarUid, $href)
+    public function updateDavCalObjectAsync($body, $calendarUid, $href)
     {
-        return $this->updateCalObjectAsyncWithHttpInfo($body, $calendarUid, $href)
+        return $this->updateDavCalObjectAsyncWithHttpInfo($body, $calendarUid, $href)
             ->then(
                 function ($response) {
                     return $response[0];
@@ -2575,7 +2670,7 @@ class DavApi
     }
 
     /**
-     * Operation updateCalObjectAsyncWithHttpInfo
+     * Operation updateDavCalObjectAsyncWithHttpInfo
      *
      * Updates a calendar object
      *
@@ -2586,10 +2681,10 @@ class DavApi
      * @throws \InvalidArgumentException
      * @return \GuzzleHttp\Promise\PromiseInterface
      */
-    public function updateCalObjectAsyncWithHttpInfo($body, $calendarUid, $href)
+    public function updateDavCalObjectAsyncWithHttpInfo($body, $calendarUid, $href)
     {
         $returnType = '';
-        $request = $this->updateCalObjectRequest($body, $calendarUid, $href);
+        $request = $this->updateDavCalObjectRequest($body, $calendarUid, $href);
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -2615,7 +2710,7 @@ class DavApi
     }
 
     /**
-     * Create request for operation 'updateCalObject'
+     * Create request for operation 'updateDavCalObject'
      *
      * @param  string $body (required)
      * @param  string $calendarUid Calendar UID (required)
@@ -2624,24 +2719,24 @@ class DavApi
      * @throws \InvalidArgumentException
      * @return \GuzzleHttp\Psr7\Request
      */
-    protected function updateCalObjectRequest($body, $calendarUid, $href)
+    protected function updateDavCalObjectRequest($body, $calendarUid, $href)
     {
         // verify the required parameter 'body' is set
         if ($body === null || (is_array($body) && count($body) === 0)) {
             throw new \InvalidArgumentException(
-                'Missing the required parameter $body when calling updateCalObject'
+                'Missing the required parameter $body when calling updateDavCalObject'
             );
         }
         // verify the required parameter 'calendarUid' is set
         if ($calendarUid === null || (is_array($calendarUid) && count($calendarUid) === 0)) {
             throw new \InvalidArgumentException(
-                'Missing the required parameter $calendarUid when calling updateCalObject'
+                'Missing the required parameter $calendarUid when calling updateDavCalObject'
             );
         }
         // verify the required parameter 'href' is set
         if ($href === null || (is_array($href) && count($href) === 0)) {
             throw new \InvalidArgumentException(
-                'Missing the required parameter $href when calling updateCalObject'
+                'Missing the required parameter $href when calling updateDavCalObject'
             );
         }
 
@@ -2716,6 +2811,15 @@ class DavApi
             }
         }
 
+        // this endpoint requires Bearer token
+        if ($this->config->getAccessToken() !== null) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+        // this endpoint requires API key authentication
+        $apiKey = $this->config->getApiKeyWithPrefix('X-Auth-Username');
+        if ($apiKey !== null) {
+            $headers['X-Auth-Username'] = $apiKey;
+        }
         // this endpoint requires HTTP basic authentication
         if ($this->config->getUsername() !== null || $this->config->getPassword() !== null) {
             $headers['Authorization'] = 'Basic ' . base64_encode($this->config->getUsername() . ":" . $this->config->getPassword());
@@ -2746,7 +2850,7 @@ class DavApi
     }
 
     /**
-     * Operation updateCalendar
+     * Operation updateDavCalendar
      *
      * Updates a calendar
      *
@@ -2757,13 +2861,13 @@ class DavApi
      * @throws \InvalidArgumentException
      * @return void
      */
-    public function updateCalendar($body, $calendarUid)
+    public function updateDavCalendar($body, $calendarUid)
     {
-        $this->updateCalendarWithHttpInfo($body, $calendarUid);
+        $this->updateDavCalendarWithHttpInfo($body, $calendarUid);
     }
 
     /**
-     * Operation updateCalendarWithHttpInfo
+     * Operation updateDavCalendarWithHttpInfo
      *
      * Updates a calendar
      *
@@ -2774,10 +2878,10 @@ class DavApi
      * @throws \InvalidArgumentException
      * @return array of null, HTTP status code, HTTP response headers (array of strings)
      */
-    public function updateCalendarWithHttpInfo($body, $calendarUid)
+    public function updateDavCalendarWithHttpInfo($body, $calendarUid)
     {
         $returnType = '';
-        $request = $this->updateCalendarRequest($body, $calendarUid);
+        $request = $this->updateDavCalendarRequest($body, $calendarUid);
 
         try {
             $options = $this->createHttpClientOption();
@@ -2817,7 +2921,7 @@ class DavApi
     }
 
     /**
-     * Operation updateCalendarAsync
+     * Operation updateDavCalendarAsync
      *
      * Updates a calendar
      *
@@ -2827,9 +2931,9 @@ class DavApi
      * @throws \InvalidArgumentException
      * @return \GuzzleHttp\Promise\PromiseInterface
      */
-    public function updateCalendarAsync($body, $calendarUid)
+    public function updateDavCalendarAsync($body, $calendarUid)
     {
-        return $this->updateCalendarAsyncWithHttpInfo($body, $calendarUid)
+        return $this->updateDavCalendarAsyncWithHttpInfo($body, $calendarUid)
             ->then(
                 function ($response) {
                     return $response[0];
@@ -2838,7 +2942,7 @@ class DavApi
     }
 
     /**
-     * Operation updateCalendarAsyncWithHttpInfo
+     * Operation updateDavCalendarAsyncWithHttpInfo
      *
      * Updates a calendar
      *
@@ -2848,10 +2952,10 @@ class DavApi
      * @throws \InvalidArgumentException
      * @return \GuzzleHttp\Promise\PromiseInterface
      */
-    public function updateCalendarAsyncWithHttpInfo($body, $calendarUid)
+    public function updateDavCalendarAsyncWithHttpInfo($body, $calendarUid)
     {
         $returnType = '';
-        $request = $this->updateCalendarRequest($body, $calendarUid);
+        $request = $this->updateDavCalendarRequest($body, $calendarUid);
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -2877,7 +2981,7 @@ class DavApi
     }
 
     /**
-     * Create request for operation 'updateCalendar'
+     * Create request for operation 'updateDavCalendar'
      *
      * @param  \WT\Client\Calendar\Model\DavCalendarUpdate $body (required)
      * @param  string $calendarUid Calendar UID (required)
@@ -2885,18 +2989,18 @@ class DavApi
      * @throws \InvalidArgumentException
      * @return \GuzzleHttp\Psr7\Request
      */
-    protected function updateCalendarRequest($body, $calendarUid)
+    protected function updateDavCalendarRequest($body, $calendarUid)
     {
         // verify the required parameter 'body' is set
         if ($body === null || (is_array($body) && count($body) === 0)) {
             throw new \InvalidArgumentException(
-                'Missing the required parameter $body when calling updateCalendar'
+                'Missing the required parameter $body when calling updateDavCalendar'
             );
         }
         // verify the required parameter 'calendarUid' is set
         if ($calendarUid === null || (is_array($calendarUid) && count($calendarUid) === 0)) {
             throw new \InvalidArgumentException(
-                'Missing the required parameter $calendarUid when calling updateCalendar'
+                'Missing the required parameter $calendarUid when calling updateDavCalendar'
             );
         }
 
@@ -2963,6 +3067,15 @@ class DavApi
             }
         }
 
+        // this endpoint requires Bearer token
+        if ($this->config->getAccessToken() !== null) {
+            $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
+        }
+        // this endpoint requires API key authentication
+        $apiKey = $this->config->getApiKeyWithPrefix('X-Auth-Username');
+        if ($apiKey !== null) {
+            $headers['X-Auth-Username'] = $apiKey;
+        }
         // this endpoint requires HTTP basic authentication
         if ($this->config->getUsername() !== null || $this->config->getPassword() !== null) {
             $headers['Authorization'] = 'Basic ' . base64_encode($this->config->getUsername() . ":" . $this->config->getPassword());
