@@ -17,7 +17,9 @@ use WT\DAV\Config;
 class Backend extends AbstractBackend implements SyncSupport {
 	
 	protected $bridge;
-	protected $cardsByUriCache;
+	protected $cacheAddressBooksByUid; // Dictionary cache: $cache[$uid] -> calendar item
+	protected $cacheCardsByHref; // Flat dictionary cache: $cache[$addressBookId."\0".$href] -> card. addressBookId is part of the key because hrefs are only unique within a calendar, not across all of a principal's addressbooks.
+	protected $cacheCardsFetchedKeys; // Tracks completed fetches: $cache[$addressBookId] -> hrefs returned by that fetch
 	
 	public function __construct(Bridge $bridge) {
 		$this->bridge = $bridge;
@@ -35,6 +37,72 @@ class Backend extends AbstractBackend implements SyncSupport {
 	
 	protected function getLogger() {
 		return LoggerFactory::getLogger(__CLASS__);
+	}
+	
+	protected function doGetDavAddressBooks() {
+		$logger = $this->getLogger();
+		
+		if (isset($this->cacheAddressBooksByUid)) {
+			$logger->debug('Returning {} items from cache', [count($this->cacheAddressBooksByUid)]);
+			return $this->cacheAddressBooksByUid;
+			
+		} else {
+			try {
+				$api = new \WT\Client\Contacts\Api\DavApi(null, $this->getContactsApiConfig());
+				$logger->debug('[REST] --> getDavAddressBooks()');
+				$items = $api->getAddressBooks();
+				$logger->debug('Returned {} items', [count($items)]);
+				$cacheByUid = [];
+				for ($i = 0; $i<count($items); $i++) {
+					$item = $items[$i];
+					if ($logger->isTraceEnabled()) $logger->trace('[REST] ... [{}]'.PHP_EOL.'{}', [$i, $item]);
+					$cacheByUid[$item->getUid()] = $item; // Cache RAW item for later!
+				}
+				$this->cacheAddressBooksByUid = $cacheByUid;
+				return $cacheByUid;
+				
+			} catch (\WT\Client\Contacts\ApiException $ex) {
+				$logger->error($ex);
+			}
+		}
+	}
+	
+	protected function doGetDavCards($addressbookId) {
+		$logger = $this->getLogger();
+		$fetchKey = $addressbookId;
+
+		if (isset($this->cacheCardsFetchedKeys) && array_key_exists($fetchKey, $this->cacheCardsFetchedKeys)) {
+			$hrefs = $this->cacheCardsFetchedKeys[$fetchKey];
+			$logger->debug('Returning {} items from cache', [count($hrefs)]);
+			$result = [];
+			foreach ($hrefs as $href) {
+				$result[$href] = $this->cacheCardsByHref[$addressbookId."\0".$href];
+			}
+			return $result;
+
+		} else {
+			try {
+				$api = new \WT\Client\Contacts\Api\DavApi(null, $this->getContactsApiConfig());
+				$logger->debug('[REST] --> getDavCards({}, null)', [$addressbookId]);
+				$items = $api->getCards($addressbookId);
+				$logger->debug('Returned {} items', [count($items)]);
+				$result = [];
+				$hrefs = [];
+				for ($i = 0; $i<count($items); $i++) {
+					$item = $items[$i];
+					if ($logger->isTraceEnabled()) $logger->trace('[REST] ... [{}]'.PHP_EOL.'{}', [$i, $item]);
+					$href = $item->getHref();
+					$this->cacheCardsByHref[$addressbookId."\0".$href] = $item; // Cache RAW item for later, shared across all since-buckets for this addressbook!
+					$hrefs[] = $href;
+					$result[$href] = $item;
+				}
+				$this->cacheCardsFetchedKeys[$fetchKey] = $hrefs;
+				return $result;
+
+			} catch (\WT\Client\Contacts\ApiException $ex) {
+				$logger->error($ex);
+			}
+		}
 	}
 	
 	/**
@@ -58,20 +126,12 @@ class Backend extends AbstractBackend implements SyncSupport {
 		$logger = $this->getLogger();
 		$logger->debug('{}({})', [__METHOD__, $principalUri]);
 		
-		try {
-			$api = new \WT\Client\Contacts\Api\DavApi(null, $this->getContactsApiConfig());
-			$items = $api->getAddressBooks();
-			$addressBooks = [];
-			$logger->debug('Returned {} items', [count($items)]);
-			for ($i = 0; $i<count($items); $i++) {
-				if ($logger->isDebugEnabled()) $logger->debug('[REST] ... [{}]'.PHP_EOL.'{}', [$i, $items[$i]]);
-				$addressBooks[] = $this->toSabreAddressBook($principalUri, $items[$i]);
-			}
-			return $addressBooks;
-
-		} catch (\WT\Client\Contacts\ApiException $ex) {
-			$logger->error($ex);
+		$items = $this->doGetDavAddressBooks();
+		$result = [];
+		foreach ($items as $item) {
+			$result[] = $this->toSabreAddressBook($principalUri, $item);
 		}
+		return $result;
 	}
 	
     /**
@@ -91,9 +151,12 @@ class Backend extends AbstractBackend implements SyncSupport {
 		
 		try {
 			$api = new \WT\Client\Contacts\Api\DavApi(null, $this->getContactsApiConfig());
-			$logger->debug('[REST] --> addAddressBook()');
+			$logger->debug('[REST] --> addDavAddressBook()');
 			$item = $api->addAddressBook($this->toApiAddressBookNew($properties));
-			if ($logger->isDebugEnabled()) $logger->debug('[REST] ...'.PHP_EOL.'{}', [$item]);
+			if ($logger->isTraceEnabled()) $logger->trace('[REST] ...'.PHP_EOL.'{}', [$item]);
+			
+			unset($this->cacheAddressBooksByUid);
+			
 			return $item->getUid();
 
 		} catch (\WT\Client\Contacts\ApiException $ex) {
@@ -123,8 +186,10 @@ class Backend extends AbstractBackend implements SyncSupport {
 		
 		try {
 			$api = new \WT\Client\Contacts\Api\DavApi(null, $this->getContactsApiConfig());
-			$logger->debug('[REST] --> updateAddressBook()');
+			$logger->debug('[REST] --> updateDavAddressBook()');
 			$api->updateAddressBook($this->toApiAddressBookUpdate($propPatch));
+			
+			unset($this->cacheAddressBooksByUid); // Cleanup cache
 
 		} catch (\WT\Client\Contacts\ApiException $ex) {
 			$logger->error($ex);
@@ -143,8 +208,10 @@ class Backend extends AbstractBackend implements SyncSupport {
 		
 		try {			
 			$api = new \WT\Client\Contacts\Api\DavApi(null, $this->getContactsApiConfig());
-			$logger->debug('[REST] --> deleteAddressBook({})', [$addressBookId]);
+			$logger->debug('[REST] --> deleteDavAddressBook({})', [$addressBookId]);
 			$api->deleteAddressBook($addressBookId);
+			
+			unset($this->cacheAddressBooksByUid); // Cleanup cache
 
 		} catch (\WT\Client\Contacts\ApiException $ex) {
 			$logger->error($ex);
@@ -174,24 +241,12 @@ class Backend extends AbstractBackend implements SyncSupport {
 		$logger = $this->getLogger();
 		$logger->debug('{}({})', [__METHOD__, $addressbookId]);
 		
-		try {
-			$api = new \WT\Client\Contacts\Api\DavApi(null, $this->getContactsApiConfig());
-			$logger->debug('[REST] --> getCards({})', [$addressbookId]);
-			$items = $api->getCards($addressbookId);
-			$cards = [];
-			$this->cardsByUriCache = [];
-			$logger->debug('Returned {} items', [count($items)]);
-			for ($i = 0; $i<count($items); $i++) {
-				if ($logger->isDebugEnabled()) $logger->debug('[REST] ... [{}]'.PHP_EOL.'{}', [$i, $items[$i]]);
-				$item = $items[$i];
-				$cards[] = $this->toSabreCard($item, false);
-				$this->cardsByUriCache[$item->getHref()] = $item;
-			}
-			return $cards;
-
-		} catch (\WT\Client\Contacts\ApiException $ex) {
-			$logger->error($ex);
+		$items = $this->doGetDavCards($addressbookId);
+		$result = [];
+		foreach ($items as $item) {
+			$result[] = $this->toSabreCard($item, false);
 		}
+		return $result;
 	}
 
 	/**
@@ -210,35 +265,37 @@ class Backend extends AbstractBackend implements SyncSupport {
 		$logger = $this->getLogger();
 		$logger->debug('{}({}, {})', [__METHOD__, $addressBookId, $cardUri]);
 		
-		try {
-			// First try to get card from cache
-			if (isset($this->cardsByUriCache)) {
-				$item = $this->cardsByUriCache[$cardUri];
-				if ($item != null) {
-					$logger->debug('Card item is in cache');
-					return $this->toSabreCard($item, true);
-				}
-			}
-			
-			// Otherwise get card from API call
-			$api = new \WT\Client\Contacts\Api\DavApi(null, $this->getContactsApiConfig());
-			$logger->debug('[REST] --> getCards({}, {})', [$addressBookId, $cardUri]);
-			$items = $api->getCards($addressBookId, [$cardUri]);
-			if ($logger->isDebugEnabled()) {
-				$logger->debug('Returned {} items', [count($items)]);
-				for ($i = 0; $i<count($items); $i++) {
-					$logger->debug('[REST] ... [{}]'.PHP_EOL.'{}', [$i, $items[$i]]);
-				}
-			}
-			
-			if (count($items) === 1) {
-				return $this->toSabreCard($items[0], true);
-			} else {
-				return false;
-			}
+		$hrefKey = $addressBookId."\0".$cardUri;
+		if (isset($this->cacheCardsByHref) && array_key_exists($hrefKey, $this->cacheCardsByHref)) {
+			$logger->debug('Returning object from cache [{}]', $cardUri);
+			return $this->toSabreCard($this->cacheCardsByHref[$hrefKey], true);
+		}
+		
+		$cacheByHref = $this->doGetDavCards($addressBookId);
+		if (isset($cacheByHref) && !is_null($cacheByHref) && array_key_exists($cardUri, $cacheByHref)) {
+			$logger->debug('Returning object from cache [{}]', $cardUri);
+			return $this->toSabreCard($cacheByHref[$cardUri], true);
 
-		} catch (\WT\Client\Contacts\ApiException $ex) {
-			$logger->error($ex);
+		} else {
+			try {
+				$api = new \WT\Client\Contacts\Api\DavApi(null, $this->getContactsApiConfig());
+				$logger->debug('[REST] --> getDavCards({}, {})', [$addressBookId, $cardUri]);
+				$items = $api->getCards($addressBookId, [$cardUri]);
+				$logger->debug('Returned {} items', [count($items)]);
+				if ($logger->isTraceEnabled()) {
+					for ($i = 0; $i<count($items); $i++) {
+						$logger->trace('[REST] ... [{}]'.PHP_EOL.'{}', [$i, $items[$i]]);
+					}
+				}
+				if (count($items) === 1) {
+					$this->cacheCardsByHref[$hrefKey] = $items[0];
+					return $this->toSabreCard($items[0], true);
+				} else {
+					return false;
+				}
+			} catch (\WT\Client\Contacts\ApiException $ex) {
+				$logger->error($ex);
+			}
 		}
 	}
 	
@@ -262,20 +319,22 @@ class Backend extends AbstractBackend implements SyncSupport {
 			return [];
 		}
 		$chunks = array_chunk($uris, 50);
-		$cards = [];
+		$result = [];
 		
 		try {
 			$api = new \WT\Client\Contacts\Api\DavApi(null, $this->getContactsApiConfig());
 			foreach ($chunks as $uris) {
-				$logger->debug('[REST] --> getCards({}, {})', [$addressBookId, '...']);
+				$logger->debug('[REST] --> getDavCards({}, {})', [$addressBookId, '(many)']);
 				$items = $api->getCards($addressBookId, $uris);
 				$logger->debug('Returned {} items', [count($items)]);
 				for ($i = 0; $i<count($items); $i++) {
-					if ($logger->isDebugEnabled()) $logger->debug('[REST] ... [{}]'.PHP_EOL.'{}', [$i, $items[$i]]);
-					$cards[] = $this->toSabreCard($items[$i], true);
+					$item = $items[$i];
+					if ($logger->isDebugEnabled()) $logger->debug('[REST] ... [{}]'.PHP_EOL.'{}', [$i, $item]);
+					$this->cacheCardsByHref[$addressBookId."\0".$item->getHref()] = $item; // Write-through: does not mark this addressbook as fully fetched
+					$result[] = $this->toSabreCard($item, true);
 				}
 			}
-			return $cards;
+			return $result;
 
 		} catch (\WT\Client\Contacts\ApiException $ex) {
 			$logger->error($ex);
@@ -313,9 +372,13 @@ class Backend extends AbstractBackend implements SyncSupport {
 		
 		try {
 			$api = new \WT\Client\Contacts\Api\DavApi(null, $this->getContactsApiConfig());
-			$logger->debug('[REST] --> addCard({})', [$addressBookId]);
+			$logger->debug('[REST] --> addDavCard({})', [$addressBookId]);
 			if ($logger->isTraceEnabled()) $logger->trace('[{}]'.PHP_EOL.'{}', [$cardUri, $cardData]);
 			$api->addCard($this->toApiCardNew($cardUri, $cardData), $addressBookId);
+			
+			unset($this->cacheCardsByHref); // Cleanup cache
+			unset($this->cacheCardsFetchedKeys); // Cleanup cache
+			
 			return null;
 
 		} catch (\WT\Client\Contacts\ApiException $ex) {
@@ -354,9 +417,13 @@ class Backend extends AbstractBackend implements SyncSupport {
 		
 		try {
 			$api = new \WT\Client\Contacts\Api\DavApi(null, $this->getContactsApiConfig());
-			$logger->debug('[REST] --> updateCard({}, {})', [$addressBookId, $cardUri]);
+			$logger->debug('[REST] --> updateDavCard({}, {})', [$addressBookId, $cardUri]);
 			if ($logger->isTraceEnabled()) $logger->trace('[{}]'.PHP_EOL.'{}', [$cardUri, $cardData]);
 			$api->updateCard($cardData, $addressBookId, $cardUri);
+			
+			unset($this->cacheCardsByHref); // Cleanup cache
+			unset($this->cacheCardsFetchedKeys); // Cleanup cache
+			
 			return null;
 
 		} catch (\WT\Client\Contacts\ApiException $ex) {
@@ -377,8 +444,12 @@ class Backend extends AbstractBackend implements SyncSupport {
 		
 		try {
 			$api = new \WT\Client\Contacts\Api\DavApi(null, $this->getContactsApiConfig());
-			$logger->debug('[REST] --> deleteCard({}, {})', [$addressBookId, $cardUri]);
+			$logger->debug('[REST] --> deleteDavCard({}, {})', [$addressBookId, $cardUri]);
 			$api->deleteCard($addressBookId, $cardUri);
+			
+			unset($this->cacheCardsByHref); // Cleanup cache
+			unset($this->cacheCardsFetchedKeys); // Cleanup cache
+			
 			return true;
 
 		} catch (\WT\Client\Contacts\ApiException $ex) {
@@ -451,7 +522,7 @@ class Backend extends AbstractBackend implements SyncSupport {
 			$api = new \WT\Client\Contacts\Api\DavApi(null, $this->getContactsApiConfig());
 			$logger->debug('[REST] --> getCardsChanges({}, {}, {})', [$addressBookId, $syncToken, $limit]);
 			$changes = $api->getCardsChanges($addressBookId, $syncToken, $limit);
-			if ($logger->isDebugEnabled()) $logger->debug('[REST] ...'.PHP_EOL.'{}', [json_encode($changes)]);
+			if ($logger->isTraceEnabled()) $logger->trace('[REST] ...'.PHP_EOL.'{}', [json_encode($changes)]);
 			return $this->toSabreChanges($changes->getSyncToken(), $changes->getInserted(), $changes->getUpdated(), $changes->getDeleted());
 
 		} catch (\WT\Client\Contacts\ApiException $ex) {
